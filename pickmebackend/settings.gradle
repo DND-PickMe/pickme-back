@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'pickmebackend'
+
+include 'module-common'
+include 'module-api'
+include 'module-web'
+
