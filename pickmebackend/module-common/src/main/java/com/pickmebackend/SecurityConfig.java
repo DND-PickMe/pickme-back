@@ -14,33 +14,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception    {
 
         http.authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/event")
+                    .antMatchers(HttpMethod.POST, "/event")
                     .permitAll()
                     .anyRequest()
                     .authenticated()
                 .and()
                     .csrf()
                     .disable();
-//        http.authorizeRequests()
-//                .antMatchers("/", "/oauth2/**", "/login/**",  "/css/**", "/images/**", "/js/**", "/console/**").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .headers().frameOptions().disable()
-//                .and()
-//                .exceptionHandling()
-//                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
-//                .and()
-//                .formLogin()
-//                .successForwardUrl("/board/list")
-//                .and()
-//                .logout()
-//                .logoutUrl("/logout")
-//                .logoutSuccessUrl("/")
-//                .deleteCookies("JSESSIONID")
-//                .invalidateHttpSession(true)
-//                .and()
-//                .addFilterBefore(filter, CsrfFilter.class)
-//                .csrf().disable();
     }
 
 }
