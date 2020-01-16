@@ -5,13 +5,16 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
-@Entity @Table
-@AllArgsConstructor @NoArgsConstructor @Builder
-public class Event {
+@NoArgsConstructor @AllArgsConstructor @Builder
+@Entity
+public class SelfInterview {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private String title;
 
     @Column
     private String content;
