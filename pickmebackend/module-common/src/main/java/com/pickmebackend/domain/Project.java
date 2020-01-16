@@ -31,4 +31,7 @@ public class Project {
 
     @Column
     private String projectLink;
+
+    @ManyToOne
+    private Account account;
 }

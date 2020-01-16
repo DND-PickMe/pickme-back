@@ -25,4 +25,7 @@ public class License {
 
     @Column
     private String description;
+
+    @ManyToOne
+    private Account account;
 }

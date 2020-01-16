@@ -18,4 +18,7 @@ public class SelfInterview {
 
     @Column
     private String content;
+
+    @ManyToOne
+    private Account author;
 }

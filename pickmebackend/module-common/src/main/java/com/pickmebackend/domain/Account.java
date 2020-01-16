@@ -3,6 +3,9 @@ package com.pickmebackend.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -21,4 +24,22 @@ public class Account {
 
     @Column
     private String nickName;
+
+    @Column
+    private List<String> technology = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account")
+    private Set<Experience> experiences;
+
+    @OneToMany(mappedBy = "account")
+    private Set<License> licenses;
+
+    @OneToMany(mappedBy = "account")
+    private Set<Prize> prizes;
+
+    @OneToMany(mappedBy = "account")
+    private Set<Project> projects;
+
+    @OneToMany(mappedBy = "author")
+    private Set<SelfInterview> selfInterviews;
 }
