@@ -10,3 +10,8 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties : true
+
+app-property:
+  test-email: user@email.com
+  test-password: password
+  test-nickname: DNDpickme

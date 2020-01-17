@@ -1,8 +1,10 @@
 package com.pickmebackend.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,14 +22,17 @@ public class Account {
     private String email;
 
     @Column
+    @JsonIgnore
     private String password;
 
     @Column
     private String nickName;
 
-    @Column
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> technology = new ArrayList<>();
 
+    @Column
+    private LocalDateTime createdAt;
     @OneToMany(mappedBy = "account")
     private Set<Experience> experiences;
 
