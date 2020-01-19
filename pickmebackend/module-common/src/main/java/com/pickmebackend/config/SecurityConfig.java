@@ -1,5 +1,8 @@
 package com.pickmebackend.config;
 
+import com.pickmebackend.domain.Account;
+import com.pickmebackend.repository.AccountRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
