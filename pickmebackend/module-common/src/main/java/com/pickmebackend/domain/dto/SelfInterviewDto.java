@@ -8,8 +8,6 @@ import javax.persistence.*;
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class SelfInterviewDto {
 
-    private Long id;
-
     private String title;
 
     private String content;
