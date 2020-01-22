@@ -3,7 +3,7 @@ package com.pickmebackend.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -21,7 +21,7 @@ public class License {
     private String institution;
 
     @Column
-    private Date issuedDate;
+    private LocalDate issuedDate;
 
     @Column
     private String description;
