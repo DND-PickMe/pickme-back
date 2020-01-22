@@ -2,8 +2,7 @@ package com.pickmebackend.domain.dto;
 
 import lombok.*;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -13,9 +12,9 @@ public class ExperienceDto {
 
     private String position;
 
-    private Date joinedAt;
+    private LocalDate joinedAt;
 
-    private Date retiredAt;
+    private LocalDate retiredAt;
 
     private String description;
 }
