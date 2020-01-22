@@ -3,7 +3,7 @@ package com.pickmebackend.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -21,10 +21,10 @@ public class Experience {
     private String position;
 
     @Column
-    private Date joinedAt;
+    private LocalDate joinedAt;
 
     @Column
-    private Date retiredAt;
+    private LocalDate retiredAt;
 
     @Column
     private String description;
