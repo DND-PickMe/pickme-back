@@ -2,7 +2,7 @@ package com.pickmebackend.domain.dto;
 
 import lombok.*;
 
-import javax.persistence.*;
+import java.time.LocalDate;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -12,7 +12,7 @@ public class PrizeDto {
 
     private String name;
 
-    private String issuedDate;
+    private LocalDate issuedDate;
 
     private String description;
 }
