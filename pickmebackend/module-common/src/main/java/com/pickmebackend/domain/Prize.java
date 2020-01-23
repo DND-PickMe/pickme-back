@@ -3,6 +3,7 @@ package com.pickmebackend.domain;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -20,7 +21,7 @@ public class Prize {
     private String name;
 
     @Column
-    private String issuedDate;
+    private LocalDate issuedDate;
 
     @Column
     private String description;
