@@ -2,8 +2,7 @@ package com.pickmebackend.domain.dto;
 
 import lombok.*;
 
-import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -15,9 +14,9 @@ public class ProjectDto {
 
     private String description;
 
-    private Date startedAt;
+    private LocalDate startedAt;
 
-    private Date endedAt;
+    private LocalDate endedAt;
 
     private String projectLink;
 }
