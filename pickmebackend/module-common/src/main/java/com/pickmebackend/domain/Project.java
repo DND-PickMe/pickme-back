@@ -3,7 +3,7 @@ package com.pickmebackend.domain;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -24,10 +24,10 @@ public class Project {
     private String description;
 
     @Column
-    private Date startedAt;
+    private LocalDate startedAt;
 
     @Column
-    private Date endedAt;
+    private LocalDate endedAt;
 
     @Column
     private String projectLink;
