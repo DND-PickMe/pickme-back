@@ -2,3 +2,6 @@ app-property:
   test-email: user@email.com
   test-password: password
   test-nickname: DNDpickme
+
+jwt-property:
+  secret: parkdonghyunshinmugoneyangkiseokchoigwangminhasangyeop
