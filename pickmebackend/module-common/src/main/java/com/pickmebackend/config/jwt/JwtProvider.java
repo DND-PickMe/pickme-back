@@ -1,11 +1,13 @@
 package com.pickmebackend.config.jwt;
 
 import com.pickmebackend.domain.dto.AccountDto;
-import com.pickmebackend.properties.JwtProperties;
+import com.pickmebackend.properties.AppProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.io.Serializable;
@@ -17,6 +19,7 @@ import java.util.function.Function;
  * Reference
  * https://dzone.com/articles/spring-boot-security-json-web-tokenjwt-hello-world
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtProvider implements Serializable {
@@ -25,9 +28,7 @@ public class JwtProvider implements Serializable {
 
     private static final long serialVersionUID = -2550185165626007488L;
 
-    private static final String secret = "yangki";
-
-//    private final JwtProperties jwtProperties;
+    private String secret;
 
     String getUsernameFromToken(String token)    {
         return getClaimFromToken(token, Claims::getSubject);
@@ -57,6 +58,7 @@ public class JwtProvider implements Serializable {
     }
 
     private String doGenerateToken(Map<String, Object> claims, String username) {
+        log.info(secret);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)

@@ -15,4 +15,6 @@ public class AppProperties {
     private String testPassword;
 
     private String testNickname;
+
+    private String jwtSecret;
 }

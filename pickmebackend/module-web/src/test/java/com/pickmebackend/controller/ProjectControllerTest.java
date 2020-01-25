@@ -1,9 +1,14 @@
 package com.pickmebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
+import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.error.ErrorMessageConstant;
+import com.pickmebackend.properties.AppProperties;
+import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,11 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -45,16 +52,29 @@ class ProjectControllerTest {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    JwtProvider jwtProvider;
+
+    @Autowired
+    AppProperties appProperties;
+
+    private String jwt;
+
     private final String projectUrl = "/api/projects/";
 
     @BeforeEach
     void setUp() {
         projectRepository.deleteAll();
+        accountRepository.deleteAll();
     }
 
     @Test
     @DisplayName("정상적으로 수상 내역 생성하기")
     void saveProject() throws Exception {
+        jwt = generateBearerToken();
         String name = "픽미 프로젝트";
         String description = "부산 IT 연합 동아리 D&D에 참가하여 개발";
         String role = "백엔드 개발";
@@ -73,6 +93,7 @@ class ProjectControllerTest {
 
         mockMvc.perform(post(projectUrl)
                                     .accept(MediaTypes.HAL_JSON_VALUE)
+                                    .header(HttpHeaders.AUTHORIZATION, jwt)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(projectDto)))
                 .andDo(print())
@@ -88,6 +109,7 @@ class ProjectControllerTest {
     @Test
     @DisplayName("프로젝트 정상적으로 수정하기")
     void updateProject() throws Exception {
+        jwt = generateBearerToken();
         Project project = createProject();
 
         String updateRole = "프론트 엔드 개발을 맡았었음.";
@@ -97,6 +119,7 @@ class ProjectControllerTest {
 
         mockMvc.perform(put(projectUrl + "{projectId}", project.getId())
                                     .accept(MediaTypes.HAL_JSON_VALUE)
+                                    .header(HttpHeaders.AUTHORIZATION, jwt)
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(projectDto)))
                 .andDo(print())
@@ -112,6 +135,7 @@ class ProjectControllerTest {
     @Test
     @DisplayName("데이터베이스에 저장되어 있지 않은 프로젝트의 수정을 요청")
     void updateProject_not_found() throws Exception {
+        jwt = generateBearerToken();
         Project project = createProject();
 
         String updateRole = "프론트 엔드 개발을 맡았었음.";
@@ -121,6 +145,7 @@ class ProjectControllerTest {
 
         mockMvc.perform(put(projectUrl + "{projectId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectDto)))
                 .andDo(print())
@@ -131,9 +156,11 @@ class ProjectControllerTest {
     @Test
     @DisplayName("정상적으로 프로젝트 삭제하기")
     void deleteProject() throws Exception {
+        jwt = generateBearerToken();
         Project project = createProject();
 
-        mockMvc.perform(delete(projectUrl + "{projectId}", project.getId()))
+        mockMvc.perform(delete(projectUrl + "{projectId}", project.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -141,9 +168,11 @@ class ProjectControllerTest {
     @Test
     @DisplayName("데이터베이스에 저장되어 있지 않은 프로젝트의 삭제를 요청")
     void deleteProject_not_found() throws Exception {
+        jwt = generateBearerToken();
         createProject();
 
-        mockMvc.perform(delete(projectUrl + "{projectId}", -1))
+        mockMvc.perform(delete(projectUrl + "{projectId}", -1)
+                .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(PROJECTNOTFOUND)));
@@ -177,5 +206,21 @@ class ProjectControllerTest {
         assertNotNull(newProject.getEndedAt());
 
         return newProject;
+    }
+
+    private String generateBearerToken() {
+        Account newAccount = createAccount();
+        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        return "Bearer " + jwtProvider.generateToken(newAccountDto);
+    }
+
+    private Account createAccount() {
+        Account account = Account.builder()
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .createdAt(LocalDateTime.now())
+                .build();
+        return accountRepository.save(account);
     }
 }

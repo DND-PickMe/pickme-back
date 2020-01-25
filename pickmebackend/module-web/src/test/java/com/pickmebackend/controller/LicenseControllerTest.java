@@ -1,9 +1,14 @@
 package com.pickmebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
+import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.LicenseDto;
 import com.pickmebackend.error.ErrorMessageConstant;
+import com.pickmebackend.properties.AppProperties;
+import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.LicenseRepository;
 import com.pickmebackend.repository.SelfInterviewRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,11 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -46,16 +53,30 @@ class LicenseControllerTest {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    AccountRepository accountRepository;
+
+    @Autowired
+    JwtProvider jwtProvider;
+
+    @Autowired
+    AppProperties appProperties;
+
+    private String jwt;
+
     private final String licenseUrl = "/api/licenses/";
 
     @BeforeEach
     void setUp() {
         licenseRepository.deleteAll();
+        accountRepository.deleteAll();
     }
 
     @Test
     @DisplayName("정상적으로 자격증을 생성")
     void saveLicense() throws Exception {
+        jwt = generateBearerToken();
+
         String name = "정보처리기사";
         String institution = "한국산업인력공단";
         String description = "2019년 8월 16일에 취득하였습니다.";
@@ -70,6 +91,7 @@ class LicenseControllerTest {
 
         mockMvc.perform(post(licenseUrl)
                         .accept(MediaTypes.HAL_JSON_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType( MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(licenseDto)))
                 .andDo(print())
@@ -84,6 +106,8 @@ class LicenseControllerTest {
     @Test
     @DisplayName("정상적으로 자격증 수정")
     void updateLicense() throws Exception {
+        jwt = generateBearerToken();
+
         License license = createLicense();
         String updateDescription = "생각해보니 2018년 1월 1일에 취득했습니다.";
         LocalDate updateIssuedDate = LocalDate.of(2018, 1, 1);
@@ -94,6 +118,7 @@ class LicenseControllerTest {
         LicenseDto licenseDto = modelMapper.map(license, LicenseDto.class);
         mockMvc.perform(put(licenseUrl + "{licenseId}", license.getId())
                         .accept(MediaTypes.HAL_JSON_VALUE)
+                        .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(licenseDto)))
                 .andDo(print())
@@ -108,6 +133,8 @@ class LicenseControllerTest {
     @Test
     @DisplayName("데이터베이스에 없는 자격증 수정 요청 시 Bad Request 반환")
     void updateLicense_not_found() throws Exception {
+        jwt = generateBearerToken();
+
         License license = createLicense();
         String updateDescription = "생각해보니 2018년 1월 1일에 취득했습니다.";
         LocalDate updateIssuedDate = LocalDate.of(2018, 1, 1);
@@ -118,6 +145,7 @@ class LicenseControllerTest {
         LicenseDto licenseDto = modelMapper.map(license, LicenseDto.class);
         mockMvc.perform(put(licenseUrl + "{licenseId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(licenseDto)))
                 .andDo(print())
@@ -128,9 +156,11 @@ class LicenseControllerTest {
     @Test
     @DisplayName("정상적으로 자격증 삭제")
     void deleteLicense() throws Exception {
+        jwt = generateBearerToken();
         License license = createLicense();
 
-        mockMvc.perform(delete(licenseUrl + "{licenseId}", license.getId()))
+        mockMvc.perform(delete(licenseUrl + "{licenseId}", license.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -138,9 +168,11 @@ class LicenseControllerTest {
     @Test
     @DisplayName("데이터베이스에 없는 자격증 수정 요청 시 Bad Request 반환")
     void deleteLicense_not_found() throws Exception {
+        jwt = generateBearerToken();
         createLicense();
 
-        mockMvc.perform(delete(licenseUrl + "{licenseId}", -1))
+        mockMvc.perform(delete(licenseUrl + "{licenseId}", -1)
+                .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(LICENSENOTFOUND)));
@@ -168,5 +200,21 @@ class LicenseControllerTest {
         assertNotNull(newLicense.getIssuedDate());
 
         return newLicense;
+    }
+
+    private String generateBearerToken() {
+        Account newAccount = createAccount();
+        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        return "Bearer " + jwtProvider.generateToken(newAccountDto);
+    }
+
+    private Account createAccount() {
+        Account account = Account.builder()
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .createdAt(LocalDateTime.now())
+                .build();
+        return accountRepository.save(account);
     }
 }
