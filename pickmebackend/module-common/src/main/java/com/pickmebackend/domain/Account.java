@@ -32,6 +32,10 @@ public class Account {
 
     @Column
     private LocalDateTime createdAt;
+
+    @Column
+    private String oneLineIntroduce;
+
     @OneToMany(mappedBy = "account")
     private Set<Experience> experiences;
 

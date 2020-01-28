@@ -21,6 +21,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
 import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 import static org.hamcrest.Matchers.is;
@@ -76,6 +79,8 @@ class AccountControllerTest {
                                             .email(appProperties.getTestEmail())
                                             .password(appProperties.getTestPassword())
                                             .nickName(appProperties.getTestNickname())
+                                            .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
+                                            .technology(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))
                                             .build();
 
         ResultActions actions = mockMvc.perform(post(accountURL)
@@ -88,7 +93,9 @@ class AccountControllerTest {
                 .andExpect(jsonPath("email").value(appProperties.getTestEmail()))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
-                .andExpect(jsonPath("createdAt").exists());
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
+                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))));
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
         Account account = objectMapper.readValue(contentAsString, Account.class);
@@ -185,9 +192,15 @@ class AccountControllerTest {
     void updateAccount() throws Exception {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
+        String updatedEmail = "update@email.com";
+        String updateNickname = "updateNick";
+        String oneLineIntroduce = "안녕하세요. 저는 백엔드 개발자를 지망하고 있습니다.";
+        List<String> technology = Arrays.asList("SpringBoot", "Java8", "MySQL");
 
-        newAccount.setEmail("update@email.com");
-        newAccount.setNickName("updateNick");
+        newAccount.setEmail(updatedEmail);
+        newAccount.setNickName(updateNickname);
+        newAccount.setOneLineIntroduce(oneLineIntroduce);
+        newAccount.setTechnology(technology);
 
         AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
 
@@ -199,10 +212,12 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
-                .andExpect(jsonPath("email").value("update@email.com"))
+                .andExpect(jsonPath("email").value(updatedEmail))
                 .andExpect(jsonPath("password").doesNotExist())
-                .andExpect(jsonPath("nickName").value("updateNick"))
-                .andExpect(jsonPath("createdAt").exists());
+                .andExpect(jsonPath("nickName").value(updateNickname))
+                .andExpect(jsonPath("technology", is(technology)))
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce));
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
