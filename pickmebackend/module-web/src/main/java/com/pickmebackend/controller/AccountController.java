@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 
 @RestController
 @RequestMapping(value = "/api/accounts", produces = MediaTypes.HAL_JSON_VALUE)
@@ -18,8 +20,11 @@ public class AccountController {
 
     @PostMapping
     ResponseEntity<?> saveAccount(@Valid @RequestBody AccountDto accountDto, Errors errors) {
-        if (errors.hasErrors() || accountService.isDuplicatedAccount(accountDto)) {
+        if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
+        }
+        if(accountService.isDuplicatedAccount(accountDto))  {
+            return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
         return accountService.saveAccount(accountDto);
     }

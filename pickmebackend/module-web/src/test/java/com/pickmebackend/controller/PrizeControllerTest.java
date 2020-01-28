@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
-import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.PrizeDto;
 import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.properties.AppProperties;
@@ -194,8 +193,7 @@ class PrizeControllerTest {
 
     private String generateBearerToken() {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        return "Bearer " + jwtProvider.generateToken(newAccountDto);
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
     private Account createAccount() {

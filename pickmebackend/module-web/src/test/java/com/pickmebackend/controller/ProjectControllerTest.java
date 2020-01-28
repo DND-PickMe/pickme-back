@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
-import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.ProjectDto;
-import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.ProjectRepository;
@@ -208,8 +206,7 @@ class ProjectControllerTest {
 
     private String generateBearerToken() {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        return "Bearer " + jwtProvider.generateToken(newAccountDto);
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
     private Account createAccount() {

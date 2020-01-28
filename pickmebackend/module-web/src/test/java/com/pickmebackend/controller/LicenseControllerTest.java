@@ -4,13 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
-import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.LicenseDto;
-import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.LicenseRepository;
-import com.pickmebackend.repository.SelfInterviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,9 +23,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+import static com.pickmebackend.error.ErrorMessageConstant.LICENSENOTFOUND;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -202,8 +199,7 @@ class LicenseControllerTest {
 
     private String generateBearerToken() {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        return "Bearer " + jwtProvider.generateToken(newAccountDto);
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
     private Account createAccount() {
