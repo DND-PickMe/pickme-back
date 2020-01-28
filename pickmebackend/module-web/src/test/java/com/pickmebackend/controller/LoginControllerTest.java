@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -65,7 +64,7 @@ class LoginControllerTest {
     }
 
     @Test
-    @Description("잘못된 이메일 입력시 400")
+    @Description("잘못된 이메일 입력시 401")
     void loginFailByEmail() throws Exception {
         AccountDto accountDto = this.createAccountDto();
         accountDto.setEmail("kiseok@email.com");
@@ -75,7 +74,7 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isUnauthorized())
         ;
     }
 
