@@ -1,6 +1,5 @@
 package com.pickmebackend.controller;
 
-import com.pickmebackend.domain.dto.PrizeDto;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.service.ProjectService;
 import lombok.RequiredArgsConstructor;

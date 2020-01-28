@@ -23,10 +23,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

@@ -2,22 +2,22 @@ package com.pickmebackend.properties;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static com.pickmebackend.properties.JwtConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-class AppPropertiesTest {
-
-    @Autowired
-    AppProperties appProperties;
+class JwtConstantsTest {
 
     @Test
     void propertyTest() {
-        assertEquals(appProperties.getTestEmail(), "user@email.com");
-        assertEquals(appProperties.getTestNickname(), "DNDpickme");
-        assertEquals(appProperties.getTestPassword(), "password");
+        assertEquals(SECRET, "parkdonghyunshinmugoneyangkiseokchoigwangminhasangyeop");
+        assertEquals(HEADER, "Authorization");
+        assertEquals(TOKEN_VALIDITY, 5 * 60 * 60);
+        assertEquals(TOKEN_PREFIX, "Bearer ");
+        assertEquals(SERIAL_VERSION_UID, -2550185165626007488L);
     }
+
 }

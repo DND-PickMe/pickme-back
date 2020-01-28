@@ -15,6 +15,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import static com.pickmebackend.properties.JwtConstants.HEADER;
+import static com.pickmebackend.properties.JwtConstants.TOKEN_PREFIX;
+
 /**
  * Reference
  * https://dzone.com/articles/spring-boot-security-json-web-tokenjwt-hello-world
@@ -30,11 +33,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        final String requestTokenHeader = request.getHeader("Authorization");
+        final String requestTokenHeader = request.getHeader(HEADER);
         String username = null;
         String jwt = null;
 
-        if(requestTokenHeader != null && requestTokenHeader.startsWith("Bearer "))  {
+        if(requestTokenHeader != null && requestTokenHeader.startsWith(TOKEN_PREFIX))  {
             jwt = requestTokenHeader.substring(7);
 
             try {

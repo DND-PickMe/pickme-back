@@ -1,13 +1,12 @@
 package com.pickmebackend.config.jwt;
 
 import com.pickmebackend.domain.dto.AccountDto;
-import com.pickmebackend.properties.AppProperties;
+import static com.pickmebackend.properties.JwtConstants.SECRET;
+import static com.pickmebackend.properties.JwtConstants.TOKEN_VALIDITY;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.io.Serializable;
@@ -19,16 +18,9 @@ import java.util.function.Function;
  * Reference
  * https://dzone.com/articles/spring-boot-security-json-web-tokenjwt-hello-world
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtProvider implements Serializable {
-
-    private static final long TOKEN_VALIDITY =  5 * 60 * 60;
-
-    private static final long serialVersionUID = -2550185165626007488L;
-
-    private String secret;
 
     String getUsernameFromToken(String token)    {
         return getClaimFromToken(token, Claims::getSubject);
@@ -44,7 +36,7 @@ public class JwtProvider implements Serializable {
     }
 
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
     }
 
     private Boolean isTokenExpired(String token)    {
@@ -58,13 +50,12 @@ public class JwtProvider implements Serializable {
     }
 
     private String doGenerateToken(Map<String, Object> claims, String username) {
-        log.info(secret);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY * 1000))
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
 

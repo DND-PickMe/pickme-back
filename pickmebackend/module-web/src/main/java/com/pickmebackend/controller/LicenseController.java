@@ -1,7 +1,6 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.domain.dto.LicenseDto;
-import com.pickmebackend.domain.dto.SelfInterviewDto;
 import com.pickmebackend.service.LicenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;

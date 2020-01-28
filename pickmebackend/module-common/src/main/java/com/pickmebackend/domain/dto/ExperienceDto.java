@@ -1,7 +1,6 @@
 package com.pickmebackend.domain.dto;
 
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Getter @Setter
