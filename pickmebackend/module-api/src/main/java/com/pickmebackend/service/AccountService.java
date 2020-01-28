@@ -3,29 +3,30 @@ package com.pickmebackend.service;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
-
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
 @RequiredArgsConstructor
-public class AccountService {
+public class AccountService{
 
     private final AccountRepository accountRepository;
 
     private final ModelMapper modelMapper;
 
+    private final PasswordEncoder passwordEncoder;
+
     public ResponseEntity<?> saveAccount(AccountDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
+        account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         account.setCreatedAt(LocalDateTime.now());
         return new ResponseEntity<>(accountRepository.save(account), HttpStatus.CREATED);
     }
@@ -47,5 +48,9 @@ public class AccountService {
         }
         accountRepository.delete(accountOptional.get());
         return ResponseEntity.ok().build();
+    }
+
+    public boolean isDuplicatedAccount(AccountDto accountDto) {
+        return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
     }
 }

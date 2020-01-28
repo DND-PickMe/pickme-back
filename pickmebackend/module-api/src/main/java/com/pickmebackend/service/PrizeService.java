@@ -1,21 +1,16 @@
 package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Prize;
-import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.PrizeDto;
-import com.pickmebackend.domain.dto.SelfInterviewDto;
 import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.repository.PrizeRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
-
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
 
 @Service
 @RequiredArgsConstructor

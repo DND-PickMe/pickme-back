@@ -3,17 +3,14 @@ package com.pickmebackend.service;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
-
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
 
 @Service
 @RequiredArgsConstructor
