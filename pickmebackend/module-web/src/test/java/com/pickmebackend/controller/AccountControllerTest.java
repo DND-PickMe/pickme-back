@@ -322,6 +322,35 @@ class AccountControllerTest {
                 .andExpect(jsonPath("message", is(USERNOTFOUND)));
     }
 
+    @Test
+    @DisplayName("정상적으로 유저 조회")
+    void getAccount() throws Exception {
+        Account newAccount = createAccount();
+        jwt = jwtProvider.generateToken(newAccount);
+
+        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+                                    .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())));
+    }
+
+    @Test
+    @DisplayName("데이터베이스에 저장되어 있지 않은 유저 조회 요청 시 Bad Request 반환")
+    void getAccount_not_found() throws Exception {
+        Account newAccount = createAccount();
+        jwt = jwtProvider.generateToken(newAccount);
+
+        mockMvc.perform(get(accountURL + "{accountId}", -1)
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(USERNOTFOUND)));
+    }
+
     private Account createAccount() {
         Account account = Account.builder()
                 .email(appProperties.getTestEmail())

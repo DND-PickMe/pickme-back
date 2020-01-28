@@ -50,6 +50,14 @@ public class AccountService{
         return ResponseEntity.ok().build();
     }
 
+    public ResponseEntity<?> getAccount(Long accountId) {
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok().body(accountOptional.get());
+    }
+
     public boolean isDuplicatedAccount(AccountDto accountDto) {
         return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
     }

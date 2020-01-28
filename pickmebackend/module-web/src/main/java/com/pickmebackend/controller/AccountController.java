@@ -41,4 +41,10 @@ public class AccountController {
     ResponseEntity<?> deleteAccount(@PathVariable Long accountId) {
         return accountService.deleteAccount(accountId);
     }
+
+    @GetMapping("/{accountId}")
+    ResponseEntity<?> getAccount(@PathVariable Long accountId) {
+        return accountService.getAccount(accountId);
+    }
+
 }
