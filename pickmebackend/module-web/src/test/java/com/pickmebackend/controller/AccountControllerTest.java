@@ -21,6 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
+import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -118,7 +119,9 @@ class AccountControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(DUPLICATEDUSER)))
+        ;
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -181,8 +184,7 @@ class AccountControllerTest {
     @DisplayName("정상적으로 유저를 수정")
     void updateAccount() throws Exception {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        jwt = jwtProvider.generateToken(newAccountDto);
+        jwt = jwtProvider.generateToken(newAccount);
 
         newAccount.setEmail("update@email.com");
         newAccount.setNickName("updateNick");
@@ -208,8 +210,7 @@ class AccountControllerTest {
     @CsvSource({"'', 'password', '디엔디'", "'user@email.com', '', '디엔디'", "'user@email.com', 'password', ''"})
     void updateAccount_empty_input(String email, String password, String nickName) throws Exception {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        jwt = jwtProvider.generateToken(newAccountDto);
+        jwt = jwtProvider.generateToken(newAccount);
 
         newAccount.setEmail(email);
         newAccount.setPassword(password);
@@ -234,8 +235,7 @@ class AccountControllerTest {
     @DisplayName("유저 수정 시 email, password, nickname 중 하나라도 null이 들어올 경우 Bad Request 반환")
     void updateAccount_null_input(RepetitionInfo info) throws Exception {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        jwt = jwtProvider.generateToken(newAccountDto);
+        jwt = jwtProvider.generateToken(newAccount);
 
         int currentRepetition = info.getCurrentRepetition();
         if (currentRepetition == 1) {
@@ -265,8 +265,7 @@ class AccountControllerTest {
     @DisplayName("데이터베이스에 저장되어 있지 않은 유저 수정 요청 시 Bad Request 반환")
     void updateAccount_not_fount_user() throws Exception {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        jwt = jwtProvider.generateToken(newAccountDto);
+        jwt = jwtProvider.generateToken(newAccount);
 
         newAccount.setEmail("update@email.com");
         newAccount.setNickName("updateNick");
@@ -287,8 +286,7 @@ class AccountControllerTest {
     @DisplayName("정상적으로 유저를 삭제")
     void deleteAccount() throws Exception {
         Account newAccount = createAccount();
-        AccountDto deleteAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        jwt = jwtProvider.generateToken(deleteAccountDto);
+        jwt = jwtProvider.generateToken(newAccount);
 
         mockMvc.perform(delete(accountURL + "{accountId}", newAccount.getId())
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
@@ -300,8 +298,7 @@ class AccountControllerTest {
     @DisplayName("데이터베이스에 저장되어 있지 않은 유저 삭제 요청 시 Bad Request 반환")
     void deleteAccount_not_found_user() throws Exception {
         Account newAccount = createAccount();
-        AccountDto deleteAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        jwt = jwtProvider.generateToken(deleteAccountDto);
+        jwt = jwtProvider.generateToken(newAccount);
 
         mockMvc.perform(delete(accountURL + "{accountId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))

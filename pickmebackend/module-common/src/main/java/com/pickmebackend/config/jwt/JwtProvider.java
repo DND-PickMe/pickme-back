@@ -1,5 +1,6 @@
 package com.pickmebackend.config.jwt;
 
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
 import static com.pickmebackend.properties.JwtConstants.SECRET;
 import static com.pickmebackend.properties.JwtConstants.TOKEN_VALIDITY;
@@ -44,9 +45,11 @@ public class JwtProvider implements Serializable {
         return expiration.before(new Date());
     }
 
-    public String generateToken(AccountDto accountDto)    {
+    public String generateToken(Account account)    {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, accountDto.getEmail());
+        claims.put("id", account.getId());
+        claims.put("email", account.getEmail());
+        return doGenerateToken(claims, account.getEmail());
     }
 
     private String doGenerateToken(Map<String, Object> claims, String username) {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
-import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.SelfInterviewDto;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
@@ -184,8 +183,7 @@ class SelfInterviewControllerTest {
 
     private String generateBearerToken() {
         Account newAccount = createAccount();
-        AccountDto newAccountDto = modelMapper.map(newAccount, AccountDto.class);
-        return "Bearer " + jwtProvider.generateToken(newAccountDto);
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
     private Account createAccount() {

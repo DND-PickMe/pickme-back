@@ -17,7 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
+import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,8 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class LoginControllerTest {
 
-    private final String loginURL = "/api/login";
-
     @Autowired
     MockMvc mockMvc;
 
@@ -43,6 +42,8 @@ class LoginControllerTest {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    private final String loginURL = "/api/login";
 
     @BeforeEach
     void setUp() throws Exception {
@@ -75,7 +76,8 @@ class LoginControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(USERNOTFOUND)))
         ;
     }
 
@@ -83,7 +85,7 @@ class LoginControllerTest {
     @Description("잘못된 패스워드 입력시 400")
     void loginFailByPassword() throws Exception {
         AccountDto accountDto = this.createAccountDto();
-        accountDto.setPassword("kiseok");
+        accountDto.setPassword("kiseokyang");
 
         this.mockMvc.perform(post(loginURL)
                         .accept(MediaTypes.HAL_JSON)
@@ -91,6 +93,7 @@ class LoginControllerTest {
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(USERNOTFOUND)))
         ;
     }
 
