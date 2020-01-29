@@ -15,4 +15,12 @@ public class AppProperties {
     private String testPassword;
 
     private String testNickname;
+
+    private String testRegistrationNumber;
+
+    private String testName;
+
+    private String testAddress;
+
+    private String testCeoName;
 }

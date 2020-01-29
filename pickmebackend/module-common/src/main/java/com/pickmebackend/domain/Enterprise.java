@@ -1,7 +1,9 @@
 package com.pickmebackend.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -16,6 +18,7 @@ public class Enterprise {
     private String email;
 
     @Column
+    @JsonIgnore
     private String password;
 
     @Column
@@ -29,4 +32,7 @@ public class Enterprise {
 
     @Column
     private String ceoName;
+
+    @Column
+    private LocalDateTime createdAt;
 }
