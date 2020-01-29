@@ -15,3 +15,7 @@ app-property:
   test-email: user@email.com
   test-password: password
   test-nickname: DNDpickme
+  test-registration-number: 01-2345-6789
+  test-name: KSU
+  test-address: BUSAN
+  test-ceo-name: sangyeop
