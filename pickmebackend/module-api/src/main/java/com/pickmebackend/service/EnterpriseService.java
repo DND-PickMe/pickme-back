@@ -2,7 +2,6 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.EnterpriseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -12,8 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
 @RequiredArgsConstructor

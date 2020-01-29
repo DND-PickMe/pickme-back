@@ -7,7 +7,6 @@ import com.pickmebackend.domain.dto.EnterpriseDto;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.EnterpriseRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,13 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.stream.Stream;
 import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
@@ -62,24 +59,18 @@ class EnterpriseControllerTest {
 
     private String enterpriseURL = "/api/enterprises/";
 
-    private String jwt;
-
     @BeforeEach
     void setUp()    {
         enterpriseRepository.deleteAll();
     }
 
-    // TODO GET 요청 시 정상적으로 모든 기업 담당자 불러오기(Status : 200, Body : List<Enterprise> : 미정)
-
     @Test
     @DisplayName("정상적으로 한명의 기업담당자 불러오기")
     void load_enterprise() throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         this.mockMvc.perform(get(enterpriseURL + "{enterpriseId}", enterprise.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -90,11 +81,9 @@ class EnterpriseControllerTest {
     @DisplayName("저장되어 있지 않은 기업담당자 불러 오기")
     void load_non_enterprise() throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         this.mockMvc.perform(get(enterpriseURL + "{enterpriseId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -205,7 +194,6 @@ class EnterpriseControllerTest {
     @DisplayName("정상적으로 기업 담당자 수정")
     void update_enterprise() throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         enterprise.setEmail("newEmail@email.com");
         enterprise.setPassword("newPassword");
@@ -218,7 +206,6 @@ class EnterpriseControllerTest {
 
         this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", enterprise.getId())
                         .accept(MediaTypes.HAL_JSON_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(enterpriseDto)))
                 .andDo(print())
@@ -238,7 +225,6 @@ class EnterpriseControllerTest {
     @DisplayName("수정시 존재 하지 않는 기업 담당자 수정 할 경우 Bad Request 반환")
     void update_non_enterprise() throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
         EnterpriseDto enterpriseDto = modelMapper.map(enterprise, EnterpriseDto.class);
 
         enterpriseDto.setEmail("newEmail@email.com");
@@ -250,7 +236,6 @@ class EnterpriseControllerTest {
 
         this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", -1)
                         .accept(MediaTypes.HAL_JSON_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(enterpriseDto)))
                 .andDo(print())
@@ -264,7 +249,6 @@ class EnterpriseControllerTest {
     @MethodSource("streamForEmptyStringCheck")
     void check_update_empty_string_enterprise(String email, String password, String registrationNumber, String name, String address, String ceoName) throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         enterprise.setEmail(email);
         enterprise.setPassword(password);
@@ -277,7 +261,6 @@ class EnterpriseControllerTest {
 
         this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", enterprise.getId())
                         .accept(MediaTypes.HAL_JSON_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(enterpriseDto)))
                 .andDo(print())
@@ -294,7 +277,6 @@ class EnterpriseControllerTest {
     @MethodSource("streamForNullCheck")
     void check_update_null_enterprise(String email, String password, String registrationNumber, String name, String address, String ceoName) throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         enterprise.setEmail(email);
         enterprise.setPassword(password);
@@ -307,7 +289,6 @@ class EnterpriseControllerTest {
 
         this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", enterprise.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
-//                .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(enterpriseDto)))
                 .andDo(print())
@@ -323,10 +304,8 @@ class EnterpriseControllerTest {
     @DisplayName("정상적으로 기업 담당자 삭제")
     void delete_enterprise() throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         this.mockMvc.perform(delete(enterpriseURL + "{enterpriseId}", enterprise.getId()))
-//                        .header(HttpHeaders.AUTHORIZATION, jwt)
                 .andDo(print())
                 .andExpect(status().isOk())
         ;
@@ -336,10 +315,8 @@ class EnterpriseControllerTest {
     @DisplayName("데이터베이스에 저장되어 있지 않은 기업담당자 삭제 요청시 Bad Request 반환")
     void delete_non_enterprise() throws Exception {
         Enterprise enterprise = createEnterprise();
-//        jwt = jwtProvider.generateToken(enterprise);
 
         this.mockMvc.perform(delete(enterpriseURL + "{enterpriseId}", -1))
-//                        .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
