@@ -19,4 +19,12 @@ public class AppProperties {
     private String testAnotherEmail;
 
     private String testAnotherNickname;
+
+    private String testRegistrationNumber;
+
+    private String testName;
+
+    private String testAddress;
+
+    private String testCeoName;
 }

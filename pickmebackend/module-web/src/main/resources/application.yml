@@ -17,3 +17,7 @@ app-property:
   test-nickname: DNDpickme
   test-another-email: another@email.com
   test-another-nickname: springmaster
+  test-registration-number: 01-2345-6789
+  test-name: KSU
+  test-address: BUSAN
+  test-ceo-name: sangyeop
