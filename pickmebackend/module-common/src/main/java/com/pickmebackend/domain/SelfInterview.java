@@ -19,5 +19,13 @@ public class SelfInterview {
     private String content;
 
     @ManyToOne
-    private Account author;
+    private Account account;
+
+    public void mapAccount(Account account) {
+        if (this.account != null) {
+            this.account.getSelfInterviews().remove(this);
+        }
+        this.account = account;
+        this.account.getSelfInterviews().add(this);
+    }
 }

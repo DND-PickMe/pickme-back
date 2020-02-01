@@ -1,29 +1,22 @@
 package com.pickmebackend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.PrizeDto;
 import com.pickmebackend.error.ErrorMessageConstant;
-import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.PrizeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
+import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -32,33 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class PrizeControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+class PrizeControllerTest extends BaseControllerTest {
 
     @Autowired
     PrizeRepository prizeRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    JwtProvider jwtProvider;
-
-    @Autowired
-    AppProperties appProperties;
-
-    private String jwt;
 
     private final String prizeUrl = "/api/prizes/";
 
@@ -96,14 +66,16 @@ class PrizeControllerTest {
                 .andExpect(jsonPath("name").value(name))
                 .andExpect(jsonPath("description").value(description))
                 .andExpect(jsonPath("competition").value(competition))
-                .andExpect(jsonPath("issuedDate").value(issuedDate.toString()));
+                .andExpect(jsonPath("issuedDate").value(issuedDate.toString()))
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
     @DisplayName("정상적으로 수상 내역 수정하기")
     void updatePrize() throws Exception {
-        jwt = generateBearerToken();
-        Prize prize = createPrize();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Prize prize = createPrize(newAccount);
 
         String updateDescription = "사실 수상 경력은 거짓말입니다.";
         prize.setDescription(updateDescription);
@@ -120,14 +92,16 @@ class PrizeControllerTest {
                 .andExpect(jsonPath("name").isNotEmpty())
                 .andExpect(jsonPath("description").value(updateDescription))
                 .andExpect(jsonPath("competition").isNotEmpty())
-                .andExpect(jsonPath("issuedDate").isNotEmpty());
+                .andExpect(jsonPath("issuedDate").isNotEmpty())
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
     @DisplayName("데이터베이스 저장되어 있지 않은 수상 내역의 수정을 요청")
     void updatePrize_not_found() throws Exception {
-        jwt = generateBearerToken();
-        Prize prize = createPrize();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Prize prize = createPrize(newAccount);
 
         String updateDescription = "사실 수상 경력은 거짓말입니다.";
         prize.setDescription(updateDescription);
@@ -140,14 +114,37 @@ class PrizeControllerTest {
                 .content(objectMapper.writeValueAsString(prizeDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(ErrorMessageConstant.PRIZENOTFOUND)));
+                .andExpect(jsonPath("message", is(PRIZENOTFOUND)));
+    }
+
+    @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 수상 경력 수정을 요청할 때 Bad Request 반환")
+    void updatePrize_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Prize prize = createPrize(newAccount);
+
+        String updateDescription = "사실 수상 경력은 거짓말입니다.";
+        prize.setDescription(updateDescription);
+        PrizeDto prizeDto = modelMapper.map(prize, PrizeDto.class);
+
+        mockMvc.perform(put(prizeUrl + "{prizeId}", prize.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(prizeDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
     }
 
     @Test
     @DisplayName("정상적으로 수상 내역 삭제하기")
     void deletePrize() throws Exception {
-        jwt = generateBearerToken();
-        Prize prize = createPrize();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Prize prize = createPrize(newAccount);
 
         mockMvc.perform(delete(prizeUrl + "{prizeId}", prize.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
@@ -158,17 +155,33 @@ class PrizeControllerTest {
     @Test
     @DisplayName("데이터베이스 저장되어 있지 않은 수상 내역의 삭제를 요청")
     void deletePrize_not_found() throws Exception {
-        jwt = generateBearerToken();
-        createPrize();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        createPrize(newAccount);
 
-        mockMvc.perform(delete(prizeUrl + "{selfInterviewId}", -1)
+        mockMvc.perform(delete(prizeUrl + "{prizeId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(PRIZENOTFOUND));
     }
 
-    private Prize createPrize() {
+    @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 수상 경력 삭제를 요청할 때 Bad Request 반환")
+    void deletePrize_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Prize prize = createPrize(newAccount);
+
+        mockMvc.perform(delete(prizeUrl + "{prizeId}", prize.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    private Prize createPrize(Account account) {
         Prize prize = new Prize();
 
         String name = "ACM-ICPC 대상 수상";
@@ -180,14 +193,16 @@ class PrizeControllerTest {
         prize.setDescription(description);
         prize.setCompetition(competition);
         prize.setIssuedDate(issuedDate);
+        prize.setAccount(account);
 
         Prize newPrize = prizeRepository.save(prize);
-        
+
         assertNotNull(newPrize.getId());
         assertNotNull(newPrize.getCompetition());
         assertNotNull(newPrize.getDescription());
         assertNotNull(newPrize.getIssuedDate());
-        
+        assertNotNull(newPrize.getAccount());
+
         return newPrize;
     }
 
@@ -196,13 +211,7 @@ class PrizeControllerTest {
         return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
-    private Account createAccount() {
-        Account account = Account.builder()
-                .email(appProperties.getTestEmail())
-                .password(appProperties.getTestPassword())
-                .nickName(appProperties.getTestNickname())
-                .createdAt(LocalDateTime.now())
-                .build();
-        return accountRepository.save(account);
+    private String generateBearerToken_need_account(Account newAccount) {
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 }

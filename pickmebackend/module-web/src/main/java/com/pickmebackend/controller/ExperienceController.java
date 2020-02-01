@@ -1,5 +1,7 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.ExperienceDto;
 import com.pickmebackend.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +17,17 @@ public class ExperienceController {
     private final ExperienceService experienceService;
 
     @PostMapping
-    ResponseEntity<?> saveExperience(@RequestBody ExperienceDto experienceDto) {
-        return experienceService.saveExperience(experienceDto);
+    ResponseEntity<?> saveExperience(@RequestBody ExperienceDto experienceDto, @CurrentUser Account currentUser) {
+        return experienceService.saveExperience(experienceDto, currentUser);
     }
 
     @PutMapping(value = "/{experienceId}")
-    ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceDto experienceDto) {
-        return experienceService.updateExperience(experienceId, experienceDto);
+    ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceDto experienceDto, @CurrentUser Account currentUser) {
+        return experienceService.updateExperience(experienceId, experienceDto, currentUser);
     }
 
     @DeleteMapping(value = "/{experienceId}")
-    ResponseEntity<?> deleteExperience(@PathVariable Long experienceId) {
-        return experienceService.deleteExperience(experienceId);
+    ResponseEntity<?> deleteExperience(@PathVariable Long experienceId, @CurrentUser Account currentUser) {
+        return experienceService.deleteExperience(experienceId, currentUser);
     }
 }

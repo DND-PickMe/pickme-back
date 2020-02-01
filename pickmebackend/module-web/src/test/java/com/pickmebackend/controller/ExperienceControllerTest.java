@@ -1,62 +1,32 @@
 package com.pickmebackend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
 import com.pickmebackend.domain.dto.ExperienceDto;
-import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.ExperienceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
+
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
 import static com.pickmebackend.error.ErrorMessageConstant.EXPERIENCENOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class ExperienceControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+class ExperienceControllerTest extends BaseControllerTest {
 
     @Autowired
     ExperienceRepository experienceRepository;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
-    
-    @Autowired
-    JwtProvider jwtProvider;
-
-    @Autowired
-    AppProperties appProperties;
-
-    private String jwt;
 
     private final String experienceUrl = "/api/experiences/";
 
@@ -97,15 +67,17 @@ class ExperienceControllerTest {
                 .andExpect(jsonPath("description").value(description))
                 .andExpect(jsonPath("position").value(position))
                 .andExpect(jsonPath("joinedAt").value(joinedAt.toString()))
-                .andExpect(jsonPath("retiredAt").value(retiredAt.toString()));
+                .andExpect(jsonPath("retiredAt").value(retiredAt.toString()))
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
     @DisplayName("정상적으로 경력 수정하기")
     void updateExperience() throws Exception {
-        jwt = generateBearerToken();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Experience experience = createExperience(newAccount);
 
-        Experience experience = createExperience();
         String updateDescription = "사실 프론트엔드 개발자를 맡았었습니다.";
         String updatePosition = "프론트엔트 개발자";
 
@@ -125,15 +97,17 @@ class ExperienceControllerTest {
                 .andExpect(jsonPath("description").value(updateDescription))
                 .andExpect(jsonPath("position").value(updatePosition))
                 .andExpect(jsonPath("joinedAt").isNotEmpty())
-                .andExpect(jsonPath("retiredAt").isNotEmpty());
+                .andExpect(jsonPath("retiredAt").isNotEmpty())
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
     @DisplayName("데이터베이스 저장되어 있지 않은 경력의 수정을 요청")
     void updateExperience_not_found() throws Exception {
-        jwt = generateBearerToken();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Experience experience = createExperience(newAccount);
 
-        Experience experience = createExperience();
         String updateDescription = "사실 프론트엔드 개발자를 맡았었습니다.";
         String updatePosition = "프론트엔트 개발자";
 
@@ -152,10 +126,36 @@ class ExperienceControllerTest {
     }
 
     @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 경력 수정을 요청할 때 Bad Request 반환")
+    void updateExperience_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Experience experience = createExperience(newAccount);
+
+        String updateDescription = "사실 프론트엔드 개발자를 맡았었습니다.";
+        String updatePosition = "프론트엔트 개발자";
+
+        experience.setDescription(updateDescription);
+        experience.setPosition(updatePosition);
+
+        ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
+        mockMvc.perform(put(experienceUrl + "{selfInterviewId}", experience.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(experienceDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    @Test
     @DisplayName("정상적으로 경력 삭제하기")
     void deleteExperience() throws Exception {
-        jwt = generateBearerToken();
-        Experience experience = createExperience();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Experience experience = createExperience(newAccount);
 
         mockMvc.perform(delete(experienceUrl + "{selfInterviewId}", experience.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
@@ -166,8 +166,9 @@ class ExperienceControllerTest {
     @Test
     @DisplayName("데이터베이스 저장되어 있지 않은 경력의 삭제를 요청")
     void deleteExperience_not_found() throws Exception {
-        jwt = generateBearerToken();
-        createExperience();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        createExperience(newAccount);
 
         mockMvc.perform(delete(experienceUrl + "{selfInterviewId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
@@ -176,7 +177,22 @@ class ExperienceControllerTest {
                 .andExpect(jsonPath("message").value(EXPERIENCENOTFOUND));
     }
 
-    private Experience createExperience() {
+    @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 경력 삭제를 요청할 때 Bad Request 반환")
+    void deleteExperience_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Experience experience = createExperience(newAccount);
+
+        mockMvc.perform(delete(experienceUrl + "{selfInterviewId}", experience.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    private Experience createExperience(Account account) {
         String companyName = "D&D 주식회사";
         String description = "D&D 주식회사에서 Spring Boot를 사용해 백엔드 개발을 맡았습니다.";
         String position = "백엔드 개발자";
@@ -189,6 +205,7 @@ class ExperienceControllerTest {
                 .position(position)
                 .joinedAt(joinedAt)
                 .retiredAt(retiredAt)
+                .account(account)
                 .build();
 
         Experience newExperience = experienceRepository.save(experience);
@@ -199,6 +216,7 @@ class ExperienceControllerTest {
         assertNotNull(newExperience.getPosition());
         assertNotNull(newExperience.getJoinedAt());
         assertNotNull(newExperience.getRetiredAt());
+        assertNotNull(newExperience.getAccount());
 
         return newExperience;
     }
@@ -208,13 +226,7 @@ class ExperienceControllerTest {
         return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
-    private Account createAccount() {
-        Account account = Account.builder()
-                .email(appProperties.getTestEmail())
-                .password(appProperties.getTestPassword())
-                .nickName(appProperties.getTestNickname())
-                .createdAt(LocalDateTime.now())
-                .build();
-        return accountRepository.save(account);
+    private String generateBearerToken_need_account(Account newAccount) {
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 }

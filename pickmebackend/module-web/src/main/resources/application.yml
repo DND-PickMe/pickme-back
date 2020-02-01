@@ -15,3 +15,5 @@ app-property:
   test-email: user@email.com
   test-password: password
   test-nickname: DNDpickme
+  test-another-email: another@email.com
+  test-another-nickname: springmaster

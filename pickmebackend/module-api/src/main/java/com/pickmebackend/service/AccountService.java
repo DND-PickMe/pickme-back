@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -31,30 +33,45 @@ public class AccountService{
         return new ResponseEntity<>(accountRepository.save(account), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateAccount(Long accountId, AccountDto accountDto) {
+    public ResponseEntity<?> updateAccount(Long accountId, AccountDto accountDto, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
+
+        if (!accountId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
         Account account = accountOptional.get();
         modelMapper.map(accountDto, account);
         return new ResponseEntity<>(accountRepository.save(account), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> deleteAccount(Long accountId) {
+    public ResponseEntity<?> deleteAccount(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
+
+        if (!accountId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
         accountRepository.delete(accountOptional.get());
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<?> getAccount(Long accountId) {
+    public ResponseEntity<?> getAccount(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
+
+        if (!accountId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
         return ResponseEntity.ok().body(accountOptional.get());
     }
 

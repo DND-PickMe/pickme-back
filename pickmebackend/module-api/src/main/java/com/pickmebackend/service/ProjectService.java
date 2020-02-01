@@ -1,5 +1,6 @@
 package com.pickmebackend.service;
 
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.error.ErrorMessage;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 
 @Service
 @RequiredArgsConstructor
@@ -20,27 +22,39 @@ public class ProjectService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveProject(ProjectDto projectDto) {
+    public ResponseEntity<?> saveProject(ProjectDto projectDto, Account currentUser) {
         Project project = modelMapper.map(projectDto, Project.class);
+
+        project.mapAccount(currentUser);
         return new ResponseEntity<>(this.projectRepository.save(project), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateProject(Long projectId, ProjectDto projectDto) {
+    public ResponseEntity<?> updateProject(Long projectId, ProjectDto projectDto, Account currentUser) {
         Optional<Project> projectOptional = projectRepository.findById(projectId);
         if (!projectOptional.isPresent()) {
             return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
         }
+
         Project project = projectOptional.get();
+        if (!project.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
         modelMapper.map(projectDto, project);
         return new ResponseEntity<>(this.projectRepository.save(project), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> deleteProject(Long projectId) {
+    public ResponseEntity<?> deleteProject(Long projectId, Account currentUser) {
         Optional<Project> projectOptional = projectRepository.findById(projectId);
         if (!projectOptional.isPresent()) {
             return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
         }
+
         Project project = projectOptional.get();
+        if (!project.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
         this.projectRepository.delete(project);
         return ResponseEntity.ok().build();
     }

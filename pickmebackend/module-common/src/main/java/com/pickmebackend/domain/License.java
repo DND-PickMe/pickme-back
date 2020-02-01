@@ -27,4 +27,12 @@ public class License {
 
     @ManyToOne
     private Account account;
+
+    public void mapAccount(Account account) {
+        if (this.account != null) {
+            this.account.getLicenses().remove(this);
+        }
+        this.account = account;
+        this.account.getLicenses().add(this);
+    }
 }

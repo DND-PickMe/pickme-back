@@ -30,4 +30,12 @@ public class Experience {
 
     @ManyToOne
     private Account account;
+
+    public void mapAccount(Account account) {
+        if (this.account != null) {
+            this.account.getExperiences().remove(this);
+        }
+        this.account = account;
+        account.getExperiences().add(this);
+    }
 }

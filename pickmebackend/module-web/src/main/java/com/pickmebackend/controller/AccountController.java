@@ -1,5 +1,7 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.service.AccountService;
@@ -30,21 +32,21 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}")
-    ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountDto accountDto, Errors errors) {
+    ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountDto accountDto, Errors errors, @CurrentUser Account currentUser) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
-        return accountService.updateAccount(accountId, accountDto);
+
+        return accountService.updateAccount(accountId, accountDto, currentUser);
     }
 
     @DeleteMapping("/{accountId}")
-    ResponseEntity<?> deleteAccount(@PathVariable Long accountId) {
-        return accountService.deleteAccount(accountId);
+    ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
+        return accountService.deleteAccount(accountId, currentUser);
     }
 
     @GetMapping("/{accountId}")
-    ResponseEntity<?> getAccount(@PathVariable Long accountId) {
-        return accountService.getAccount(accountId);
+    ResponseEntity<?> getAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
+        return accountService.getAccount(accountId, currentUser);
     }
-
 }

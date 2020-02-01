@@ -1,31 +1,20 @@
 package com.pickmebackend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
-import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.AccountRepository;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import java.time.LocalDateTime;
+
 import java.util.Arrays;
 import java.util.List;
 
-import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -34,30 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class AccountControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    AppProperties appProperties;
-
-    @Autowired
-    ModelMapper modelMapper;
-
-    @Autowired
-    JwtProvider jwtProvider;
-
-    private String jwt;
+class AccountControllerTest extends BaseControllerTest {
 
     private final String accountURL = "/api/accounts/";
 
@@ -298,6 +264,28 @@ class AccountControllerTest {
     }
 
     @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 수정 요청 시 Bad Request 반환")
+    void updateAccount_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        newAccount.setEmail("update@email.com");
+        newAccount.setNickName("updateNick");
+
+        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+
+        mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
+                .accept(MediaTypes.HAL_JSON)
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateAccountDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    @Test
     @DisplayName("정상적으로 유저를 삭제")
     void deleteAccount() throws Exception {
         Account newAccount = createAccount();
@@ -320,6 +308,20 @@ class AccountControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)));
+    }
+
+    @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 삭제 요청 시 Bad Request 반환")
+    void deleteAccount_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        mockMvc.perform(delete(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
     }
 
     @Test
@@ -351,13 +353,17 @@ class AccountControllerTest {
                 .andExpect(jsonPath("message", is(USERNOTFOUND)));
     }
 
-    private Account createAccount() {
-        Account account = Account.builder()
-                .email(appProperties.getTestEmail())
-                .password(appProperties.getTestPassword())
-                .nickName(appProperties.getTestNickname())
-                .createdAt(LocalDateTime.now())
-                .build();
-        return accountRepository.save(account);
+    @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 조회 요청 시 Bad Request 반환")
+    void getAccount_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
     }
 }

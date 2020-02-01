@@ -19,5 +19,8 @@ class AppPropertiesTest {
         assertEquals(appProperties.getTestEmail(), "user@email.com");
         assertEquals(appProperties.getTestNickname(), "DNDpickme");
         assertEquals(appProperties.getTestPassword(), "password");
+        assertEquals(appProperties.getTestAnotherEmail(), "another@email.com");
+        assertEquals(appProperties.getTestAnotherNickname(), "springmaster");
+
     }
 }
