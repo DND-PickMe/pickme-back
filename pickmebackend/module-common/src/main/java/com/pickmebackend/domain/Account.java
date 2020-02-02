@@ -1,7 +1,10 @@
 package com.pickmebackend.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -9,8 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
-@NoArgsConstructor @AllArgsConstructor @Builder
-@Entity
+@NoArgsConstructor @AllArgsConstructor @Builder @ToString
+@Entity @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Account {
 
     @Id
@@ -32,18 +35,22 @@ public class Account {
 
     @Column
     private LocalDateTime createdAt;
-    @OneToMany(mappedBy = "account")
+
+    @Column
+    private String oneLineIntroduce;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<Experience> experiences;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<License> licenses;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<Prize> prizes;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<Project> projects;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<SelfInterview> selfInterviews;
 }

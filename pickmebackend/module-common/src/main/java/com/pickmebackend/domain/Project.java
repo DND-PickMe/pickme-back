@@ -33,4 +33,12 @@ public class Project {
 
     @ManyToOne
     private Account account;
+
+    public void mapAccount(Account account) {
+        if (this.account != null) {
+            this.account.getProjects().remove(this);
+        }
+        this.account = account;
+        this.account.getProjects().add(this);
+    }
 }

@@ -1,61 +1,30 @@
 package com.pickmebackend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.SelfInterviewDto;
-import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.SelfInterviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import java.time.LocalDateTime;
+
 import static com.pickmebackend.error.ErrorMessageConstant.SELFINTERVIEWNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class SelfInterviewControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+class SelfInterviewControllerTest extends BaseControllerTest {
 
     @Autowired
     SelfInterviewRepository selfInterviewRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    JwtProvider jwtProvider;
-
-    @Autowired
-    AppProperties appProperties;
-
-    private String jwt;
 
     private final String selfInterviewUrl = "/api/selfInterviews/";
 
@@ -84,21 +53,18 @@ class SelfInterviewControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").value(title))
-                .andExpect(jsonPath("content").value(content));
+                .andExpect(jsonPath("content").value(content))
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
     @DisplayName("정상적으로 셀프 인터뷰 수정하기")
     void updateSelfInterview() throws Exception {
-        jwt = generateBearerToken();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
 
-        SelfInterview selfInterview = createSelfInterview();
         String updateContent = "워라벨이 가장 중요한 것 같습니다.";
-
-        assertNotNull(selfInterview.getId());
-        assertNotNull(selfInterview.getTitle());
-        assertNotNull(selfInterview.getContent());
-
         selfInterview.setContent(updateContent);
 
         SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
@@ -111,21 +77,18 @@ class SelfInterviewControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").value("회사를 고를 때 가장 중요하게 생각하는 것은?"))
-                .andExpect(jsonPath("content").value(updateContent));
+                .andExpect(jsonPath("content").value(updateContent))
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
     @DisplayName("데이터베이스 저장되어 있지 않은 셀프 인터뷰의 수정을 요청")
     void updateSelfInterview_not_found() throws Exception {
-        jwt = generateBearerToken();
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
 
-        SelfInterview selfInterview = createSelfInterview();
         String updateContent = "워라벨이 가장 중요한 것 같습니다.";
-
-        assertNotNull(selfInterview.getId());
-        assertNotNull(selfInterview.getTitle());
-        assertNotNull(selfInterview.getContent());
-
         selfInterview.setContent(updateContent);
 
         SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
@@ -140,15 +103,33 @@ class SelfInterviewControllerTest {
     }
 
     @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 셀프인터뷰 수정을 요청할 때 Bad Request 반환")
+    void updateSelfInterview_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
+
+        String updateContent = "워라벨이 가장 중요한 것 같습니다.";
+        selfInterview.setContent(updateContent);
+
+        SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
+        mockMvc.perform(put(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    @Test
     @DisplayName("정상적으로 셀프 인터뷰 삭제하기")
     void deleteSelfInterview() throws Exception {
-        jwt = generateBearerToken();
-
-        SelfInterview selfInterview = createSelfInterview();
-
-        assertNotNull(selfInterview.getId());
-        assertNotNull(selfInterview.getTitle());
-        assertNotNull(selfInterview.getContent());
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
 
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
@@ -159,13 +140,9 @@ class SelfInterviewControllerTest {
     @Test
     @DisplayName("데이터베이스 저장되어 있지 않은 셀프 인터뷰의 삭제를 요청")
     void deleteSelfInterview_not_found() throws Exception {
-        jwt = generateBearerToken();
-
-        SelfInterview selfInterview = createSelfInterview();
-
-        assertNotNull(selfInterview.getId());
-        assertNotNull(selfInterview.getTitle());
-        assertNotNull(selfInterview.getContent());
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        createSelfInterview(newAccount);
 
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
@@ -174,11 +151,34 @@ class SelfInterviewControllerTest {
                 .andExpect(jsonPath("message").value(SELFINTERVIEWNOTFOUND));
     }
 
-    private SelfInterview createSelfInterview() {
+    @Test
+    @DisplayName("권한이 없는 유저가 다른 유저 셀프인터뷰 삭제를 요청할 때 Bad Request 반환")
+    void deleteSelfInterview_invalid_user() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
+
+        mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    private SelfInterview createSelfInterview(Account account) {
         SelfInterview selfInterview = new SelfInterview();
         selfInterview.setTitle("회사를 고를 때 가장 중요하게 생각하는 것은?");
         selfInterview.setContent("배울 것이 많은 직장");
-        return selfInterviewRepository.save(selfInterview);
+        selfInterview.setAccount(account);
+
+        SelfInterview newSelfInterview = selfInterviewRepository.save(selfInterview);
+
+        assertNotNull(newSelfInterview.getId());
+        assertNotNull(newSelfInterview.getTitle());
+        assertNotNull(newSelfInterview.getContent());
+
+        return newSelfInterview;
     }
 
     private String generateBearerToken() {
@@ -186,13 +186,7 @@ class SelfInterviewControllerTest {
         return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 
-    private Account createAccount() {
-        Account account = Account.builder()
-                .email(appProperties.getTestEmail())
-                .password(appProperties.getTestPassword())
-                .nickName(appProperties.getTestNickname())
-                .createdAt(LocalDateTime.now())
-                .build();
-        return accountRepository.save(account);
+    private String generateBearerToken_need_account(Account newAccount) {
+        return "Bearer " + jwtProvider.generateToken(newAccount);
     }
 }

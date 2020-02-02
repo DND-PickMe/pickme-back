@@ -16,6 +16,10 @@ public class AppProperties {
 
     private String testNickname;
 
+    private String testAnotherEmail;
+
+    private String testAnotherNickname;
+
     private String testRegistrationNumber;
 
     private String testName;

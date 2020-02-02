@@ -1,5 +1,7 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.LicenseDto;
 import com.pickmebackend.service.LicenseService;
 import lombok.RequiredArgsConstructor;
@@ -15,17 +17,17 @@ public class LicenseController {
     private final LicenseService licenseService;
 
     @PostMapping
-    ResponseEntity<?> saveLicense(@RequestBody LicenseDto licenseDto) {
-        return licenseService.saveLicense(licenseDto);
+    ResponseEntity<?> saveLicense(@RequestBody LicenseDto licenseDto, @CurrentUser Account currentUser) {
+        return licenseService.saveLicense(licenseDto, currentUser);
     }
 
     @PutMapping("/{licenseId}")
-    ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseDto licenseDto) {
-        return licenseService.updateLicense(licenseId, licenseDto);
+    ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseDto licenseDto, @CurrentUser Account currentUser) {
+        return licenseService.updateLicense(licenseId, licenseDto, currentUser);
     }
 
     @DeleteMapping("/{licenseId}")
-    ResponseEntity<?> deleteLicense(@PathVariable Long licenseId) {
-        return licenseService.deleteLicense(licenseId);
+    ResponseEntity<?> deleteLicense(@PathVariable Long licenseId, @CurrentUser Account currentUser) {
+        return licenseService.deleteLicense(licenseId, currentUser);
     }
 }

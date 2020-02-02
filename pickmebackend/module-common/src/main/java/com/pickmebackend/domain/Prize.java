@@ -27,4 +27,12 @@ public class Prize {
 
     @ManyToOne
     private Account account;
+
+    public void mapAccount(Account account) {
+        if (this.account != null) {
+            this.account.getPrizes().remove(this);
+        }
+        this.account = account;
+        this.account.getPrizes().add(this);
+    }
 }
