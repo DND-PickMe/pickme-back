@@ -1,5 +1,5 @@
 # pickme-back
-DND PickMe(역채용 플랫폼) Back-End Develop Repository
+> DND 2기 동아리원으로 참가하여 PickMe(역채용 플랫폼)프로젝트의 Back-End를 개발한 코드를 모아둔 저장소입니다.
 
 ## Git Convention
 
@@ -20,7 +20,7 @@ DND PickMe(역채용 플랫폼) Back-End Develop Repository
 - 커밋 메시지의 시작에 [Label]을 붙입니다. [Label]은 github의 Label과 동일합니다.
 - 첫 글자는 대문자를 사용합니다.
 - example
-  - Fix 버그 수정 #{issue number}
+  - `Fix 버그 수정 #{issue number}`
 
 <details>
 <summary>라벨 설명</summary>
