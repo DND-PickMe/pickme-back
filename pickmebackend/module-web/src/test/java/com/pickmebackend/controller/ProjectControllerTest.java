@@ -5,6 +5,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.repository.ProjectRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class ProjectControllerTest extends BaseControllerTest {
 
     private final String projectUrl = "/api/projects/";
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         projectRepository.deleteAll();
         accountRepository.deleteAll();

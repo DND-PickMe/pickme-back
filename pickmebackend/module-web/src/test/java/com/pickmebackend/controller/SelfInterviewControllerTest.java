@@ -5,6 +5,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.SelfInterviewDto;
 import com.pickmebackend.repository.SelfInterviewRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
 
     private final String selfInterviewUrl = "/api/selfInterviews/";
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         selfInterviewRepository.deleteAll();
         accountRepository.deleteAll();

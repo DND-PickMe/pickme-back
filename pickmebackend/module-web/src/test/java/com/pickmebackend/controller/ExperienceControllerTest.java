@@ -5,6 +5,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
 import com.pickmebackend.domain.dto.ExperienceDto;
 import com.pickmebackend.repository.ExperienceRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ class ExperienceControllerTest extends BaseControllerTest {
 
     private final String experienceUrl = "/api/experiences/";
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         experienceRepository.deleteAll();
         accountRepository.deleteAll();

@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.PrizeDto;
 import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.repository.PrizeRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class PrizeControllerTest extends BaseControllerTest {
 
     private final String prizeUrl = "/api/prizes/";
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         prizeRepository.deleteAll();
         accountRepository.deleteAll();
