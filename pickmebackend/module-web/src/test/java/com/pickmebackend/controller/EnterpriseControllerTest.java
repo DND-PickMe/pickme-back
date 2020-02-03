@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.EnterpriseDto;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.EnterpriseRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ class EnterpriseControllerTest {
     private String enterpriseURL = "/api/enterprises/";
 
     @BeforeEach
-    void setUp()    {
+    void setUp() {
         enterpriseRepository.deleteAll();
     }
 

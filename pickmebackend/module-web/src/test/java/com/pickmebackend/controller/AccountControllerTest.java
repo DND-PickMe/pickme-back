@@ -29,7 +29,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     private final String BEARER = "Bearer ";
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         accountRepository.deleteAll();
     }

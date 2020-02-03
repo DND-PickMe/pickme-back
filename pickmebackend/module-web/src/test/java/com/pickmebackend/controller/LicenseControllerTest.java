@@ -5,6 +5,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
 import com.pickmebackend.domain.dto.LicenseDto;
 import com.pickmebackend.repository.LicenseRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ class LicenseControllerTest extends BaseControllerTest {
 
     private final String licenseUrl = "/api/licenses/";
 
-    @BeforeEach
+    @AfterEach
     void setUp() {
         licenseRepository.deleteAll();
         accountRepository.deleteAll();
