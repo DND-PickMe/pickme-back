@@ -23,14 +23,14 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    ResponseEntity<?> saveAccount(@Valid @RequestBody AccountDto accountDto, Errors errors, HttpServletRequest request) {
+    ResponseEntity<?> saveAccount(@Valid @RequestBody AccountDto accountDto, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
         if(accountService.isDuplicatedAccount(accountDto))  {
             return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
-        return accountService.saveAccount(accountDto, request);
+        return accountService.saveAccount(accountDto);
     }
 
     @PutMapping("/{accountId}")

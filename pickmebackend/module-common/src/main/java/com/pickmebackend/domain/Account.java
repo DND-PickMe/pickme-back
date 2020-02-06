@@ -43,7 +43,7 @@ public class Account {
     @Column
     private String image;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<Experience> experiences;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
