@@ -23,7 +23,7 @@ public class SelfInterviewService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveSelfInterview(SelfInterviewDto selfInterviewDto, Account account) {
+    ResponseEntity<?> saveSelfInterview(SelfInterviewDto selfInterviewDto, Account account) {
         SelfInterview selfInterview = modelMapper.map(selfInterviewDto, SelfInterview.class);
 
         selfInterview.mapAccount(account);

@@ -1,3 +1,11 @@
+spring:
+  servlet:
+    multipart:
+      file-size-threshold: 1MB
+      max-file-size: 100MB
+      max-request-size: 100MB
+      enabled: true
+
 app-property:
   test-email: user@email.com
   test-password: password
@@ -8,3 +16,6 @@ app-property:
   test-name: KSU
   test-address: BUSAN
   test-ceo-name: sangyeop
+
+image:
+  location: ./pickme-images
