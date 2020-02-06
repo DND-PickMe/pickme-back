@@ -10,6 +10,8 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 
@@ -21,14 +23,14 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    ResponseEntity<?> saveAccount(@Valid @RequestBody AccountDto accountDto, Errors errors) {
+    ResponseEntity<?> saveAccount(@Valid @RequestBody AccountDto accountDto, Errors errors, HttpServletRequest request) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
         if(accountService.isDuplicatedAccount(accountDto))  {
             return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
-        return accountService.saveAccount(accountDto);
+        return accountService.saveAccount(accountDto, request);
     }
 
     @PutMapping("/{accountId}")

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -39,7 +40,10 @@ public class Account {
     @Column
     private String oneLineIntroduce;
 
-    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    @Column
+    private String image;
+
+    @OneToMany(mappedBy = "account")
     private Set<Experience> experiences;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
