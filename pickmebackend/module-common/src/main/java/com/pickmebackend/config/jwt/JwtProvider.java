@@ -29,7 +29,7 @@ public class JwtProvider implements Serializable {
     private Date getExpirationDateFromToken(String token)    {
         return getClaimFromToken(token, Claims::getExpiration);
     }
-    
+
     private <T> T getClaimFromToken(String token, Function<Claims, T> claimResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimResolver.apply(claims);

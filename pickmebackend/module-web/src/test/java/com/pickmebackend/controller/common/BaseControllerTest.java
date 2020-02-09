@@ -3,17 +3,28 @@ package com.pickmebackend.controller.common;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.Enterprise;
+import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.EnterpriseDto;
+import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.EnterpriseRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.LocalDateTime;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -35,10 +46,16 @@ public class BaseControllerTest {
     @Autowired
     protected AppProperties appProperties;
 
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
+
     protected String jwt;
 
     @Autowired
     protected AccountRepository accountRepository;
+
+    @Autowired
+    protected EnterpriseRepository enterpriseRepository;
 
     protected Account createAccount() {
         Account account = Account.builder()
@@ -58,5 +75,42 @@ public class BaseControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
         return accountRepository.save(account);
+    }
+
+//    protected EnterpriseDto createEnterpriseDto() {
+//        return EnterpriseDto.builder()
+//                .email(appProperties.getTestEmail())
+//                .password(appProperties.getTestPassword())
+//                .registrationNumber(appProperties.getTestRegistrationNumber())
+//                .name(appProperties.getTestName())
+//                .address(appProperties.getTestAddress())
+//                .ceoName(appProperties.getTestCeoName())
+//                .build();
+//    }
+
+    protected EnterpriseDto createEnterpriseDto() throws Exception {
+        EnterpriseDto enterpriseDto =
+                EnterpriseDto.builder()
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .registrationNumber(appProperties.getTestRegistrationNumber())
+                .name(appProperties.getTestName())
+                .address(appProperties.getTestAddress())
+                .ceoName(appProperties.getTestCeoName())
+                .build();
+        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
+
+        Account account = modelMapper.map(enterpriseDto, Account.class);
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUserRole(UserRole.ENTERPRISE);
+        account.setEnterprise(enterprise);
+
+        enterprise.setAccount(account);
+
+        accountRepository.save(account);
+        enterpriseRepository.save(enterprise);
+
+        return enterpriseDto;
     }
 }

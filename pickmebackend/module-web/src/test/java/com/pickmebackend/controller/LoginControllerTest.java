@@ -1,21 +1,15 @@
 package com.pickmebackend.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
-import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.domain.dto.EnterpriseDto;
+import com.pickmebackend.domain.dto.LoginDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Description;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 import static org.hamcrest.CoreMatchers.is;
@@ -26,22 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class LoginControllerTest {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    AccountRepository accountRepository;
-
-    @Autowired
-    AppProperties appProperties;
-
-    @Autowired
-    ObjectMapper objectMapper;
+class LoginControllerTest extends BaseControllerTest {
 
     private final String loginURL = "/api/login";
 
@@ -51,14 +30,16 @@ class LoginControllerTest {
     }
 
     @Test
-    @Description("정상적으로 로그인 하기")
-    void loginSuccess() throws Exception {
+    @Description("정상적으로 일반 유저 로그인 하기")
+    void loginAccountSuccess() throws Exception {
         AccountDto accountDto = this.createAccountDto();
 
+        LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
+
         this.mockMvc.perform(post(loginURL)
-                        .accept(MediaTypes.HAL_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accountDto)))
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
@@ -66,15 +47,34 @@ class LoginControllerTest {
     }
 
     @Test
-    @Description("잘못된 이메일 입력시 401")
+    @Description("정상적으로 기업 담당자 로그인 하기")
+    void loginEnterpriseSuccess() throws Exception {
+        EnterpriseDto enterpriseDto = this.saveEnterprise();
+
+        LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
+
+        this.mockMvc.perform(post(loginURL)
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("jwt").exists())
+        ;
+    }
+
+    @Test
+    @Description("잘못된 이메일 입력시 400")
     void loginFailByEmail() throws Exception {
         AccountDto accountDto = this.createAccountDto();
         accountDto.setEmail("kiseok@email.com");
 
+        LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
+
         this.mockMvc.perform(post(loginURL)
-                        .accept(MediaTypes.HAL_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accountDto)))
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
@@ -87,10 +87,12 @@ class LoginControllerTest {
         AccountDto accountDto = this.createAccountDto();
         accountDto.setPassword("kiseokyang");
 
+        LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
+
         this.mockMvc.perform(post(loginURL)
-                        .accept(MediaTypes.HAL_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(accountDto)))
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
@@ -129,6 +131,30 @@ class LoginControllerTest {
         assertEquals(account.getEmail(), appProperties.getTestEmail());
         assertEquals(account.getNickName(), appProperties.getTestNickname());
         assertNotNull(account.getCreatedAt());
+    }
+
+    private EnterpriseDto saveEnterprise() throws Exception {
+        EnterpriseDto enterpriseDto = EnterpriseDto.builder()
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .registrationNumber(appProperties.getTestRegistrationNumber())
+                .name(appProperties.getTestName())
+                .address(appProperties.getTestAddress())
+                .ceoName(appProperties.getTestCeoName())
+                .build();
+
+        this.mockMvc.perform(post("/api/enterprises")
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(enterpriseDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").value(appProperties.getTestEmail()))
+                .andExpect(jsonPath("password").doesNotExist())
+        ;
+
+        return enterpriseDto;
     }
 
 }
