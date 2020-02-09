@@ -156,6 +156,7 @@ class AccountControllerTest extends BaseControllerTest {
     void updateAccount() throws Exception {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
+
         String updatedEmail = "update@email.com";
         String updateNickname = "updateNick";
         String oneLineIntroduce = "안녕하세요. 저는 백엔드 개발자를 지망하고 있습니다.";

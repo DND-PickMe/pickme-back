@@ -19,5 +19,4 @@ class JwtConstantsTest {
         assertEquals(TOKEN_PREFIX, "Bearer ");
         assertEquals(SERIAL_VERSION_UID, -2550185165626007488L);
     }
-
 }

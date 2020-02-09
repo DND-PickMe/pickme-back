@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.LoginDto;
 import com.pickmebackend.error.ErrorMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginService {

@@ -5,13 +5,12 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Getter
-public class UserDetailsImpl extends User {
+class UserDetailsImpl extends User {
 
     private Account account;
 

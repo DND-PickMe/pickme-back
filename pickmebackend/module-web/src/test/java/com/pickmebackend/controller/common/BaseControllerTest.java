@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
-import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.EnterpriseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
@@ -15,16 +14,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -49,13 +42,13 @@ public class BaseControllerTest {
     @Autowired
     protected PasswordEncoder passwordEncoder;
 
-    protected String jwt;
-
     @Autowired
     protected AccountRepository accountRepository;
 
     @Autowired
     protected EnterpriseRepository enterpriseRepository;
+
+    protected String jwt;
 
     protected Account createAccount() {
         Account account = Account.builder()
@@ -63,6 +56,7 @@ public class BaseControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .createdAt(LocalDateTime.now())
+                .userRole(UserRole.USER)
                 .build();
         return accountRepository.save(account);
     }
@@ -73,20 +67,10 @@ public class BaseControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestAnotherNickname())
                 .createdAt(LocalDateTime.now())
+                .userRole(UserRole.USER)
                 .build();
         return accountRepository.save(account);
     }
-
-//    protected EnterpriseDto createEnterpriseDto() {
-//        return EnterpriseDto.builder()
-//                .email(appProperties.getTestEmail())
-//                .password(appProperties.getTestPassword())
-//                .registrationNumber(appProperties.getTestRegistrationNumber())
-//                .name(appProperties.getTestName())
-//                .address(appProperties.getTestAddress())
-//                .ceoName(appProperties.getTestCeoName())
-//                .build();
-//    }
 
     protected EnterpriseDto createEnterpriseDto() throws Exception {
         EnterpriseDto enterpriseDto =

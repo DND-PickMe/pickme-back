@@ -26,7 +26,6 @@ public class Enterprise {
     private String ceoName;
 
     @OneToOne(mappedBy = "enterprise")
-//    @OneToOne
     private Account account;
 
 }
