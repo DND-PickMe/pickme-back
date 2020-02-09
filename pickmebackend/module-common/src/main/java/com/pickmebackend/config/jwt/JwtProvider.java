@@ -22,7 +22,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtProvider implements Serializable {
 
-    String getUsernameFromToken(String token)    {
+    public String getUsernameFromToken(String token)    {
         return getClaimFromToken(token, Claims::getSubject);
     }
 

@@ -17,7 +17,7 @@ public class SelfInterviewController {
     private final SelfInterviewService selfInterviewService;
 
     @PostMapping
-    ResponseEntity<?> saveSelfInterview(@RequestBody SelfInterviewDto selfInterviewDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> saveSelfInterview(@RequestBody SelfInterviewDto selfInterviewDto, @CurrentUser Account currentUser) {
         return selfInterviewService.saveSelfInterview(selfInterviewDto, currentUser);
     }
 
