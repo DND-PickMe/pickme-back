@@ -6,14 +6,12 @@ import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.SelfInterviewDto;
 import com.pickmebackend.repository.SelfInterviewRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
 import static com.pickmebackend.error.ErrorMessageConstant.SELFINTERVIEWNOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

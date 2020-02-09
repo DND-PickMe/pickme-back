@@ -2,6 +2,7 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
@@ -34,6 +33,7 @@ public class AccountService{
     public ResponseEntity<?> saveAccount(AccountDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
+        account.setUserRole(UserRole.USER);
         account.setCreatedAt(LocalDateTime.now());
         account.setImage(defaultImage());
         return new ResponseEntity<>(accountRepository.save(account), HttpStatus.CREATED);

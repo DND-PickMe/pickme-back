@@ -4,19 +4,15 @@ import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.PrizeDto;
-import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.repository.PrizeRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
 import java.time.LocalDate;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
 import static org.hamcrest.Matchers.is;

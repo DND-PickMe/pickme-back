@@ -1,7 +1,10 @@
 package com.pickmebackend.service;
 
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.EnterpriseDto;
+import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,43 +21,63 @@ public class EnterpriseService {
 
     private final EnterpriseRepository enterpriseRepository;
 
+    private final AccountRepository accountRepository;
+
     private final ModelMapper modelMapper;
 
     private final PasswordEncoder passwordEncoder;
 
     public ResponseEntity<?> loadEnterprise(Long enterpriseId) {
-        Optional<Enterprise> enterpriseOptional = enterpriseRepository.findById(enterpriseId);
-        Enterprise enterprise = enterpriseOptional.get();
+        Optional<Account> accountOptional = accountRepository.findById(enterpriseId);
+        Account account = accountOptional.get();
 
-        return new ResponseEntity<>(enterprise, HttpStatus.OK);
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     public ResponseEntity<?> saveEnterprise(EnterpriseDto enterpriseDto) {
-        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
-        enterprise.setPassword(passwordEncoder.encode(enterprise.getPassword()));
-        enterprise.setCreatedAt(LocalDateTime.now());
+        Account account = modelMapper.map(enterpriseDto, Account.class);
+        account.setPassword(passwordEncoder.encode(enterpriseDto.getPassword()));
+        account.setNickName(enterpriseDto.getName());
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUserRole(UserRole.ENTERPRISE);
 
-        return new ResponseEntity<>(enterpriseRepository.save(enterprise), HttpStatus.CREATED);
+        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
+        Enterprise savedEnterprise = enterpriseRepository.save(enterprise);
+
+        account.setEnterprise(savedEnterprise);
+        Account savedAccount = accountRepository.save(account);
+
+        return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> updateEnterprise(Long enterpriseId, EnterpriseDto enterpriseDto) {
-        Optional<Enterprise> enterpriseOptional = enterpriseRepository.findById(enterpriseId);
+        Optional<Account> accountOptional = accountRepository.findById(enterpriseId);
+        Account account = accountOptional.get();
+        modelMapper.map(enterpriseDto, account);
+        account.setPassword(passwordEncoder.encode(enterpriseDto.getPassword()));
+        account.setNickName(enterpriseDto.getName());
+
+        Optional<Enterprise> enterpriseOptional = enterpriseRepository.findById(account.getEnterprise().getId());
         Enterprise enterprise = enterpriseOptional.get();
         modelMapper.map(enterpriseDto, enterprise);
+        Enterprise savedEnterprise = enterpriseRepository.save(enterprise);
 
-        return new ResponseEntity<>(enterpriseRepository.save(enterprise), HttpStatus.OK);
+        account.setEnterprise(savedEnterprise);
+        Account savedAccount = accountRepository.save(account);
+
+        return new ResponseEntity<>(savedAccount, HttpStatus.OK);
     }
 
     public ResponseEntity<?> deleteEnterprise(Long enterpriseId) {
-        enterpriseRepository.deleteById(enterpriseId);
+        accountRepository.deleteById(enterpriseId);
         return ResponseEntity.ok().build();
     }
 
     public boolean isDuplicatedEnterprise(EnterpriseDto enterpriseDto) {
-        return enterpriseRepository.findByEmail(enterpriseDto.getEmail()).isPresent();
+        return accountRepository.findByEmail(enterpriseDto.getEmail()).isPresent();
     }
 
     public boolean isNonEnterprise(Long enterpriseId) {
-        return !enterpriseRepository.findById(enterpriseId).isPresent();
+        return !accountRepository.findById(enterpriseId).isPresent();
     }
 }

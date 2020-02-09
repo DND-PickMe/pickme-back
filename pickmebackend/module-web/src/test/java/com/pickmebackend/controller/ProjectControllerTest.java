@@ -6,16 +6,13 @@ import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.repository.ProjectRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
 import java.time.LocalDate;
-
 import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.hamcrest.Matchers.is;

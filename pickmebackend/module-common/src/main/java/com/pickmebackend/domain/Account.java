@@ -3,9 +3,8 @@ package com.pickmebackend.domain;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
-import org.springframework.security.access.prepost.PreAuthorize;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +34,10 @@ public class Account {
     private List<String> technology = new ArrayList<>();
 
     @Column
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
+
+    @Column
     private LocalDateTime createdAt;
 
     @Column
@@ -42,6 +45,10 @@ public class Account {
 
     @Column
     private String image;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "enterprise_id")
+    private Enterprise enterprise;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<Experience> experiences;
