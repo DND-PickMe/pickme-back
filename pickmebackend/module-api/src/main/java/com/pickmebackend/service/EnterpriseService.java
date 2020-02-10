@@ -4,6 +4,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.EnterpriseDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +29,11 @@ public class EnterpriseService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<?> loadEnterprise(Long enterpriseId) {
+    public ResponseEntity<?> loadEnterprise(Long enterpriseId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(enterpriseId);
+        if (!enterpriseId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
         Account account = accountOptional.get();
 
         return new ResponseEntity<>(account, HttpStatus.OK);
@@ -50,8 +55,11 @@ public class EnterpriseService {
         return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateEnterprise(Long enterpriseId, EnterpriseDto enterpriseDto) {
+    public ResponseEntity<?> updateEnterprise(Long enterpriseId, EnterpriseDto enterpriseDto, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(enterpriseId);
+        if (!enterpriseId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
         Account account = accountOptional.get();
         modelMapper.map(enterpriseDto, account);
         account.setPassword(passwordEncoder.encode(enterpriseDto.getPassword()));
@@ -68,7 +76,10 @@ public class EnterpriseService {
         return new ResponseEntity<>(savedAccount, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> deleteEnterprise(Long enterpriseId) {
+    public ResponseEntity<?> deleteEnterprise(Long enterpriseId, Account currentUser) {
+        if (!enterpriseId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
         accountRepository.deleteById(enterpriseId);
         return ResponseEntity.ok().build();
     }

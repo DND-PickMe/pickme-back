@@ -1,5 +1,7 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.EnterpriseDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.service.EnterpriseService;
@@ -20,11 +22,11 @@ public class EnterpriseController {
     private final EnterpriseService enterpriseService;
 
     @GetMapping("/{enterpriseId}")
-    public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId)    {
+    public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
-        return enterpriseService.loadEnterprise(enterpriseId);
+        return enterpriseService.loadEnterprise(enterpriseId, currentUser);
     }
 
     @PostMapping
@@ -39,22 +41,22 @@ public class EnterpriseController {
     }
 
     @PutMapping("/{enterpriseId}")
-    public ResponseEntity<?> updateEnterprise(@PathVariable Long enterpriseId, @Valid @RequestBody EnterpriseDto enterpriseDto, Errors errors) {
+    public ResponseEntity<?> updateEnterprise(@PathVariable Long enterpriseId, @Valid @RequestBody EnterpriseDto enterpriseDto, Errors errors, @CurrentUser Account currentUser) {
         if(errors.hasErrors())  {
             return ResponseEntity.badRequest().body(errors);
         }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
-        return enterpriseService.updateEnterprise(enterpriseId, enterpriseDto);
+        return enterpriseService.updateEnterprise(enterpriseId, enterpriseDto, currentUser);
     }
 
     @DeleteMapping("/{enterpriseId}")
-    public ResponseEntity<?> deleteEnterprise(@PathVariable Long enterpriseId)    {
+    public ResponseEntity<?> deleteEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
-        return enterpriseService.deleteEnterprise(enterpriseId);
+        return enterpriseService.deleteEnterprise(enterpriseId, currentUser);
     }
 
 }

@@ -21,7 +21,7 @@ class UserDetailsImpl extends User {
 
     private static Collection<? extends GrantedAuthority> authorities(Account account) {
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(account.getUserRole().toString()));
+        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + account.getUserRole().name()));
         return grantedAuthorities;
     }
 }

@@ -33,10 +33,11 @@ class ProjectControllerTest extends BaseControllerTest {
     void setUp() {
         projectRepository.deleteAll();
         accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
     }
 
     @Test
-    @DisplayName("정상적으로 수상 내역 생성하기")
+    @DisplayName("정상적으로 프로젝트 생성하기")
     void saveProject() throws Exception {
         jwt = generateBearerToken();
         String name = "픽미 프로젝트";
@@ -69,6 +70,37 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("startedAt", is(startedAt.toString())))
                 .andExpect(jsonPath("endedAt", is(endedAt.toString())))
                 .andExpect(jsonPath("account").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 프로젝트 생성할 시 Forbidden")
+    void saveProject_forbidden() throws Exception {
+        jwt = createEnterpriseJwt();
+
+        String name = "픽미 프로젝트";
+        String description = "부산 IT 연합 동아리 D&D에 참가하여 개발";
+        String role = "백엔드 개발";
+        String projectLink = "https://github.com/DND-PickMe";
+        LocalDate startedAt = LocalDate.of(2019, 12, 21);
+        LocalDate endedAt = LocalDate.of(2020, 2, 25);
+
+        ProjectDto projectDto = ProjectDto.builder()
+                .name(name)
+                .description(description)
+                .role(role)
+                .projectLink(projectLink)
+                .startedAt(startedAt)
+                .endedAt(endedAt)
+                .build();
+
+        mockMvc.perform(post(projectUrl)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     @Test
@@ -144,6 +176,31 @@ class ProjectControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("기업 담당자가 프로젝트 수정을 요청할 때 Forbidden")
+    void updateProject_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Project project = createProject(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        String updateRole = "프론트 엔드 개발을 맡았었음.";
+        project.setRole(updateRole);
+
+        ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+
+        mockMvc.perform(put(projectUrl + "{projectId}", project.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(projectDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+    @Test
     @DisplayName("정상적으로 프로젝트 삭제하기")
     void deleteProject() throws Exception {
         Account newAccount = createAccount();
@@ -183,6 +240,23 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 프로젝트 삭제를 요청할 때 Forbidden")
+    void deleteProject_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Project project = createProject(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        mockMvc.perform(delete(projectUrl + "{projectId}", project.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     private Project createProject(Account account) {
