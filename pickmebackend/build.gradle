@@ -18,7 +18,7 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
 
     group = 'com.pickmebackend'
-    version = '0.0.1-SNAPSHOT'
+    version = '1.0.0-SNAPSHOT-' + new Date().format("yyyy-MM-dd HH-mm-ss")
     sourceCompatibility = 1.8
 
     configurations {
@@ -35,10 +35,12 @@ subprojects {
         // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
         compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
         // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
-        implementation group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
-        compileOnly('org.projectlombok:lombok')
+        compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.6'
+        compile('org.projectlombok:lombok')
+        compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+        annotationProcessor 'org.projectlombok:lombok'
         annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        testCompile('org.springframework.boot:spring-boot-starter-test') {
             exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
         }
     }
@@ -47,12 +49,12 @@ subprojects {
 
 project(':module-api') {
     dependencies {
-        implementation project(':module-common')
+        compile project(':module-common')
     }
 }
 
 project(':module-web') {
     dependencies {
-        implementation project(':module-common'), project(':module-api')
+        compile project(':module-common'), project(':module-api')
     }
 }

@@ -10,13 +10,10 @@ bootJar { enabled = false }
 jar { enabled = true }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    // https://mvnrepository.com/artifact/commons-io/commons-io
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile 'org.springframework.boot:spring-boot-starter-hateoas'
+    compile 'org.springframework.boot:spring-boot-starter-security'
+    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
+    
 }
 
 test {

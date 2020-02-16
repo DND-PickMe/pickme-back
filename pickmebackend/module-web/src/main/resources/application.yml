@@ -29,4 +29,4 @@ app-property:
   test-ceo-name: sangyeop
 
 image:
-  location: ./pickme-images
+  location: ../pickme-images

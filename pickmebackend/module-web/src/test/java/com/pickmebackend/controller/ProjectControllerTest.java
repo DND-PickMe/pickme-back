@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.ProjectDto;
 import com.pickmebackend.repository.ProjectRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,12 @@ class ProjectControllerTest extends BaseControllerTest {
     ProjectRepository projectRepository;
 
     private final String projectUrl = "/api/projects/";
+
+    @BeforeEach
+    void cleanUp() {
+        projectRepository.deleteAll();
+        accountRepository.deleteAll();
+    }
 
     @AfterEach
     void setUp() {
