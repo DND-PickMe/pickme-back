@@ -1,10 +1,12 @@
 spring:
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3306/pickme?serverTimezone=Asia/Seoul
-    username: pickmeUser
-    password: pickmeUser
-    driver-class-name: com.mysql.cj.jdbc.Driver
+  profiles:
+    include: real-db
   jpa:
+    properties:
+      hibernate:
+        dialect=org:
+          hibernate:
+            dialect: MySQL5InnoDBDialect
     hibernate:
       ddl-auto: create
   jackson:
@@ -30,3 +32,6 @@ app-property:
 
 image:
   location: ../pickme-images
+
+server:
+  port: 8083

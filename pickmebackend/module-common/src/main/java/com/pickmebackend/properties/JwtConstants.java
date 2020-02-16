@@ -1,6 +1,7 @@
 package com.pickmebackend.properties;
 
 public class JwtConstants {
+
     public static final String SECRET = "parkdonghyunshinmugoneyangkiseokchoigwangminhasangyeop";
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER = "Authorization";

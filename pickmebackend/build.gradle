@@ -43,6 +43,9 @@ subprojects {
         testCompile('org.springframework.boot:spring-boot-starter-test') {
             exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
         }
+        // https://mvnrepository.com/artifact/com.h2database/h2
+        testCompile 'com.h2database:h2'
+//        group: 'com.h2database', name: 'h2', version: '1.4.200'
     }
 
 }
