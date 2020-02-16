@@ -5,9 +5,7 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-security'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile 'org.springframework.boot:spring-boot-starter-web'
-    // https://mvnrepository.com/artifact/com.h2database/h2
-    testImplementation group: 'com.h2database', name: 'h2', version: '1.4.200'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testCompile 'org.springframework.security:spring-security-test'
-    runtimeOnly 'mysql:mysql-connector-java'
+    // runtimeOnly 'mysql:mysql-connector-java'
 }
