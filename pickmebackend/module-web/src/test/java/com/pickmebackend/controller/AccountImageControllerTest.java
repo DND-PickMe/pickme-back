@@ -83,7 +83,7 @@ class AccountImageControllerTest {
     @Test
     @DisplayName("이미지가 정상적으로 저장되는지 테스트")
     void save_image() throws Exception {
-        MockMultipartFile mockImage = new MockMultipartFile("image", "mugon.png", MediaType.IMAGE_PNG_VALUE, "test image content".getBytes());
+        MockMultipartFile mockImage = new MockMultipartFile("image", "test.png", MediaType.IMAGE_PNG_VALUE, "test image content".getBytes());
 
         Account savedAccount = generateAccount();
         String jwt = jwtProvider.generateToken(savedAccount);
