@@ -17,8 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import java.util.Optional;
 import java.util.stream.Stream;
-import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -73,6 +72,29 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
+        ;
+    }
+
+    @Test
+    @DisplayName("불러올 권한이 없는 기업담당자 불러 오기")
+    void load_unAuthorized_enterprise() throws Exception {
+        EnterpriseDto enterpriseDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        Account account = accountOptional.get();
+
+        EnterpriseDto anotherEnterpriseDto = createAnotherEnterpriseDto();
+        Optional<Account> anotherAccountOptional = accountRepository.findByEmail(anotherEnterpriseDto.getEmail());
+        Account anotherAccount = anotherAccountOptional.get();
+
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        this.mockMvc.perform(get(enterpriseURL + "{enterpriseId}", account.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)))
         ;
     }
 
@@ -250,13 +272,70 @@ class EnterpriseControllerTest extends BaseControllerTest {
         enterpriseDto.setCeoName("newCeoName");
 
         this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", -1)
-                        .accept(MediaTypes.HAL_JSON_VALUE)
-                        .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(enterpriseDto)))
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(enterpriseDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
+        ;
+    }
+
+    @Test
+    @DisplayName("수정할 권한이 없는 기업 담당자 수정 할 경우 Bad Request 반환")
+    void update_unAuthorized_enterprise() throws Exception {
+        EnterpriseDto enterpriseDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        Account account = accountOptional.get();
+
+        EnterpriseDto anotherEnterpriseDto = createAnotherEnterpriseDto();
+        Optional<Account> anotherAccountOptional = accountRepository.findByEmail(anotherEnterpriseDto.getEmail());
+        Account anotherAccount = anotherAccountOptional.get();
+
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        enterpriseDto.setEmail("newEmail@email.com");
+        enterpriseDto.setPassword("newPassword");
+        enterpriseDto.setRegistrationNumber("newRegistrationNumber");
+        enterpriseDto.setName("newName");
+        enterpriseDto.setAddress("newAddress");
+        enterpriseDto.setCeoName("newCeoName");
+
+        this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", account.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(enterpriseDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)))
+        ;
+    }
+
+    @Test
+    @DisplayName("일반 유저가 기업 담당자 수정 할 경우 Forbidden")
+    void update_enterprise_forbidden() throws Exception {
+        EnterpriseDto enterpriseDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        Account account = accountOptional.get();
+
+        enterpriseDto.setEmail("newEmail@email.com");
+        enterpriseDto.setPassword("newPassword");
+        enterpriseDto.setRegistrationNumber("newRegistrationNumber");
+        enterpriseDto.setName("newName");
+        enterpriseDto.setAddress("newAddress");
+        enterpriseDto.setCeoName("newCeoName");
+
+        jwt = createAccountJwt();
+
+        this.mockMvc.perform(put(enterpriseURL + "{enterpriseId}", account.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(enterpriseDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
         ;
     }
 
@@ -354,6 +433,45 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
         ;
     }
+
+    @Test
+    @DisplayName("삭제할 권한이 없는 기업담당자 삭제 요청시 Bad Request 반환")
+    void delete_unAuthorized_enterprise() throws Exception {
+        EnterpriseDto enterpriseDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        Account account = accountOptional.get();
+
+        EnterpriseDto anotherEnterpriseDto = createAnotherEnterpriseDto();
+        Optional<Account> anotherAccountOptional = accountRepository.findByEmail(anotherEnterpriseDto.getEmail());
+        Account anotherAccount = anotherAccountOptional.get();
+
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        this.mockMvc.perform(delete(enterpriseURL + "{enterpriseId}", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)))
+        ;
+    }
+
+    @Test
+    @DisplayName("일반 유저가 기업담당자 삭제 요청시 Forbidden")
+    void delete_enterprise_forbidden() throws Exception {
+        EnterpriseDto enterpriseDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        Account account = accountOptional.get();
+
+        jwt = createAccountJwt();
+
+        this.mockMvc.perform(delete(enterpriseURL + "{enterpriseId}", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+
 
     private static Stream<Arguments> streamForEmptyStringCheck() {
         return Stream.of(

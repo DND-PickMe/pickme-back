@@ -30,6 +30,7 @@ class AccountControllerTest extends BaseControllerTest {
     @AfterEach
     void setUp() {
         accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
     }
 
     @Test
@@ -285,6 +286,30 @@ class AccountControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("기업 담당자가 유저 수정 요청 시 Forbidden")
+    void updateAccount_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        newAccount.setEmail("update@email.com");
+        newAccount.setNickName("updateNick");
+
+        jwt = createEnterpriseJwt();
+
+        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+
+        mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
+                .accept(MediaTypes.HAL_JSON)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateAccountDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+    @Test
     @DisplayName("정상적으로 유저를 삭제")
     void deleteAccount() throws Exception {
         Account newAccount = createAccount();
@@ -321,6 +346,19 @@ class AccountControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 유저 삭제 요청 시 Forbidden")
+    void deleteAccount_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        jwt = createEnterpriseJwt();
+
+        mockMvc.perform(delete(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     @Test

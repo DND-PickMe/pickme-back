@@ -25,15 +25,15 @@ class LoginControllerTest extends BaseControllerTest {
     private final String loginURL = "/api/login";
 
     @BeforeEach
-    void setUp() throws Exception {
-        this.accountRepository.deleteAll();
+    void setUp() {
+        accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
     }
 
     @Test
     @Description("정상적으로 일반 유저 로그인 하기")
     void loginAccountSuccess() throws Exception {
         AccountDto accountDto = this.createAccountDto();
-
         LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
 
         this.mockMvc.perform(post(loginURL)
@@ -50,7 +50,6 @@ class LoginControllerTest extends BaseControllerTest {
     @Description("정상적으로 기업 담당자 로그인 하기")
     void loginEnterpriseSuccess() throws Exception {
         EnterpriseDto enterpriseDto = this.saveEnterprise();
-
         LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
 
         this.mockMvc.perform(post(loginURL)
@@ -64,11 +63,10 @@ class LoginControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @Description("잘못된 이메일 입력시 400")
-    void loginFailByEmail() throws Exception {
+    @Description("일반유저가 잘못된 이메일 입력시 400")
+    void loginFailByAccountEmail() throws Exception {
         AccountDto accountDto = this.createAccountDto();
         accountDto.setEmail("kiseok@email.com");
-
         LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
 
         this.mockMvc.perform(post(loginURL)
@@ -82,11 +80,27 @@ class LoginControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @Description("잘못된 패스워드 입력시 400")
-    void loginFailByPassword() throws Exception {
+    @Description("기업 담당자가 잘못된 이메일 입력시 400")
+    void loginFailByEnterpriseEmail() throws Exception {
+        EnterpriseDto enterpriseDto = this.saveEnterprise();
+        enterpriseDto.setEmail("kiseok@email.com");
+        LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
+
+        this.mockMvc.perform(post(loginURL)
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(USERNOTFOUND)))
+        ;
+    }
+
+    @Test
+    @Description("일반유저가 잘못된 패스워드 입력시 400")
+    void loginFailByAccountPassword() throws Exception {
         AccountDto accountDto = this.createAccountDto();
         accountDto.setPassword("kiseokyang");
-
         LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
 
         this.mockMvc.perform(post(loginURL)
@@ -99,7 +113,22 @@ class LoginControllerTest extends BaseControllerTest {
         ;
     }
 
+    @Test
+    @Description("기업 담당자가 잘못된 패스워드 입력시 400")
+    void loginFailByEnterprisePassword() throws Exception {
+        EnterpriseDto enterpriseDto = this.saveEnterprise();
+        enterpriseDto.setPassword("kiseokyang");
+        LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
 
+        this.mockMvc.perform(post(loginURL)
+                .accept(MediaTypes.HAL_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(loginDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(USERNOTFOUND)))
+        ;
+    }
 
     AccountDto createAccountDto() throws Exception {
         AccountDto accountDto =  AccountDto.builder()

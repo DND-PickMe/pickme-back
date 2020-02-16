@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -72,7 +73,7 @@ public class BaseControllerTest {
         return accountRepository.save(account);
     }
 
-    protected EnterpriseDto createEnterpriseDto() throws Exception {
+    protected EnterpriseDto createEnterpriseDto() {
         EnterpriseDto enterpriseDto =
                 EnterpriseDto.builder()
                 .email(appProperties.getTestEmail())
@@ -96,5 +97,45 @@ public class BaseControllerTest {
         enterpriseRepository.save(enterprise);
 
         return enterpriseDto;
+    }
+
+    protected EnterpriseDto createAnotherEnterpriseDto() {
+        EnterpriseDto enterpriseDto =
+                EnterpriseDto.builder()
+                        .email("another" + appProperties.getTestEmail())
+                        .password("another" + appProperties.getTestPassword())
+                        .registrationNumber("another" + appProperties.getTestRegistrationNumber())
+                        .name("another" + appProperties.getTestName())
+                        .address("another" + appProperties.getTestAddress())
+                        .ceoName("another" + appProperties.getTestCeoName())
+                        .build();
+        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
+
+        Account account = modelMapper.map(enterpriseDto, Account.class);
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUserRole(UserRole.ENTERPRISE);
+        account.setEnterprise(enterprise);
+
+        enterprise.setAccount(account);
+
+        accountRepository.save(account);
+        enterpriseRepository.save(enterprise);
+
+        return enterpriseDto;
+    }
+
+    protected String createEnterpriseJwt() {
+        EnterpriseDto enterpriseDto = createAnotherEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        Account account = accountOptional.get();
+
+        return "Bearer " + jwtProvider.generateToken(account);
+    }
+
+    protected String createAccountJwt() {
+        Account newAccount = createAnotherAccount();
+        return "Bearer " + jwtProvider.generateToken(newAccount);
+
     }
 }

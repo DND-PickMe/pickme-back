@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,6 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -63,6 +65,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                     .antMatchers(HttpMethod.POST, "/api/accounts/", "/api/enterprises", "/api/accounts", "/api/enterprises/", "/api/login").permitAll()
+                    .antMatchers(HttpMethod.POST, "/api/experiences", "/api/experiences/", "/api/licenses", "/api/licenses/", "/api/prizes", "/api/prizes/", "/api/projects", "/api/projects/", "/api/selfInterviews", "/api/selfInterviews/").hasRole("USER")
+                    .antMatchers(HttpMethod.PUT, "/api/accounts/**", "/api/experiences/**", "/api/licenses/**", "/api/prizes/**", "/api/projects/**", "/api/selfInterviews/**").hasRole("USER")
+                    .antMatchers(HttpMethod.DELETE, "/api/accounts/**", "/api/experiences/**", "/api/licenses/**", "/api/prizes/**", "/api/projects/**", "/api/selfInterviews/**").hasRole("USER")
+                    .antMatchers(HttpMethod.PUT, "/api/enterprises/**").hasRole("ENTERPRISE")
+                    .antMatchers(HttpMethod.DELETE, "/api/enterprises/**").hasRole("ENTERPRISE")
                 .anyRequest()
                     .authenticated()
                 .and()

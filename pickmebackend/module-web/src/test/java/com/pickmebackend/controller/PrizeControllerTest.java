@@ -33,6 +33,7 @@ class PrizeControllerTest extends BaseControllerTest {
     void setUp() {
         prizeRepository.deleteAll();
         accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
     }
 
     @Test
@@ -65,6 +66,33 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("competition").value(competition))
                 .andExpect(jsonPath("issuedDate").value(issuedDate.toString()))
                 .andExpect(jsonPath("account").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("기업담당자가 수상 내역 생성할 시 Forbidden")
+    void savePrize_forbidden() throws Exception {
+        jwt = createEnterpriseJwt();
+
+        PrizeDto prizeDto = new PrizeDto();
+
+        String name = "ACM-ICPC 대상 수상";
+        String description = "2019년 12월 31일에 수상했습니다.";
+        String competition = "icpckorea";
+        LocalDate issuedDate = LocalDate.of(2019, 12, 31);
+
+        prizeDto.setName(name);
+        prizeDto.setDescription(description);
+        prizeDto.setCompetition(competition);
+        prizeDto.setIssuedDate(issuedDate);
+
+        mockMvc.perform(post(prizeUrl)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(prizeDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     @Test
@@ -137,6 +165,30 @@ class PrizeControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("기업 담당자가 수상 경력 수정을 요청할 때 Forbidden")
+    void updatePrize_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Prize prize = createPrize(newAccount);
+
+        String updateDescription = "사실 수상 경력은 거짓말입니다.";
+        prize.setDescription(updateDescription);
+        PrizeDto prizeDto = modelMapper.map(prize, PrizeDto.class);
+
+        jwt = createEnterpriseJwt();
+
+        mockMvc.perform(put(prizeUrl + "{prizeId}", prize.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(prizeDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+    @Test
     @DisplayName("정상적으로 수상 내역 삭제하기")
     void deletePrize() throws Exception {
         Account newAccount = createAccount();
@@ -176,6 +228,23 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 수상 경력 삭제를 요청할 때 Forbidden")
+    void deletePrize_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        Prize prize = createPrize(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        mockMvc.perform(delete(prizeUrl + "{prizeId}", prize.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     private Prize createPrize(Account account) {

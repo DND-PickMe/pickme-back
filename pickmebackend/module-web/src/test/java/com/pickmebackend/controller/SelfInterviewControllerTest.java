@@ -31,6 +31,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
     void setUp() {
         selfInterviewRepository.deleteAll();
         accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
     }
 
     @Test
@@ -54,6 +55,26 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("title").value(title))
                 .andExpect(jsonPath("content").value(content))
                 .andExpect(jsonPath("account").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 셀프 인터뷰 생성할 시 Forbidden")
+    void saveSelfInterview_forbidden() throws Exception {
+        jwt = createEnterpriseJwt();
+        SelfInterviewDto selfInterviewDto = new SelfInterviewDto();
+        String title = "사람, 워라벨, 업무만족도, 연봉 중 중요한 순서대로 나열한다면?";
+        String content = "사람 > 업무만족도 > 연봉 > 워라벨";
+        selfInterviewDto.setTitle(title);
+        selfInterviewDto.setContent(content);
+
+        mockMvc.perform(post(selfInterviewUrl)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     @Test
@@ -124,6 +145,30 @@ class SelfInterviewControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("기업 담당자가 셀프인터뷰 수정을 요청할 때 Forbidden")
+    void updateSelfInterview_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        String updateContent = "워라벨이 가장 중요한 것 같습니다.";
+        selfInterview.setContent(updateContent);
+
+        SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
+        mockMvc.perform(put(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+    @Test
     @DisplayName("정상적으로 셀프 인터뷰 삭제하기")
     void deleteSelfInterview() throws Exception {
         Account newAccount = createAccount();
@@ -163,6 +208,23 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 셀프인터뷰 삭제를 요청할 때 Forbidden")
+    void deleteSelfInterview_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = generateBearerToken_need_account(anotherAccount);
+        SelfInterview selfInterview = createSelfInterview(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     private SelfInterview createSelfInterview(Account account) {

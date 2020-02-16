@@ -32,6 +32,7 @@ class ExperienceControllerTest extends BaseControllerTest {
     void setUp() {
         experienceRepository.deleteAll();
         accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
     }
 
     @Test
@@ -67,6 +68,35 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("joinedAt").value(joinedAt.toString()))
                 .andExpect(jsonPath("retiredAt").value(retiredAt.toString()))
                 .andExpect(jsonPath("account").isNotEmpty());
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 경력 생성할 시 Forbidden")
+    void saveExperienceByEnterprise() throws Exception {
+        jwt = createEnterpriseJwt();
+
+        String companyName = "D&D 주식회사";
+        String description = "D&D 주식회사에서 Spring Boot를 사용해 백엔드 개발을 맡았습니다.";
+        String position = "백엔드 개발자";
+        LocalDate joinedAt = LocalDate.of(2019, 12, 25);
+        LocalDate retiredAt = LocalDate.of(2020, 1, 22);
+
+        ExperienceDto experienceDto = ExperienceDto.builder()
+                .companyName(companyName)
+                .description(description)
+                .position(position)
+                .joinedAt(joinedAt)
+                .retiredAt(retiredAt)
+                .build();
+
+        mockMvc.perform(post(experienceUrl)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(experienceDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     @Test
@@ -113,7 +143,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         experience.setPosition(updatePosition);
 
         ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
-        mockMvc.perform(put(experienceUrl + "{selfInterviewId}", -1)
+        mockMvc.perform(put(experienceUrl + "{experienceId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +168,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         experience.setPosition(updatePosition);
 
         ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
-        mockMvc.perform(put(experienceUrl + "{selfInterviewId}", experience.getId())
+        mockMvc.perform(put(experienceUrl + "{experienceId}", experience.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -149,13 +179,39 @@ class ExperienceControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("기업담당자가 경력의 수정을 요청할 시 Forbidden")
+    void updateExperience_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Experience experience = createExperience(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        String updateDescription = "사실 프론트엔드 개발자를 맡았었습니다.";
+        String updatePosition = "프론트엔트 개발자";
+
+        experience.setDescription(updateDescription);
+        experience.setPosition(updatePosition);
+
+        ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
+        mockMvc.perform(put(experienceUrl + "{experienceId}", experience.getId())
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(experienceDto)))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
+    }
+
+    @Test
     @DisplayName("정상적으로 경력 삭제하기")
     void deleteExperience() throws Exception {
         Account newAccount = createAccount();
         jwt = generateBearerToken_need_account(newAccount);
         Experience experience = createExperience(newAccount);
 
-        mockMvc.perform(delete(experienceUrl + "{selfInterviewId}", experience.getId())
+        mockMvc.perform(delete(experienceUrl + "{experienceId}", experience.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -168,7 +224,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         jwt = generateBearerToken_need_account(newAccount);
         createExperience(newAccount);
 
-        mockMvc.perform(delete(experienceUrl + "{selfInterviewId}", -1)
+        mockMvc.perform(delete(experienceUrl + "{experienceId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -183,11 +239,27 @@ class ExperienceControllerTest extends BaseControllerTest {
         jwt = generateBearerToken_need_account(anotherAccount);
         Experience experience = createExperience(newAccount);
 
-        mockMvc.perform(delete(experienceUrl + "{selfInterviewId}", experience.getId())
+        mockMvc.perform(delete(experienceUrl + "{experienceId}", experience.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+    }
+
+    @Test
+    @DisplayName("기업 담당자가 경력의 삭제를 요청할 시 Forbidden")
+    void deleteExperience_forbidden() throws Exception {
+        Account newAccount = createAccount();
+        jwt = generateBearerToken_need_account(newAccount);
+        Experience experience = createExperience(newAccount);
+
+        jwt = createEnterpriseJwt();
+
+        mockMvc.perform(delete(experienceUrl + "{experienceId}", experience.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isForbidden())
+        ;
     }
 
     private Experience createExperience(Account account) {
