@@ -2,6 +2,7 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
@@ -92,5 +93,17 @@ public class AccountService{
                                                                 .path(requestURI)
                                                                 .path(USER_DEFAULT_IMG)
                                                                 .toUriString();
+    }
+
+    public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+        Account favoritedAccount = accountOptional.get();
+        favoritedAccount.addFavorite(currentUser);
+        Account savedAccount = accountRepository.save(favoritedAccount);
+
+        return new ResponseEntity<>(new AccountResponseDto(savedAccount), HttpStatus.OK);
     }
 }

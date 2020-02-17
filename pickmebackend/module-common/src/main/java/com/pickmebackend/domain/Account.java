@@ -7,9 +7,7 @@ import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder @ToString
@@ -32,6 +30,9 @@ public class Account {
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> technology = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<Account> favorite = new HashSet<>();
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -64,4 +65,12 @@ public class Account {
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<SelfInterview> selfInterviews;
+
+    public void addFavorite(Account currentUser) {
+        if (this.getFavorite().contains(currentUser)) {
+            this.getFavorite().remove(currentUser);
+        } else {
+            this.getFavorite().add(currentUser);
+        }
+    }
 }

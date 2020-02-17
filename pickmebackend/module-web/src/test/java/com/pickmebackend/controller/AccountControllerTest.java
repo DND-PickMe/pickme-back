@@ -380,4 +380,56 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())));
     }
+
+    @Test
+    @DisplayName("정상적으로 좋아요 생성")
+    void favorite() throws Exception {
+        Account account = createAccount();
+
+        mockMvc.perform(post(accountURL + "/{accountId}/favorite", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(account.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(account.getNickName())))
+                .andExpect(jsonPath("favoriteCount", is(1)));
+    }
+
+    @Test
+    @DisplayName("정상적으로 좋아요 삭제(좋아요 개수 1 -> 0)")
+    void favorite_remove() throws Exception {
+        Account account = createAccount();
+        String anotherAccountJwt = createAccountJwt();
+        mockMvc.perform(post(accountURL + "/{accountId}/favorite", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, anotherAccountJwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(account.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(account.getNickName())))
+                .andExpect(jsonPath("favoriteCount", is(1)));
+
+        mockMvc.perform(post(accountURL + "/{accountId}/favorite", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, anotherAccountJwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(account.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(account.getNickName())))
+                .andExpect(jsonPath("favoriteCount", is(0)));
+    }
+
+    @Test
+    @DisplayName("좋아요를 누를 유저가 존재하지 않을 때")
+    void favorite_not_found() throws Exception {
+        mockMvc.perform(post(accountURL + "/{accountId}/favorite", -1)
+                .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", is(USERNOTFOUND)));
+    }
 }
