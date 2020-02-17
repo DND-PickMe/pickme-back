@@ -2,6 +2,7 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.account.AccountListResponseDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
@@ -15,7 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
@@ -105,5 +110,17 @@ public class AccountService{
         Account savedAccount = accountRepository.save(favoritedAccount);
 
         return new ResponseEntity<>(new AccountResponseDto(savedAccount), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getFavoriteUsers(Long accountId) {
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.OK);
+        }
+        Account account = accountOptional.get();
+        List<AccountListResponseDto> accountList = account.getFavorite().stream()
+                .map(AccountListResponseDto::new)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(accountList, HttpStatus.OK);
     }
 }

@@ -3,6 +3,8 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.account.AccountListResponseDto;
+import com.pickmebackend.domain.enums.UserRole;
 import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -386,7 +389,7 @@ class AccountControllerTest extends BaseControllerTest {
     void favorite() throws Exception {
         Account account = createAccount();
 
-        mockMvc.perform(post(accountURL + "/{accountId}/favorite", account.getId())
+        mockMvc.perform(post(accountURL + "{accountId}/favorite", account.getId())
                 .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -402,7 +405,7 @@ class AccountControllerTest extends BaseControllerTest {
     void favorite_remove() throws Exception {
         Account account = createAccount();
         String anotherAccountJwt = createAccountJwt();
-        mockMvc.perform(post(accountURL + "/{accountId}/favorite", account.getId())
+        mockMvc.perform(post(accountURL + "{accountId}/favorite", account.getId())
                 .header(HttpHeaders.AUTHORIZATION, anotherAccountJwt))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -426,10 +429,52 @@ class AccountControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("좋아요를 누를 유저가 존재하지 않을 때")
     void favorite_not_found() throws Exception {
-        mockMvc.perform(post(accountURL + "/{accountId}/favorite", -1)
+        mockMvc.perform(post(accountURL + "{accountId}/favorite", -1)
                 .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)));
+    }
+
+    @Test
+    @DisplayName("좋아요를 누른 유저 조회")
+    void getFavoriteUser() throws Exception {
+        Account account = createAccount();
+        Account secondAccount = accountRepository.save(Account.builder()
+                                                        .email("sangyeop@email.com")
+                                                        .password(passwordEncoder.encode("password"))
+                                                        .nickName("sangyeopzzangzzang")
+                                                        .userRole(UserRole.USER)
+                                                        .createdAt(LocalDateTime.now())
+                                                        .build());
+        String firstAccountjwt = createAccountJwt();
+        String secondJwt = jwtProvider.generateToken(secondAccount);
+
+        mockMvc.perform(post(accountURL + "{accountId}/favorite", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, firstAccountjwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(account.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(account.getNickName())))
+                .andExpect(jsonPath("favoriteCount", is(1)));
+
+        mockMvc.perform(post(accountURL + "{accountId}/favorite", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + secondJwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(account.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(account.getNickName())))
+                .andExpect(jsonPath("favoriteCount", is(2)));
+
+        mockMvc.perform(get(accountURL + "{accountId}/favorite", account.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[*].id").exists())
+                .andExpect(jsonPath("[*].email").exists())
+                .andExpect(jsonPath("[*].image").exists());
     }
 }

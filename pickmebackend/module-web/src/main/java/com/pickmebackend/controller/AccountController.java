@@ -56,4 +56,9 @@ public class AccountController {
     ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) {
         return accountService.favorite(accountId, currentUser);
     }
+
+    @GetMapping("/{accountId}/favorite")
+    ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) {
+        return accountService.getFavoriteUsers(accountId);
+    }
 }
