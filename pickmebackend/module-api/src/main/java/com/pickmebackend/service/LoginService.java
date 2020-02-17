@@ -3,7 +3,7 @@ package com.pickmebackend.service;
 import com.pickmebackend.config.jwt.Jwt;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.LoginDto;
+import com.pickmebackend.domain.dto.login.LoginRequestDto;
 import com.pickmebackend.error.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,11 +26,11 @@ public class LoginService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> login(LoginDto loginDto) {
-        if(!authenticate(loginDto.getEmail(), loginDto.getPassword()))  {
+    public ResponseEntity<?> login(LoginRequestDto loginRequestDto) {
+        if(!authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword()))  {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
-        Account account = modelMapper.map(loginDto, Account.class);
+        Account account = modelMapper.map(loginRequestDto, Account.class);
 
         return new ResponseEntity<>(new Jwt(jwtProvider.generateToken(account)), HttpStatus.OK);
     }

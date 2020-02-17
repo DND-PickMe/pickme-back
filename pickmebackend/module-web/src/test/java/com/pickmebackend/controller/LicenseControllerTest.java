@@ -3,7 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
-import com.pickmebackend.domain.dto.LicenseDto;
+import com.pickmebackend.domain.dto.license.LicenseRequestDto;
 import com.pickmebackend.repository.LicenseRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +46,7 @@ class LicenseControllerTest extends BaseControllerTest {
         String description = "2019년 8월 16일에 취득하였습니다.";
         LocalDate issuedDate = LocalDate.of(2019, 8, 16);
 
-        LicenseDto licenseDto = LicenseDto.builder()
+        LicenseRequestDto licenseRequestDto = LicenseRequestDto.builder()
                                             .name(name)
                                             .institution(institution)
                                             .description(description)
@@ -57,7 +57,7 @@ class LicenseControllerTest extends BaseControllerTest {
                         .accept(MediaTypes.HAL_JSON_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType( MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(licenseDto)))
+                        .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").isNotEmpty())
@@ -78,7 +78,7 @@ class LicenseControllerTest extends BaseControllerTest {
         String description = "2019년 8월 16일에 취득하였습니다.";
         LocalDate issuedDate = LocalDate.of(2019, 8, 16);
 
-        LicenseDto licenseDto = LicenseDto.builder()
+        LicenseRequestDto licenseRequestDto = LicenseRequestDto.builder()
                 .name(name)
                 .institution(institution)
                 .description(description)
@@ -89,7 +89,7 @@ class LicenseControllerTest extends BaseControllerTest {
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType( MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(licenseDto)))
+                .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
@@ -108,19 +108,20 @@ class LicenseControllerTest extends BaseControllerTest {
         license.setDescription(updateDescription);
         license.setIssuedDate(updateIssuedDate);
 
-        LicenseDto licenseDto = modelMapper.map(license, LicenseDto.class);
+        LicenseRequestDto licenseRequestDto = modelMapper.map(license, LicenseRequestDto.class);
         mockMvc.perform(put(licenseUrl + "{licenseId}", license.getId())
                         .accept(MediaTypes.HAL_JSON_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(licenseDto)))
+                        .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").isNotEmpty())
                 .andExpect(jsonPath("name").isNotEmpty())
                 .andExpect(jsonPath("institution").isNotEmpty())
                 .andExpect(jsonPath("description", is(updateDescription)))
-                .andExpect(jsonPath("issuedDate", is(updateIssuedDate.toString())));
+                .andExpect(jsonPath("issuedDate", is(updateIssuedDate.toString())))
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
@@ -136,12 +137,12 @@ class LicenseControllerTest extends BaseControllerTest {
         license.setDescription(updateDescription);
         license.setIssuedDate(updateIssuedDate);
 
-        LicenseDto licenseDto = modelMapper.map(license, LicenseDto.class);
+        LicenseRequestDto licenseRequestDto = modelMapper.map(license, LicenseRequestDto.class);
         mockMvc.perform(put(licenseUrl + "{licenseId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(licenseDto)))
+                .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(LICENSENOTFOUND)));
@@ -161,12 +162,12 @@ class LicenseControllerTest extends BaseControllerTest {
         license.setDescription(updateDescription);
         license.setIssuedDate(updateIssuedDate);
 
-        LicenseDto licenseDto = modelMapper.map(license, LicenseDto.class);
+        LicenseRequestDto licenseRequestDto = modelMapper.map(license, LicenseRequestDto.class);
         mockMvc.perform(put(licenseUrl + "{licenseId}", license.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(licenseDto)))
+                .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
@@ -187,12 +188,12 @@ class LicenseControllerTest extends BaseControllerTest {
         license.setDescription(updateDescription);
         license.setIssuedDate(updateIssuedDate);
 
-        LicenseDto licenseDto = modelMapper.map(license, LicenseDto.class);
+        LicenseRequestDto licenseRequestDto = modelMapper.map(license, LicenseRequestDto.class);
         mockMvc.perform(put(licenseUrl + "{licenseId}", license.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(licenseDto)))
+                .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;

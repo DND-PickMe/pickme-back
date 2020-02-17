@@ -3,7 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
-import com.pickmebackend.domain.dto.SelfInterviewDto;
+import com.pickmebackend.domain.dto.selfInterview.SelfInterviewRequestDto;
 import com.pickmebackend.repository.SelfInterviewRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,17 +38,17 @@ class SelfInterviewControllerTest extends BaseControllerTest {
     @DisplayName("정상적으로 셀프 인터뷰 생성하기")
     void saveSelfInterview() throws Exception {
         jwt = generateBearerToken();
-        SelfInterviewDto selfInterviewDto = new SelfInterviewDto();
+        SelfInterviewRequestDto selfInterviewRequestDto = new SelfInterviewRequestDto();
         String title = "사람, 워라벨, 업무만족도, 연봉 중 중요한 순서대로 나열한다면?";
         String content = "사람 > 업무만족도 > 연봉 > 워라벨";
-        selfInterviewDto.setTitle(title);
-        selfInterviewDto.setContent(content);
+        selfInterviewRequestDto.setTitle(title);
+        selfInterviewRequestDto.setContent(content);
 
         mockMvc.perform(post(selfInterviewUrl)
                         .accept(MediaTypes.HAL_JSON_VALUE)
                         .header(HttpHeaders.AUTHORIZATION, jwt)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                        .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -61,17 +61,17 @@ class SelfInterviewControllerTest extends BaseControllerTest {
     @DisplayName("기업 담당자가 셀프 인터뷰 생성할 시 Forbidden")
     void saveSelfInterview_forbidden() throws Exception {
         jwt = createEnterpriseJwt();
-        SelfInterviewDto selfInterviewDto = new SelfInterviewDto();
+        SelfInterviewRequestDto selfInterviewRequestDto = new SelfInterviewRequestDto();
         String title = "사람, 워라벨, 업무만족도, 연봉 중 중요한 순서대로 나열한다면?";
         String content = "사람 > 업무만족도 > 연봉 > 워라벨";
-        selfInterviewDto.setTitle(title);
-        selfInterviewDto.setContent(content);
+        selfInterviewRequestDto.setTitle(title);
+        selfInterviewRequestDto.setContent(content);
 
         mockMvc.perform(post(selfInterviewUrl)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
@@ -87,12 +87,12 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         String updateContent = "워라벨이 가장 중요한 것 같습니다.";
         selfInterview.setContent(updateContent);
 
-        SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
+        SelfInterviewRequestDto selfInterviewRequestDto = modelMapper.map(selfInterview, SelfInterviewRequestDto.class);
         mockMvc.perform(put(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                                         .accept(MediaTypes.HAL_JSON_VALUE)
                                         .header(HttpHeaders.AUTHORIZATION, jwt)
                                         .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                                        .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -111,12 +111,12 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         String updateContent = "워라벨이 가장 중요한 것 같습니다.";
         selfInterview.setContent(updateContent);
 
-        SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
+        SelfInterviewRequestDto selfInterviewRequestDto = modelMapper.map(selfInterview, SelfInterviewRequestDto.class);
         mockMvc.perform(put(selfInterviewUrl + "{selfInterviewId}", -1)
                                         .accept(MediaTypes.HAL_JSON_VALUE)
                                         .header(HttpHeaders.AUTHORIZATION, jwt)
                                         .contentType(MediaType.APPLICATION_JSON)
-                                        .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                                        .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(SELFINTERVIEWNOTFOUND));
@@ -133,12 +133,12 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         String updateContent = "워라벨이 가장 중요한 것 같습니다.";
         selfInterview.setContent(updateContent);
 
-        SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
+        SelfInterviewRequestDto selfInterviewRequestDto = modelMapper.map(selfInterview, SelfInterviewRequestDto.class);
         mockMvc.perform(put(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
@@ -157,12 +157,12 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         String updateContent = "워라벨이 가장 중요한 것 같습니다.";
         selfInterview.setContent(updateContent);
 
-        SelfInterviewDto selfInterviewDto = modelMapper.map(selfInterview, SelfInterviewDto.class);
+        SelfInterviewRequestDto selfInterviewRequestDto = modelMapper.map(selfInterview, SelfInterviewRequestDto.class);
         mockMvc.perform(put(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(selfInterviewDto)))
+                .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;

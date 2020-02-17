@@ -2,6 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.domain.dto.account.AccountListResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
@@ -48,7 +49,7 @@ class AccountControllerTest extends BaseControllerTest {
         assert appProperties.getTestPassword() != null;
         assert appProperties.getTestNickname() != null;
 
-        AccountDto accountDto = AccountDto.builder()
+        AccountRequestDto accountDto = AccountRequestDto.builder()
                                             .email(appProperties.getTestEmail())
                                             .password(appProperties.getTestPassword())
                                             .nickName(appProperties.getTestNickname())
@@ -81,7 +82,7 @@ class AccountControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("회원 가입시 중복된 email 존재할 경우 Bad Request 반환")
     void check_duplicated_Account() throws Exception {
-        AccountDto accountDto = AccountDto.builder()
+        AccountRequestDto accountDto = AccountRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
@@ -112,7 +113,7 @@ class AccountControllerTest extends BaseControllerTest {
         assertNotNull(password);
         assertNotNull(nickName);
 
-        AccountDto accountDto = AccountDto.builder()
+        AccountRequestDto accountDto = AccountRequestDto.builder()
                                             .email(email)
                                             .password(password)
                                             .nickName(nickName)
@@ -133,7 +134,7 @@ class AccountControllerTest extends BaseControllerTest {
     @RepeatedTest(value = 3, name = "{displayName} {currentRepetition}")
     @DisplayName("유저 생성 시 email, password, nickname 중 하나라도 null이 들어올 경우 Bad Request 반환")
     void saveAccount_null_input(RepetitionInfo info) throws Exception {
-        AccountDto accountDto = AccountDto.builder()
+        AccountRequestDto accountDto = AccountRequestDto.builder()
                                             .email(appProperties.getTestEmail())
                                             .password(appProperties.getTestPassword())
                                             .nickName(appProperties.getTestNickname())
@@ -176,7 +177,7 @@ class AccountControllerTest extends BaseControllerTest {
         newAccount.setOneLineIntroduce(oneLineIntroduce);
         newAccount.setTechnology(technology);
 
-        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
         mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
                 .accept(MediaTypes.HAL_JSON)
@@ -205,7 +206,7 @@ class AccountControllerTest extends BaseControllerTest {
         newAccount.setPassword(password);
         newAccount.setNickName(nickName);
 
-        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
         mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
                 .accept(MediaTypes.HAL_JSON)
@@ -235,7 +236,7 @@ class AccountControllerTest extends BaseControllerTest {
             newAccount.setNickName(null);
         }
 
-        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
         mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
                 .accept(MediaTypes.HAL_JSON)
@@ -259,7 +260,7 @@ class AccountControllerTest extends BaseControllerTest {
         newAccount.setEmail("update@email.com");
         newAccount.setNickName("updateNick");
 
-        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
         mockMvc.perform(put(accountURL + "{accountId}", -1)
                 .accept(MediaTypes.HAL_JSON)
@@ -281,7 +282,7 @@ class AccountControllerTest extends BaseControllerTest {
         newAccount.setEmail("update@email.com");
         newAccount.setNickName("updateNick");
 
-        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
         mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
                 .accept(MediaTypes.HAL_JSON)
@@ -305,7 +306,7 @@ class AccountControllerTest extends BaseControllerTest {
 
         jwt = createEnterpriseJwt();
 
-        AccountDto updateAccountDto = modelMapper.map(newAccount, AccountDto.class);
+        AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
         mockMvc.perform(put(accountURL + "{accountId}", newAccount.getId())
                 .accept(MediaTypes.HAL_JSON)

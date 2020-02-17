@@ -2,7 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    ResponseEntity<?> saveAccount(@Valid @RequestBody AccountDto accountDto, Errors errors) {
+    ResponseEntity<?> saveAccount(@Valid @RequestBody AccountRequestDto accountDto, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
@@ -34,7 +34,7 @@ public class AccountController {
     }
 
     @PutMapping("/{accountId}")
-    ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountDto accountDto, Errors errors, @CurrentUser Account currentUser) {
+    ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequestDto accountDto, Errors errors, @CurrentUser Account currentUser) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }

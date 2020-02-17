@@ -1,6 +1,6 @@
 package com.pickmebackend.controller;
 
-import com.pickmebackend.domain.dto.LoginDto;
+import com.pickmebackend.domain.dto.login.LoginRequestDto;
 import com.pickmebackend.service.LoginService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
@@ -22,10 +22,10 @@ public class LoginController {
     }
 
     @PostMapping
-    ResponseEntity<?> login(@Valid @RequestBody LoginDto loginDto, Errors errors) throws Exception {
+    ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) throws Exception {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
-        return loginService.login(loginDto);
+        return loginService.login(loginRequestDto);
     }
 }

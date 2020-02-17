@@ -1,11 +1,11 @@
-package com.pickmebackend.domain.dto;
+package com.pickmebackend.domain.dto.project;
 
 import lombok.*;
 import java.time.LocalDate;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class ProjectDto {
+public class ProjectRequestDto {
 
     private String name;
 

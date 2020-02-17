@@ -2,7 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.ExperienceDto;
+import com.pickmebackend.domain.dto.experience.ExperienceRequestDto;
 import com.pickmebackend.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
@@ -17,13 +17,13 @@ public class ExperienceController {
     private final ExperienceService experienceService;
 
     @PostMapping
-    ResponseEntity<?> saveExperience(@RequestBody ExperienceDto experienceDto, @CurrentUser Account currentUser) {
-        return experienceService.saveExperience(experienceDto, currentUser);
+    ResponseEntity<?> saveExperience(@RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
+        return experienceService.saveExperience(experienceRequestDto, currentUser);
     }
 
     @PutMapping(value = "/{experienceId}")
-    ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceDto experienceDto, @CurrentUser Account currentUser) {
-        return experienceService.updateExperience(experienceId, experienceDto, currentUser);
+    ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
+        return experienceService.updateExperience(experienceId, experienceRequestDto, currentUser);
     }
 
     @DeleteMapping(value = "/{experienceId}")

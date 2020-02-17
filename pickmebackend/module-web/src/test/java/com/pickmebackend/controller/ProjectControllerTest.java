@@ -3,7 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
-import com.pickmebackend.domain.dto.ProjectDto;
+import com.pickmebackend.domain.dto.project.ProjectRequestDto;
 import com.pickmebackend.repository.ProjectRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +54,7 @@ class ProjectControllerTest extends BaseControllerTest {
         LocalDate startedAt = LocalDate.of(2019, 12, 21);
         LocalDate endedAt = LocalDate.of(2020, 2, 25);
 
-        ProjectDto projectDto = ProjectDto.builder()
+        ProjectRequestDto projectRequestDto = ProjectRequestDto.builder()
                                             .name(name)
                                             .description(description)
                                             .role(role)
@@ -67,9 +67,10 @@ class ProjectControllerTest extends BaseControllerTest {
                                     .accept(MediaTypes.HAL_JSON_VALUE)
                                     .header(HttpHeaders.AUTHORIZATION, jwt)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(objectMapper.writeValueAsString(projectDto)))
+                                    .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("name", is(name)))
                 .andExpect(jsonPath("description", is(description)))
                 .andExpect(jsonPath("role", is(role)))
@@ -91,7 +92,7 @@ class ProjectControllerTest extends BaseControllerTest {
         LocalDate startedAt = LocalDate.of(2019, 12, 21);
         LocalDate endedAt = LocalDate.of(2020, 2, 25);
 
-        ProjectDto projectDto = ProjectDto.builder()
+        ProjectRequestDto projectRequestDto = ProjectRequestDto.builder()
                 .name(name)
                 .description(description)
                 .role(role)
@@ -104,7 +105,7 @@ class ProjectControllerTest extends BaseControllerTest {
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(projectDto)))
+                .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
@@ -120,21 +121,23 @@ class ProjectControllerTest extends BaseControllerTest {
         String updateRole = "프론트 엔드 개발을 맡았었음.";
         project.setRole(updateRole);
 
-        ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+        ProjectRequestDto projectRequestDto = modelMapper.map(project, ProjectRequestDto.class);
 
         mockMvc.perform(put(projectUrl + "{projectId}", project.getId())
                                     .accept(MediaTypes.HAL_JSON_VALUE)
                                     .header(HttpHeaders.AUTHORIZATION, jwt)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(objectMapper.writeValueAsString(projectDto)))
+                                    .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("name").isNotEmpty())
                 .andExpect(jsonPath("description").isNotEmpty())
                 .andExpect(jsonPath("role", is(updateRole)))
                 .andExpect(jsonPath("projectLink").isNotEmpty())
                 .andExpect(jsonPath("startedAt").isNotEmpty())
-                .andExpect(jsonPath("endedAt").isNotEmpty());
+                .andExpect(jsonPath("endedAt").isNotEmpty())
+                .andExpect(jsonPath("account").isNotEmpty());
     }
 
     @Test
@@ -147,13 +150,13 @@ class ProjectControllerTest extends BaseControllerTest {
         String updateRole = "프론트 엔드 개발을 맡았었음.";
         project.setRole(updateRole);
 
-        ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+        ProjectRequestDto projectRequestDto = modelMapper.map(project, ProjectRequestDto.class);
 
         mockMvc.perform(put(projectUrl + "{projectId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(projectDto)))
+                .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(PROJECTNOTFOUND)));
@@ -170,13 +173,13 @@ class ProjectControllerTest extends BaseControllerTest {
         String updateRole = "프론트 엔드 개발을 맡았었음.";
         project.setRole(updateRole);
 
-        ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+        ProjectRequestDto projectRequestDto = modelMapper.map(project, ProjectRequestDto.class);
 
         mockMvc.perform(put(projectUrl + "{projectId}", project.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(projectDto)))
+                .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
@@ -195,13 +198,13 @@ class ProjectControllerTest extends BaseControllerTest {
         String updateRole = "프론트 엔드 개발을 맡았었음.";
         project.setRole(updateRole);
 
-        ProjectDto projectDto = modelMapper.map(project, ProjectDto.class);
+        ProjectRequestDto projectRequestDto = modelMapper.map(project, ProjectRequestDto.class);
 
         mockMvc.perform(put(projectUrl + "{projectId}", project.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(projectDto)))
+                .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;

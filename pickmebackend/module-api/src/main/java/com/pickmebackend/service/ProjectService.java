@@ -2,7 +2,8 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
-import com.pickmebackend.domain.dto.ProjectDto;
+import com.pickmebackend.domain.dto.project.ProjectRequestDto;
+import com.pickmebackend.domain.dto.project.ProjectResponseDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,18 @@ public class ProjectService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveProject(ProjectDto projectDto, Account currentUser) {
-        Project project = modelMapper.map(projectDto, Project.class);
+    public ResponseEntity<?> saveProject(ProjectRequestDto projectRequestDto, Account currentUser) {
+        Project project = modelMapper.map(projectRequestDto, Project.class);
 
         project.mapAccount(currentUser);
-        return new ResponseEntity<>(this.projectRepository.save(project), HttpStatus.CREATED);
+        Project savedProject = this.projectRepository.save(project);
+        ProjectResponseDto projectResponseDto = modelMapper.map(savedProject, ProjectResponseDto.class);
+
+        return new ResponseEntity<>(projectResponseDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateProject(Long projectId, ProjectDto projectDto, Account currentUser) {
-        Optional<Project> projectOptional = projectRepository.findById(projectId);
+    public ResponseEntity<?> updateProject(Long projectId, ProjectRequestDto projectRequestDto, Account currentUser) {
+        Optional<Project> projectOptional = this.projectRepository.findById(projectId);
         if (!projectOptional.isPresent()) {
             return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
         }
@@ -40,12 +44,15 @@ public class ProjectService {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        modelMapper.map(projectDto, project);
-        return new ResponseEntity<>(this.projectRepository.save(project), HttpStatus.OK);
+        modelMapper.map(projectRequestDto, project);
+        Project modifiedProject = this.projectRepository.save(project);
+        ProjectResponseDto projectResponseDto = modelMapper.map(modifiedProject, ProjectResponseDto.class);
+
+        return new ResponseEntity<>(projectResponseDto, HttpStatus.OK);
     }
 
     public ResponseEntity<?> deleteProject(Long projectId, Account currentUser) {
-        Optional<Project> projectOptional = projectRepository.findById(projectId);
+        Optional<Project> projectOptional = this.projectRepository.findById(projectId);
         if (!projectOptional.isPresent()) {
             return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
         }

@@ -1,11 +1,11 @@
-package com.pickmebackend.domain.dto;
+package com.pickmebackend.domain.dto.experience;
 
 import lombok.*;
 import java.time.LocalDate;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class ExperienceDto {
+public class ExperienceRequestDto {
 
     private String companyName;
 
