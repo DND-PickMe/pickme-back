@@ -7,5 +7,4 @@ dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testCompile 'org.springframework.security:spring-security-test'
-    // runtimeOnly 'mysql:mysql-connector-java'
 }

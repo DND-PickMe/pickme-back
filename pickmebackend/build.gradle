@@ -46,7 +46,6 @@ subprojects {
         }
         // https://mvnrepository.com/artifact/com.h2database/h2
         compile 'com.h2database:h2'
-//        group: 'com.h2database', name: 'h2', version: '1.4.200'
     }
 
 }
