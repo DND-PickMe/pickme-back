@@ -13,7 +13,7 @@ git pull
 
 echo "프로젝트 빌드 시작"
 
-cd /$PROJECT_NAME
+cd ./$PROJECT_NAME
 ./gradlew build
 
 echo "> pickme 디렉토리로 이동"
