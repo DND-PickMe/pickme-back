@@ -13,10 +13,10 @@ git pull
 
 echo "프로젝트 빌드 시작"
 
-cd $PROJECT_NAME
+cd /$PROJECT_NAME
 ./gradlew build
 
-echo "> step1 디렉토리로 이동"
+echo "> pickme 디렉토리로 이동"
 
 cd $REPOSITORY
 
@@ -45,5 +45,5 @@ JAR_NAME=$(ls -tr $REPOSITORY/ | grep *.jar | tail -n 1)
 echo "> JAR Name : $JAR_NAME"
 
 nohup java -jar \
-         -Dspring.config.location=/home/ec2-user/app/pickme-back/pickmebackend/module-web/src/main/resources/application.yml,/home/ec2-user/app/pickme-back/pickmebackend/module-api/src/main/resources/application.yml,/home/ec2-user/app/pickme-back/pickmebackend/module-common/src/main/resources/application.yml,/home/ec2-user/app/application-real-db.properties \
+         -Dspring.config.location=$REPOSITORY/$PROJECT_NAME/module-web/src/main/resources/application.yml,$REPOSITORY/$PROJECT_NAME/module-api/src/main/resources/application.yml,$REPOSITORY/$PROJECT_NAME/module-common/src/main/resources/application.yml,/home/ec2-user/app/application-real-db.properties \
          $REPOSITORY/$JAR_NAME 2>&1 &
