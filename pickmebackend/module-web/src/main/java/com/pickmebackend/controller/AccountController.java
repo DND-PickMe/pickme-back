@@ -4,13 +4,17 @@ import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
 import com.pickmebackend.error.ErrorMessage;
+import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+
+import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 
 @RestController
@@ -45,8 +49,8 @@ public class AccountController {
         return accountService.deleteAccount(accountId, currentUser);
     }
 
-    @GetMapping("/{accountId}")
-    ResponseEntity<?> getAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
-        return accountService.getAccount(accountId, currentUser);
+    @GetMapping
+    ResponseEntity<?> getAccount(@CurrentUser Account currentUser) {
+        return accountService.getAccount(currentUser);
     }
 }

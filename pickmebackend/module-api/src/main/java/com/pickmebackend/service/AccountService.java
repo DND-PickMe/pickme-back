@@ -68,16 +68,14 @@ public class AccountService{
         return ResponseEntity.ok().build();
     }
 
-    public ResponseEntity<?> getAccount(Long accountId, Account currentUser) {
-        Optional<Account> accountOptional = accountRepository.findById(accountId);
+    public ResponseEntity<?> getAccount(Account currentUser) {
+        if (currentUser == null) {
+            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+        }
+        Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
-
-        if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-
         return ResponseEntity.ok().body(accountOptional.get());
     }
 

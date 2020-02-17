@@ -3,6 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.AccountDto;
+import org.assertj.core.internal.bytebuddy.utility.RandomString;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -10,8 +11,12 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -326,7 +331,6 @@ class AccountControllerTest extends BaseControllerTest {
     void deleteAccount_not_found_user() throws Exception {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
-
         mockMvc.perform(delete(accountURL + "{accountId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
@@ -367,7 +371,7 @@ class AccountControllerTest extends BaseControllerTest {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
 
-        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+        mockMvc.perform(get(accountURL)
                                     .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -375,32 +379,5 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())));
-    }
-
-    @Test
-    @DisplayName("데이터베이스에 저장되어 있지 않은 유저 조회 요청 시 Bad Request 반환")
-    void getAccount_not_found() throws Exception {
-        Account newAccount = createAccount();
-        jwt = jwtProvider.generateToken(newAccount);
-
-        mockMvc.perform(get(accountURL + "{accountId}", -1)
-                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)));
-    }
-
-    @Test
-    @DisplayName("권한이 없는 유저가 다른 유저 조회 요청 시 Bad Request 반환")
-    void getAccount_invalid_user() throws Exception {
-        Account newAccount = createAccount();
-        Account anotherAccount = createAnotherAccount();
-        jwt = jwtProvider.generateToken(anotherAccount);
-
-        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
-                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
     }
 }
