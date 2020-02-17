@@ -2,7 +2,8 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
-import com.pickmebackend.domain.dto.ExperienceDto;
+import com.pickmebackend.domain.dto.experience.ExperienceRequestDto;
+import com.pickmebackend.domain.dto.experience.ExperienceResponseDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.ExperienceRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +23,18 @@ public class ExperienceService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveExperience(ExperienceDto experienceDto, Account currentUser) {
-        Experience experience = modelMapper.map(experienceDto, Experience.class);
+    public ResponseEntity<?> saveExperience(ExperienceRequestDto experienceRequestDto, Account currentUser) {
+        Experience experience = modelMapper.map(experienceRequestDto, Experience.class);
 
         experience.mapAccount(currentUser);
-        return new ResponseEntity<>(experienceRepository.save(experience), HttpStatus.CREATED);
+        Experience savedExperience = this.experienceRepository.save(experience);
+        ExperienceResponseDto experienceResponseDto = modelMapper.map(savedExperience, ExperienceResponseDto.class);
+
+        return new ResponseEntity<>(experienceResponseDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateExperience(Long experienceId, ExperienceDto experienceDto, Account currentUser) {
-        Optional<Experience> experienceOptional = experienceRepository.findById(experienceId);
+    public ResponseEntity<?> updateExperience(Long experienceId, ExperienceRequestDto experienceRequestDto, Account currentUser) {
+        Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
         }
@@ -40,12 +44,16 @@ public class ExperienceService {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        modelMapper.map(experienceDto, experience);
-        return new ResponseEntity<>(experienceRepository.save(experience), HttpStatus.OK);
+        modelMapper.map(experienceRequestDto, experience);
+        Experience modifiedExperience = this.experienceRepository.save(experience);
+        ExperienceResponseDto experienceResponseDto = modelMapper.map(modifiedExperience, ExperienceResponseDto.class);
+
+
+        return new ResponseEntity<>(experienceResponseDto, HttpStatus.OK);
     }
 
     public ResponseEntity<?> deleteExperience(Long experienceId, Account currentUser) {
-        Optional<Experience> experienceOptional = experienceRepository.findById(experienceId);
+        Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
         }
@@ -55,7 +63,7 @@ public class ExperienceService {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        experienceRepository.delete(experience);
+        this.experienceRepository.delete(experience);
         return ResponseEntity.ok().build();
     }
 }

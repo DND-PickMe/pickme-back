@@ -2,9 +2,9 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.AccountDto;
-import com.pickmebackend.domain.dto.EnterpriseDto;
-import com.pickmebackend.domain.dto.LoginDto;
+import com.pickmebackend.domain.dto.account.AccountRequestDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
+import com.pickmebackend.domain.dto.login.LoginRequestDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Description;
@@ -33,13 +33,13 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("정상적으로 일반 유저 로그인 하기")
     void loginAccountSuccess() throws Exception {
-        AccountDto accountDto = this.createAccountDto();
-        LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
+        AccountRequestDto accountDto = this.createAccountDto();
+        LoginRequestDto loginRequestDto = modelMapper.map(accountDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
+                .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
@@ -49,13 +49,13 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("정상적으로 기업 담당자 로그인 하기")
     void loginEnterpriseSuccess() throws Exception {
-        EnterpriseDto enterpriseDto = this.saveEnterprise();
-        LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
+        EnterpriseRequestDto enterpriseRequestDto = this.saveEnterprise();
+        LoginRequestDto loginRequestDto = modelMapper.map(enterpriseRequestDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
+                .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
@@ -65,14 +65,14 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("일반유저가 잘못된 이메일 입력시 400")
     void loginFailByAccountEmail() throws Exception {
-        AccountDto accountDto = this.createAccountDto();
+        AccountRequestDto accountDto = this.createAccountDto();
         accountDto.setEmail("kiseok@email.com");
-        LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
+        LoginRequestDto loginRequestDto = modelMapper.map(accountDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
+                .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
@@ -82,14 +82,14 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("기업 담당자가 잘못된 이메일 입력시 400")
     void loginFailByEnterpriseEmail() throws Exception {
-        EnterpriseDto enterpriseDto = this.saveEnterprise();
-        enterpriseDto.setEmail("kiseok@email.com");
-        LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
+        EnterpriseRequestDto enterpriseRequestDto = this.saveEnterprise();
+        enterpriseRequestDto.setEmail("kiseok@email.com");
+        LoginRequestDto loginRequestDto = modelMapper.map(enterpriseRequestDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
+                .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
@@ -99,14 +99,14 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("일반유저가 잘못된 패스워드 입력시 400")
     void loginFailByAccountPassword() throws Exception {
-        AccountDto accountDto = this.createAccountDto();
+        AccountRequestDto accountDto = this.createAccountDto();
         accountDto.setPassword("kiseokyang");
-        LoginDto loginDto = modelMapper.map(accountDto, LoginDto.class);
+        LoginRequestDto loginRequestDto = modelMapper.map(accountDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
+                .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
@@ -116,22 +116,22 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("기업 담당자가 잘못된 패스워드 입력시 400")
     void loginFailByEnterprisePassword() throws Exception {
-        EnterpriseDto enterpriseDto = this.saveEnterprise();
-        enterpriseDto.setPassword("kiseokyang");
-        LoginDto loginDto = modelMapper.map(enterpriseDto, LoginDto.class);
+        EnterpriseRequestDto enterpriseRequestDto = this.saveEnterprise();
+        enterpriseRequestDto.setPassword("kiseokyang");
+        LoginRequestDto loginRequestDto = modelMapper.map(enterpriseRequestDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginDto)))
+                .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
         ;
     }
 
-    AccountDto createAccountDto() throws Exception {
-        AccountDto accountDto =  AccountDto.builder()
+    AccountRequestDto createAccountDto() throws Exception {
+        AccountRequestDto accountDto =  AccountRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
@@ -141,7 +141,7 @@ class LoginControllerTest extends BaseControllerTest {
         return accountDto;
     }
 
-    void saveAccount(AccountDto accountDto) throws Exception {
+    void saveAccount(AccountRequestDto accountDto) throws Exception {
         ResultActions actions = mockMvc.perform(post("/api/accounts")
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -162,8 +162,8 @@ class LoginControllerTest extends BaseControllerTest {
         assertNotNull(account.getCreatedAt());
     }
 
-    private EnterpriseDto saveEnterprise() throws Exception {
-        EnterpriseDto enterpriseDto = EnterpriseDto.builder()
+    private EnterpriseRequestDto saveEnterprise() throws Exception {
+        EnterpriseRequestDto enterpriseRequestDto = EnterpriseRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .registrationNumber(appProperties.getTestRegistrationNumber())
@@ -175,7 +175,7 @@ class LoginControllerTest extends BaseControllerTest {
         this.mockMvc.perform(post("/api/enterprises")
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(enterpriseDto)))
+                .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -183,7 +183,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
         ;
 
-        return enterpriseDto;
+        return enterpriseRequestDto;
     }
 
 }

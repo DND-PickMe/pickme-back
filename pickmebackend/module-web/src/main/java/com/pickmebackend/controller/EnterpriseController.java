@@ -2,7 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.EnterpriseDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;
@@ -30,25 +30,25 @@ public class EnterpriseController {
     }
 
     @PostMapping
-    public ResponseEntity<?> saveEnterprise(@Valid @RequestBody EnterpriseDto enterpriseDto, Errors errors) {
+    public ResponseEntity<?> saveEnterprise(@Valid @RequestBody EnterpriseRequestDto enterpriseRequestDto, Errors errors) {
         if(errors.hasErrors())  {
             return ResponseEntity.badRequest().body(errors);
         }
-        if(enterpriseService.isDuplicatedEnterprise(enterpriseDto)) {
+        if(enterpriseService.isDuplicatedEnterprise(enterpriseRequestDto)) {
             return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
-        return enterpriseService.saveEnterprise(enterpriseDto);
+        return enterpriseService.saveEnterprise(enterpriseRequestDto);
     }
 
     @PutMapping("/{enterpriseId}")
-    public ResponseEntity<?> updateEnterprise(@PathVariable Long enterpriseId, @Valid @RequestBody EnterpriseDto enterpriseDto, Errors errors, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> updateEnterprise(@PathVariable Long enterpriseId, @Valid @RequestBody EnterpriseRequestDto enterpriseRequestDto, Errors errors, @CurrentUser Account currentUser) {
         if(errors.hasErrors())  {
             return ResponseEntity.badRequest().body(errors);
         }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
-        return enterpriseService.updateEnterprise(enterpriseId, enterpriseDto, currentUser);
+        return enterpriseService.updateEnterprise(enterpriseId, enterpriseRequestDto, currentUser);
     }
 
     @DeleteMapping("/{enterpriseId}")

@@ -2,7 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.LicenseDto;
+import com.pickmebackend.domain.dto.license.LicenseRequestDto;
 import com.pickmebackend.service.LicenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
@@ -17,13 +17,13 @@ public class LicenseController {
     private final LicenseService licenseService;
 
     @PostMapping
-    ResponseEntity<?> saveLicense(@RequestBody LicenseDto licenseDto, @CurrentUser Account currentUser) {
-        return licenseService.saveLicense(licenseDto, currentUser);
+    ResponseEntity<?> saveLicense(@RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
+        return licenseService.saveLicense(licenseRequestDto, currentUser);
     }
 
     @PutMapping("/{licenseId}")
-    ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseDto licenseDto, @CurrentUser Account currentUser) {
-        return licenseService.updateLicense(licenseId, licenseDto, currentUser);
+    ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
+        return licenseService.updateLicense(licenseId, licenseRequestDto, currentUser);
     }
 
     @DeleteMapping("/{licenseId}")

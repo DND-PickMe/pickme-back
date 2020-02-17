@@ -2,7 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.PrizeDto;
+import com.pickmebackend.domain.dto.prize.PrizeRequestDto;
 import com.pickmebackend.service.PrizeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
@@ -17,13 +17,13 @@ public class PrizeController {
     private final PrizeService prizeService;
 
     @PostMapping
-    ResponseEntity<?> savePrize(@RequestBody PrizeDto prizeDto, @CurrentUser Account currentUser) {
-        return prizeService.savePrize(prizeDto, currentUser);
+    ResponseEntity<?> savePrize(@RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
+        return prizeService.savePrize(prizeRequestDto, currentUser);
     }
 
     @PutMapping("/{prizeId}")
-    ResponseEntity<?> updatePrize(@PathVariable Long prizeId, @RequestBody PrizeDto prizeDto, @CurrentUser Account currentUser) {
-        return prizeService.updatePrize(prizeId, prizeDto, currentUser);
+    ResponseEntity<?> updatePrize(@PathVariable Long prizeId, @RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
+        return prizeService.updatePrize(prizeId, prizeRequestDto, currentUser);
     }
 
     @DeleteMapping("/{prizeId}")

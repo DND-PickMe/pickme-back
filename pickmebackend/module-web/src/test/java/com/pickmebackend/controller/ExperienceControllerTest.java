@@ -3,7 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
-import com.pickmebackend.domain.dto.ExperienceDto;
+import com.pickmebackend.domain.dto.experience.ExperienceRequestDto;
 import com.pickmebackend.repository.ExperienceRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,7 +46,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         LocalDate joinedAt = LocalDate.of(2019, 12, 25);
         LocalDate retiredAt = LocalDate.of(2020, 1, 22);
 
-        ExperienceDto experienceDto = ExperienceDto.builder()
+        ExperienceRequestDto experienceRequestDto = ExperienceRequestDto.builder()
                                                 .companyName(companyName)
                                                 .description(description)
                                                 .position(position)
@@ -58,7 +58,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(experienceDto)))
+                .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -81,7 +81,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         LocalDate joinedAt = LocalDate.of(2019, 12, 25);
         LocalDate retiredAt = LocalDate.of(2020, 1, 22);
 
-        ExperienceDto experienceDto = ExperienceDto.builder()
+        ExperienceRequestDto experienceRequestDto = ExperienceRequestDto.builder()
                 .companyName(companyName)
                 .description(description)
                 .position(position)
@@ -93,7 +93,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(experienceDto)))
+                .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
@@ -112,12 +112,12 @@ class ExperienceControllerTest extends BaseControllerTest {
         experience.setDescription(updateDescription);
         experience.setPosition(updatePosition);
 
-        ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
+        ExperienceRequestDto experienceRequestDto = modelMapper.map(experience, ExperienceRequestDto.class);
         mockMvc.perform(put(experienceUrl + "{experienceId}", experience.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(experienceDto)))
+                .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -142,12 +142,12 @@ class ExperienceControllerTest extends BaseControllerTest {
         experience.setDescription(updateDescription);
         experience.setPosition(updatePosition);
 
-        ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
+        ExperienceRequestDto experienceRequestDto = modelMapper.map(experience, ExperienceRequestDto.class);
         mockMvc.perform(put(experienceUrl + "{experienceId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(experienceDto)))
+                .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(EXPERIENCENOTFOUND));
@@ -167,12 +167,12 @@ class ExperienceControllerTest extends BaseControllerTest {
         experience.setDescription(updateDescription);
         experience.setPosition(updatePosition);
 
-        ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
+        ExperienceRequestDto experienceRequestDto = modelMapper.map(experience, ExperienceRequestDto.class);
         mockMvc.perform(put(experienceUrl + "{experienceId}", experience.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(experienceDto)))
+                .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
@@ -193,12 +193,12 @@ class ExperienceControllerTest extends BaseControllerTest {
         experience.setDescription(updateDescription);
         experience.setPosition(updatePosition);
 
-        ExperienceDto experienceDto = modelMapper.map(experience, ExperienceDto.class);
+        ExperienceRequestDto experienceRequestDto = modelMapper.map(experience, ExperienceRequestDto.class);
         mockMvc.perform(put(experienceUrl + "{experienceId}", experience.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(experienceDto)))
+                .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;

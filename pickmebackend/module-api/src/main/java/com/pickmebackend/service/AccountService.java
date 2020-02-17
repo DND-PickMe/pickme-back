@@ -1,7 +1,7 @@
 package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
@@ -30,7 +30,7 @@ public class AccountService{
 
     private final Environment environment;
 
-    public ResponseEntity<?> saveAccount(AccountDto accountDto) {
+    public ResponseEntity<?> saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         account.setUserRole(UserRole.USER);
@@ -39,7 +39,7 @@ public class AccountService{
         return new ResponseEntity<>(accountRepository.save(account), HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateAccount(Long accountId, AccountDto accountDto, Account currentUser) {
+    public ResponseEntity<?> updateAccount(Long accountId, AccountRequestDto accountDto, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
@@ -81,7 +81,7 @@ public class AccountService{
         return ResponseEntity.ok().body(accountOptional.get());
     }
 
-    public boolean isDuplicatedAccount(AccountDto accountDto) {
+    public boolean isDuplicatedAccount(AccountRequestDto accountDto) {
         return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
     }
 

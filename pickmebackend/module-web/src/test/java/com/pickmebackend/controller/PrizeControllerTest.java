@@ -3,7 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
-import com.pickmebackend.domain.dto.PrizeDto;
+import com.pickmebackend.domain.dto.prize.PrizeRequestDto;
 import com.pickmebackend.repository.PrizeRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,23 +48,23 @@ class PrizeControllerTest extends BaseControllerTest {
     void savePrize() throws Exception {
         jwt = generateBearerToken();
 
-        PrizeDto prizeDto = new PrizeDto();
+        PrizeRequestDto prizeRequestDto = new PrizeRequestDto();
 
         String name = "ACM-ICPC 대상 수상";
         String description = "2019년 12월 31일에 수상했습니다.";
         String competition = "icpckorea";
         LocalDate issuedDate = LocalDate.of(2019, 12, 31);
 
-        prizeDto.setName(name);
-        prizeDto.setDescription(description);
-        prizeDto.setCompetition(competition);
-        prizeDto.setIssuedDate(issuedDate);
+        prizeRequestDto.setName(name);
+        prizeRequestDto.setDescription(description);
+        prizeRequestDto.setCompetition(competition);
+        prizeRequestDto.setIssuedDate(issuedDate);
 
         mockMvc.perform(post(prizeUrl)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(prizeDto)))
+                .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
@@ -80,23 +80,23 @@ class PrizeControllerTest extends BaseControllerTest {
     void savePrize_forbidden() throws Exception {
         jwt = createEnterpriseJwt();
 
-        PrizeDto prizeDto = new PrizeDto();
+        PrizeRequestDto prizeRequestDto = new PrizeRequestDto();
 
         String name = "ACM-ICPC 대상 수상";
         String description = "2019년 12월 31일에 수상했습니다.";
         String competition = "icpckorea";
         LocalDate issuedDate = LocalDate.of(2019, 12, 31);
 
-        prizeDto.setName(name);
-        prizeDto.setDescription(description);
-        prizeDto.setCompetition(competition);
-        prizeDto.setIssuedDate(issuedDate);
+        prizeRequestDto.setName(name);
+        prizeRequestDto.setDescription(description);
+        prizeRequestDto.setCompetition(competition);
+        prizeRequestDto.setIssuedDate(issuedDate);
 
         mockMvc.perform(post(prizeUrl)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(prizeDto)))
+                .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;
@@ -111,13 +111,13 @@ class PrizeControllerTest extends BaseControllerTest {
 
         String updateDescription = "사실 수상 경력은 거짓말입니다.";
         prize.setDescription(updateDescription);
-        PrizeDto prizeDto = modelMapper.map(prize, PrizeDto.class);
+        PrizeRequestDto prizeRequestDto = modelMapper.map(prize, PrizeRequestDto.class);
 
         mockMvc.perform(put(prizeUrl + "{prizeId}", prize.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(prizeDto)))
+                .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -137,13 +137,13 @@ class PrizeControllerTest extends BaseControllerTest {
 
         String updateDescription = "사실 수상 경력은 거짓말입니다.";
         prize.setDescription(updateDescription);
-        PrizeDto prizeDto = modelMapper.map(prize, PrizeDto.class);
+        PrizeRequestDto prizeRequestDto = modelMapper.map(prize, PrizeRequestDto.class);
 
         mockMvc.perform(put(prizeUrl + "{prizeId}", -1)
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(prizeDto)))
+                .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(PRIZENOTFOUND)));
@@ -159,13 +159,13 @@ class PrizeControllerTest extends BaseControllerTest {
 
         String updateDescription = "사실 수상 경력은 거짓말입니다.";
         prize.setDescription(updateDescription);
-        PrizeDto prizeDto = modelMapper.map(prize, PrizeDto.class);
+        PrizeRequestDto prizeRequestDto = modelMapper.map(prize, PrizeRequestDto.class);
 
         mockMvc.perform(put(prizeUrl + "{prizeId}", prize.getId())
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(prizeDto)))
+                .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
@@ -181,7 +181,7 @@ class PrizeControllerTest extends BaseControllerTest {
 
         String updateDescription = "사실 수상 경력은 거짓말입니다.";
         prize.setDescription(updateDescription);
-        PrizeDto prizeDto = modelMapper.map(prize, PrizeDto.class);
+        PrizeRequestDto prizeRequestDto = modelMapper.map(prize, PrizeRequestDto.class);
 
         jwt = createEnterpriseJwt();
 
@@ -189,7 +189,7 @@ class PrizeControllerTest extends BaseControllerTest {
                 .accept(MediaTypes.HAL_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, jwt)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(prizeDto)))
+                .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
                 .andExpect(status().isForbidden())
         ;

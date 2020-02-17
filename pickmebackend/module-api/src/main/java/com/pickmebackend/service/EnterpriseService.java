@@ -2,7 +2,8 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
-import com.pickmebackend.domain.dto.EnterpriseDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
@@ -30,65 +31,75 @@ public class EnterpriseService {
     private final PasswordEncoder passwordEncoder;
 
     public ResponseEntity<?> loadEnterprise(Long enterpriseId, Account currentUser) {
-        Optional<Account> accountOptional = accountRepository.findById(enterpriseId);
+        Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         if (!enterpriseId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
+        Enterprise enterprise = account.getEnterprise();
 
-        return new ResponseEntity<>(account, HttpStatus.OK);
+        EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(enterprise, EnterpriseResponseDto.class);
+        enterpriseResponseDto.setEmail(account.getEmail());
+
+        return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> saveEnterprise(EnterpriseDto enterpriseDto) {
-        Account account = modelMapper.map(enterpriseDto, Account.class);
-        account.setPassword(passwordEncoder.encode(enterpriseDto.getPassword()));
-        account.setNickName(enterpriseDto.getName());
+    public ResponseEntity<?> saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
+        Account account = modelMapper.map(enterpriseRequestDto, Account.class);
+        account.setPassword(passwordEncoder.encode(enterpriseRequestDto.getPassword()));
+        account.setNickName(enterpriseRequestDto.getName());
         account.setCreatedAt(LocalDateTime.now());
         account.setUserRole(UserRole.ENTERPRISE);
 
-        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
-        Enterprise savedEnterprise = enterpriseRepository.save(enterprise);
+        Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
+        Enterprise savedEnterprise = this.enterpriseRepository.save(enterprise);
 
         account.setEnterprise(savedEnterprise);
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount = this.accountRepository.save(account);
 
-        return new ResponseEntity<>(savedAccount, HttpStatus.CREATED);
+        EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(savedEnterprise, EnterpriseResponseDto.class);
+        enterpriseResponseDto.setEmail(savedAccount.getEmail());
+
+        return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> updateEnterprise(Long enterpriseId, EnterpriseDto enterpriseDto, Account currentUser) {
-        Optional<Account> accountOptional = accountRepository.findById(enterpriseId);
+    public ResponseEntity<?> updateEnterprise(Long enterpriseId, EnterpriseRequestDto enterpriseRequestDto, Account currentUser) {
+        Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         if (!enterpriseId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
-        modelMapper.map(enterpriseDto, account);
-        account.setPassword(passwordEncoder.encode(enterpriseDto.getPassword()));
-        account.setNickName(enterpriseDto.getName());
+        modelMapper.map(enterpriseRequestDto, account);
+        account.setPassword(passwordEncoder.encode(enterpriseRequestDto.getPassword()));
+        account.setNickName(enterpriseRequestDto.getName());
 
-        Optional<Enterprise> enterpriseOptional = enterpriseRepository.findById(account.getEnterprise().getId());
+        Optional<Enterprise> enterpriseOptional = this.enterpriseRepository.findById(account.getEnterprise().getId());
         Enterprise enterprise = enterpriseOptional.get();
-        modelMapper.map(enterpriseDto, enterprise);
-        Enterprise savedEnterprise = enterpriseRepository.save(enterprise);
+        modelMapper.map(enterpriseRequestDto, enterprise);
+        Enterprise modifiedEnterprise = this.enterpriseRepository.save(enterprise);
 
-        account.setEnterprise(savedEnterprise);
-        Account savedAccount = accountRepository.save(account);
+        account.setEnterprise(modifiedEnterprise);
+        Account modifiedAccount = this.accountRepository.save(account);
 
-        return new ResponseEntity<>(savedAccount, HttpStatus.OK);
+        EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(modifiedEnterprise, EnterpriseResponseDto.class);
+        enterpriseResponseDto.setEmail(modifiedAccount.getEmail());
+
+        return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.OK);
     }
 
     public ResponseEntity<?> deleteEnterprise(Long enterpriseId, Account currentUser) {
         if (!enterpriseId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        accountRepository.deleteById(enterpriseId);
+        this.accountRepository.deleteById(enterpriseId);
         return ResponseEntity.ok().build();
     }
 
-    public boolean isDuplicatedEnterprise(EnterpriseDto enterpriseDto) {
-        return accountRepository.findByEmail(enterpriseDto.getEmail()).isPresent();
+    public boolean isDuplicatedEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
+        return this.accountRepository.findByEmail(enterpriseRequestDto.getEmail()).isPresent();
     }
 
     public boolean isNonEnterprise(Long enterpriseId) {
-        return !accountRepository.findById(enterpriseId).isPresent();
+        return !this.accountRepository.findById(enterpriseId).isPresent();
     }
 }

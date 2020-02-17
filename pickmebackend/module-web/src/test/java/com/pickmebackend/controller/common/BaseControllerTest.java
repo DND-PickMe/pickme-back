@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
-import com.pickmebackend.domain.dto.EnterpriseDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
@@ -73,9 +73,9 @@ public class BaseControllerTest {
         return accountRepository.save(account);
     }
 
-    protected EnterpriseDto createEnterpriseDto() {
-        EnterpriseDto enterpriseDto =
-                EnterpriseDto.builder()
+    protected EnterpriseRequestDto createEnterpriseDto() {
+        EnterpriseRequestDto enterpriseRequestDto =
+                EnterpriseRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .registrationNumber(appProperties.getTestRegistrationNumber())
@@ -83,9 +83,9 @@ public class BaseControllerTest {
                 .address(appProperties.getTestAddress())
                 .ceoName(appProperties.getTestCeoName())
                 .build();
-        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
+        Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
 
-        Account account = modelMapper.map(enterpriseDto, Account.class);
+        Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         account.setCreatedAt(LocalDateTime.now());
         account.setUserRole(UserRole.ENTERPRISE);
@@ -96,12 +96,12 @@ public class BaseControllerTest {
         accountRepository.save(account);
         enterpriseRepository.save(enterprise);
 
-        return enterpriseDto;
+        return enterpriseRequestDto;
     }
 
-    protected EnterpriseDto createAnotherEnterpriseDto() {
-        EnterpriseDto enterpriseDto =
-                EnterpriseDto.builder()
+    protected EnterpriseRequestDto createAnotherEnterpriseDto() {
+        EnterpriseRequestDto enterpriseRequestDto =
+                EnterpriseRequestDto.builder()
                         .email("another" + appProperties.getTestEmail())
                         .password("another" + appProperties.getTestPassword())
                         .registrationNumber("another" + appProperties.getTestRegistrationNumber())
@@ -109,9 +109,9 @@ public class BaseControllerTest {
                         .address("another" + appProperties.getTestAddress())
                         .ceoName("another" + appProperties.getTestCeoName())
                         .build();
-        Enterprise enterprise = modelMapper.map(enterpriseDto, Enterprise.class);
+        Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
 
-        Account account = modelMapper.map(enterpriseDto, Account.class);
+        Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         account.setCreatedAt(LocalDateTime.now());
         account.setUserRole(UserRole.ENTERPRISE);
@@ -122,12 +122,12 @@ public class BaseControllerTest {
         accountRepository.save(account);
         enterpriseRepository.save(enterprise);
 
-        return enterpriseDto;
+        return enterpriseRequestDto;
     }
 
     protected String createEnterpriseJwt() {
-        EnterpriseDto enterpriseDto = createAnotherEnterpriseDto();
-        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseDto.getEmail());
+        EnterpriseRequestDto enterpriseRequestDto = createAnotherEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
         Account account = accountOptional.get();
 
         return "Bearer " + jwtProvider.generateToken(account);

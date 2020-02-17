@@ -3,7 +3,7 @@ package com.pickmebackend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.AccountDto;
+import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
@@ -65,7 +65,7 @@ class AccountImageControllerTest {
     @DisplayName("유저 생성 시 디폴트 이미지 주입 받는지 확인")
     void createUser_default_image() throws Exception {
         String oneLineIntroduce = "테스트 코드 작성을 중요시 합니다!";
-        AccountDto accountDto = createAccount();
+        AccountRequestDto accountDto = createAccount();
 
         mockMvc.perform(post("/api/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,8 +143,8 @@ class AccountImageControllerTest {
                 .andExpect(jsonPath("message", is(INVALIDIMAGE)));
     }
 
-    private AccountDto createAccount() {
-        return AccountDto.builder()
+    private AccountRequestDto createAccount() {
+        return AccountRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
@@ -155,7 +155,7 @@ class AccountImageControllerTest {
     }
 
     private Account generateAccount() {
-        Account account = modelMapper.map(AccountDto.builder()
+        Account account = modelMapper.map(AccountRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())

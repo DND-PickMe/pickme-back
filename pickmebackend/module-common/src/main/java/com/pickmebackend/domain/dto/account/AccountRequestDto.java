@@ -1,13 +1,16 @@
-package com.pickmebackend.domain.dto;
+package com.pickmebackend.domain.dto.account;
 
 import lombok.*;
+import org.springframework.lang.Nullable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
-public class EnterpriseDto {
+public class AccountRequestDto {
 
     @Email @NotBlank
     private String email;
@@ -16,14 +19,11 @@ public class EnterpriseDto {
     private String password;
 
     @NotBlank
-    private String registrationNumber;
+    private String nickName;
 
-    @NotBlank
-    private String name;
+    @Nullable
+    private List<String> technology = new ArrayList<>();
 
-    @NotBlank
-    private String address;
-
-    @NotBlank
-    private String ceoName;
+    @Nullable
+    private String oneLineIntroduce;
 }

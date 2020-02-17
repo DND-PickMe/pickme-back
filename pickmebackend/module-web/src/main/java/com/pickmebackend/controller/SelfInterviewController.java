@@ -2,7 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.SelfInterviewDto;
+import com.pickmebackend.domain.dto.selfInterview.SelfInterviewRequestDto;
 import com.pickmebackend.service.SelfInterviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
@@ -17,13 +17,13 @@ public class SelfInterviewController {
     private final SelfInterviewService selfInterviewService;
 
     @PostMapping
-    public ResponseEntity<?> saveSelfInterview(@RequestBody SelfInterviewDto selfInterviewDto, @CurrentUser Account currentUser) {
-        return selfInterviewService.saveSelfInterview(selfInterviewDto, currentUser);
+    public ResponseEntity<?> saveSelfInterview(@RequestBody SelfInterviewRequestDto selfInterviewRequestDto, @CurrentUser Account currentUser) {
+        return selfInterviewService.saveSelfInterview(selfInterviewRequestDto, currentUser);
     }
 
     @PutMapping("/{selfInterviewId}")
-    ResponseEntity<?> updateSelfInterview(@PathVariable Long selfInterviewId, @RequestBody SelfInterviewDto selfInterviewDto, @CurrentUser Account currentUser) {
-        return selfInterviewService.updateSelfInterview(selfInterviewId, selfInterviewDto, currentUser);
+    ResponseEntity<?> updateSelfInterview(@PathVariable Long selfInterviewId, @RequestBody SelfInterviewRequestDto selfInterviewRequestDto, @CurrentUser Account currentUser) {
+        return selfInterviewService.updateSelfInterview(selfInterviewId, selfInterviewRequestDto, currentUser);
     }
 
     @DeleteMapping("/{selfInterviewId}")
