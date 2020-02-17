@@ -10,7 +10,9 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
+
 import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 
 @RestController
@@ -45,8 +47,18 @@ public class AccountController {
         return accountService.deleteAccount(accountId, currentUser);
     }
 
-    @GetMapping("/{accountId}")
-    ResponseEntity<?> getAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
-        return accountService.getAccount(accountId, currentUser);
+    @GetMapping
+    ResponseEntity<?> getAccount(@CurrentUser Account currentUser) {
+        return accountService.getAccount(currentUser);
+    }
+
+    @PostMapping("/{accountId}/favorite")
+    ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) {
+        return accountService.favorite(accountId, currentUser);
+    }
+
+    @GetMapping("/{accountId}/favorite")
+    ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) {
+        return accountService.getFavoriteUsers(accountId);
     }
 }

@@ -136,6 +136,5 @@ public class BaseControllerTest {
     protected String createAccountJwt() {
         Account newAccount = createAnotherAccount();
         return "Bearer " + jwtProvider.generateToken(newAccount);
-
     }
 }
