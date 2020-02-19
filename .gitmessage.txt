@@ -1,0 +1,15 @@
+# <타입> <제목> <이슈번호>
+
+# 본문 작성
+
+# ---- COMMIT END ----
+# <타입> 리스트
+# Fix : 버그를 고쳤을 때
+# Convention : 코드 포맷팅
+# Docs : README 등의 문서화
+# Refactoring : 코드 리팩토링
+# Add : 기능 추가
+# Question : 질문
+# Test : 테스트 코드 추가
+
+# 커밋 템플릿 적용법 : git config --global commit.template .gitmessage.txt
