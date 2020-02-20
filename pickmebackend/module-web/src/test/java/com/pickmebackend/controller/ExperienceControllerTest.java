@@ -67,7 +67,11 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("position").value(position))
                 .andExpect(jsonPath("joinedAt").value(joinedAt.toString()))
                 .andExpect(jsonPath("retiredAt").value(retiredAt.toString()))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-experience").exists())
+                .andExpect(jsonPath("_links.delete-experience").exists())
+        ;
     }
 
     @Test
@@ -126,7 +130,12 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("position").value(updatePosition))
                 .andExpect(jsonPath("joinedAt").isNotEmpty())
                 .andExpect(jsonPath("retiredAt").isNotEmpty())
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-experience").exists())
+                .andExpect(jsonPath("_links.delete-experience").exists())
+
+        ;
     }
 
     @Test

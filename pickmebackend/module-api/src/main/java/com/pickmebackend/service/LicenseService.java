@@ -22,32 +22,21 @@ public class LicenseService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveLicense(LicenseRequestDto licenseRequestDto, Account currentUser) {
+    public License saveLicense(LicenseRequestDto licenseRequestDto, Account currentUser) {
         License license = modelMapper.map(licenseRequestDto, License.class);
-
         license.mapAccount(currentUser);
         License savedLicense = this.licenseRepository.save(license);
         LicenseResponseDto licenseResponseDto = modelMapper.map(savedLicense, LicenseResponseDto.class);
 
-        return new ResponseEntity<>(licenseResponseDto, HttpStatus.CREATED);
+        return modelMapper.map(licenseResponseDto, License.class);
     }
 
-    public ResponseEntity<?> updateLicense(Long licenseId, LicenseRequestDto licenseRequestDto, Account currentUser) {
-        Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
-        if (!licenseOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(LICENSENOTFOUND), HttpStatus.BAD_REQUEST);
-        }
-
-        License license = licenseOptional.get();
-        if (!license.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-
+    public License updateLicense(License license, LicenseRequestDto licenseRequestDto, Account currentUser) {
         modelMapper.map(licenseRequestDto, license);
         License modifiedLicense = this.licenseRepository.save(license);
         LicenseResponseDto licenseResponseDto = modelMapper.map(modifiedLicense, LicenseResponseDto.class);
 
-        return new ResponseEntity<>(licenseResponseDto, HttpStatus.OK);
+        return modelMapper.map(licenseResponseDto, License.class);
     }
 
     public ResponseEntity<?> deleteLicense(Long licenseId, Account currentUser) {

@@ -54,7 +54,11 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").value(title))
                 .andExpect(jsonPath("content").value(content))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-selfInterview").exists())
+                .andExpect(jsonPath("_links.delete-selfInterview").exists())
+        ;
     }
 
     @Test
@@ -98,7 +102,11 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").value("회사를 고를 때 가장 중요하게 생각하는 것은?"))
                 .andExpect(jsonPath("content").value(updateContent))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.delete-selfInterview").exists())
+        ;
     }
 
     @Test

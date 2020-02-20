@@ -72,7 +72,11 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("description").value(description))
                 .andExpect(jsonPath("competition").value(competition))
                 .andExpect(jsonPath("issuedDate").value(issuedDate.toString()))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-prize").exists())
+                .andExpect(jsonPath("_links.delete-prize").exists())
+        ;
     }
 
     @Test
@@ -125,7 +129,11 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("description").value(updateDescription))
                 .andExpect(jsonPath("competition").isNotEmpty())
                 .andExpect(jsonPath("issuedDate").isNotEmpty())
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-prize").exists())
+                .andExpect(jsonPath("_links.delete-prize").exists())
+        ;
     }
 
     @Test

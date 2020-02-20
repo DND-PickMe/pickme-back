@@ -77,7 +77,11 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("projectLink", is(projectLink)))
                 .andExpect(jsonPath("startedAt", is(startedAt.toString())))
                 .andExpect(jsonPath("endedAt", is(endedAt.toString())))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-project").exists())
+                .andExpect(jsonPath("_links.delete-project").exists())
+        ;
     }
 
     @Test
@@ -137,7 +141,11 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("projectLink").isNotEmpty())
                 .andExpect(jsonPath("startedAt").isNotEmpty())
                 .andExpect(jsonPath("endedAt").isNotEmpty())
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.delete-project").exists())
+        ;
     }
 
     @Test

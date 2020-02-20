@@ -12,8 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static com.pickmebackend.error.ErrorMessageConstant.EXPERIENCENOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 
 @Service
 @RequiredArgsConstructor
@@ -23,33 +23,21 @@ public class ExperienceService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveExperience(ExperienceRequestDto experienceRequestDto, Account currentUser) {
+    public Experience saveExperience(ExperienceRequestDto experienceRequestDto, Account currentUser) {
         Experience experience = modelMapper.map(experienceRequestDto, Experience.class);
-
         experience.mapAccount(currentUser);
         Experience savedExperience = this.experienceRepository.save(experience);
         ExperienceResponseDto experienceResponseDto = modelMapper.map(savedExperience, ExperienceResponseDto.class);
 
-        return new ResponseEntity<>(experienceResponseDto, HttpStatus.CREATED);
+        return modelMapper.map(experienceResponseDto, Experience.class);
     }
 
-    public ResponseEntity<?> updateExperience(Long experienceId, ExperienceRequestDto experienceRequestDto, Account currentUser) {
-        Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
-        if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
-        }
-
-        Experience experience = experienceOptional.get();
-        if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-
+    public Experience updateExperience(Experience experience, ExperienceRequestDto experienceRequestDto, Account currentUser) {
         modelMapper.map(experienceRequestDto, experience);
         Experience modifiedExperience = this.experienceRepository.save(experience);
         ExperienceResponseDto experienceResponseDto = modelMapper.map(modifiedExperience, ExperienceResponseDto.class);
 
-
-        return new ResponseEntity<>(experienceResponseDto, HttpStatus.OK);
+        return modelMapper.map(experienceResponseDto, Experience.class);
     }
 
     public ResponseEntity<?> deleteExperience(Long experienceId, Account currentUser) {

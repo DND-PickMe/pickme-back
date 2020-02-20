@@ -23,32 +23,21 @@ public class ProjectService {
 
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<?> saveProject(ProjectRequestDto projectRequestDto, Account currentUser) {
+    public Project saveProject(ProjectRequestDto projectRequestDto, Account currentUser) {
         Project project = modelMapper.map(projectRequestDto, Project.class);
-
         project.mapAccount(currentUser);
         Project savedProject = this.projectRepository.save(project);
         ProjectResponseDto projectResponseDto = modelMapper.map(savedProject, ProjectResponseDto.class);
 
-        return new ResponseEntity<>(projectResponseDto, HttpStatus.CREATED);
+        return modelMapper.map(projectResponseDto, Project.class);
     }
 
-    public ResponseEntity<?> updateProject(Long projectId, ProjectRequestDto projectRequestDto, Account currentUser) {
-        Optional<Project> projectOptional = this.projectRepository.findById(projectId);
-        if (!projectOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
-        }
-
-        Project project = projectOptional.get();
-        if (!project.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-
+    public Project updateProject(Project project, ProjectRequestDto projectRequestDto, Account currentUser) {
         modelMapper.map(projectRequestDto, project);
         Project modifiedProject = this.projectRepository.save(project);
         ProjectResponseDto projectResponseDto = modelMapper.map(modifiedProject, ProjectResponseDto.class);
 
-        return new ResponseEntity<>(projectResponseDto, HttpStatus.OK);
+        return modelMapper.map(projectResponseDto, Project.class);
     }
 
     public ResponseEntity<?> deleteProject(Long projectId, Account currentUser) {

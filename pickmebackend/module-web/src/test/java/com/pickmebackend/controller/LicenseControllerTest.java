@@ -65,7 +65,11 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("institution", is(institution)))
                 .andExpect(jsonPath("description", is(description)))
                 .andExpect(jsonPath("issuedDate", is(issuedDate.toString())))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-license").exists())
+                .andExpect(jsonPath("_links.delete-license").exists())
+        ;
     }
 
     @Test
@@ -121,7 +125,11 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("institution").isNotEmpty())
                 .andExpect(jsonPath("description", is(updateDescription)))
                 .andExpect(jsonPath("issuedDate", is(updateIssuedDate.toString())))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-license").exists())
+                .andExpect(jsonPath("_links.delete-license").exists())
+        ;
     }
 
     @Test
