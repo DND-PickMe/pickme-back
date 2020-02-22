@@ -22,21 +22,21 @@ public class LicenseService {
 
     private final ModelMapper modelMapper;
 
-    public License saveLicense(LicenseRequestDto licenseRequestDto, Account currentUser) {
+    public LicenseResponseDto saveLicense(LicenseRequestDto licenseRequestDto, Account currentUser) {
         License license = modelMapper.map(licenseRequestDto, License.class);
         license.mapAccount(currentUser);
         License savedLicense = this.licenseRepository.save(license);
         LicenseResponseDto licenseResponseDto = modelMapper.map(savedLicense, LicenseResponseDto.class);
 
-        return modelMapper.map(licenseResponseDto, License.class);
+        return licenseResponseDto;
     }
 
-    public License updateLicense(License license, LicenseRequestDto licenseRequestDto, Account currentUser) {
+    public LicenseResponseDto updateLicense(License license, LicenseRequestDto licenseRequestDto, Account currentUser) {
         modelMapper.map(licenseRequestDto, license);
         License modifiedLicense = this.licenseRepository.save(license);
         LicenseResponseDto licenseResponseDto = modelMapper.map(modifiedLicense, LicenseResponseDto.class);
 
-        return modelMapper.map(licenseResponseDto, License.class);
+        return licenseResponseDto;
     }
 
     public ResponseEntity<?> deleteLicense(Long licenseId, Account currentUser) {

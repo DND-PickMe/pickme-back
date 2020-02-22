@@ -23,21 +23,21 @@ public class ProjectService {
 
     private final ModelMapper modelMapper;
 
-    public Project saveProject(ProjectRequestDto projectRequestDto, Account currentUser) {
+    public ProjectResponseDto saveProject(ProjectRequestDto projectRequestDto, Account currentUser) {
         Project project = modelMapper.map(projectRequestDto, Project.class);
         project.mapAccount(currentUser);
         Project savedProject = this.projectRepository.save(project);
         ProjectResponseDto projectResponseDto = modelMapper.map(savedProject, ProjectResponseDto.class);
 
-        return modelMapper.map(projectResponseDto, Project.class);
+        return projectResponseDto;
     }
 
-    public Project updateProject(Project project, ProjectRequestDto projectRequestDto, Account currentUser) {
+    public ProjectResponseDto updateProject(Project project, ProjectRequestDto projectRequestDto, Account currentUser) {
         modelMapper.map(projectRequestDto, project);
         Project modifiedProject = this.projectRepository.save(project);
         ProjectResponseDto projectResponseDto = modelMapper.map(modifiedProject, ProjectResponseDto.class);
 
-        return modelMapper.map(projectResponseDto, Project.class);
+        return projectResponseDto;
     }
 
     public ResponseEntity<?> deleteProject(Long projectId, Account currentUser) {

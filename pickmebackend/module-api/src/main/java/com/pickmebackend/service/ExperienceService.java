@@ -23,21 +23,21 @@ public class ExperienceService {
 
     private final ModelMapper modelMapper;
 
-    public Experience saveExperience(ExperienceRequestDto experienceRequestDto, Account currentUser) {
+    public ExperienceResponseDto saveExperience(ExperienceRequestDto experienceRequestDto, Account currentUser) {
         Experience experience = modelMapper.map(experienceRequestDto, Experience.class);
         experience.mapAccount(currentUser);
         Experience savedExperience = this.experienceRepository.save(experience);
         ExperienceResponseDto experienceResponseDto = modelMapper.map(savedExperience, ExperienceResponseDto.class);
 
-        return modelMapper.map(experienceResponseDto, Experience.class);
+        return experienceResponseDto;
     }
 
-    public Experience updateExperience(Experience experience, ExperienceRequestDto experienceRequestDto, Account currentUser) {
+    public ExperienceResponseDto updateExperience(Experience experience, ExperienceRequestDto experienceRequestDto, Account currentUser) {
         modelMapper.map(experienceRequestDto, experience);
         Experience modifiedExperience = this.experienceRepository.save(experience);
         ExperienceResponseDto experienceResponseDto = modelMapper.map(modifiedExperience, ExperienceResponseDto.class);
 
-        return modelMapper.map(experienceResponseDto, Experience.class);
+        return experienceResponseDto;
     }
 
     public ResponseEntity<?> deleteExperience(Long experienceId, Account currentUser) {

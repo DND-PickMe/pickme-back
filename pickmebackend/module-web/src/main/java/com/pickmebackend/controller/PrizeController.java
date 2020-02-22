@@ -4,6 +4,7 @@ import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.prize.PrizeRequestDto;
+import com.pickmebackend.domain.dto.prize.PrizeResponseDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.PrizeRepository;
 import com.pickmebackend.resource.PrizeResource;
@@ -14,9 +15,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -32,10 +31,10 @@ public class PrizeController {
 
     @PostMapping
     ResponseEntity<?> savePrize(@RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
-        Prize prize = prizeService.savePrize(prizeRequestDto, currentUser);
+        PrizeResponseDto prizeResponseDto = prizeService.savePrize(prizeRequestDto, currentUser);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(PrizeController.class).slash(prize.getId());
-        PrizeResource prizeResource = new PrizeResource(prize);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(PrizeController.class).slash(prizeResponseDto.getId());
+        PrizeResource prizeResource = new PrizeResource(prizeResponseDto);
         prizeResource.add(selfLinkBuilder.withRel("update-prize"));
         prizeResource.add(selfLinkBuilder.withRel("delete-prize"));
 
@@ -54,9 +53,9 @@ public class PrizeController {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        Prize modifiedPrize = prizeService.updatePrize(prize, prizeRequestDto, currentUser);
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(PrizeController.class).slash(modifiedPrize.getId());
-        PrizeResource prizeResource = new PrizeResource(modifiedPrize);
+        PrizeResponseDto modifiedPrizeResponseDto = prizeService.updatePrize(prize, prizeRequestDto, currentUser);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(PrizeController.class).slash(modifiedPrizeResponseDto.getId());
+        PrizeResource prizeResource = new PrizeResource(modifiedPrizeResponseDto);
         prizeResource.add(linkTo(PrizeController.class).withRel("create-prize"));
         prizeResource.add(selfLinkBuilder.withRel("delete-prize"));
 

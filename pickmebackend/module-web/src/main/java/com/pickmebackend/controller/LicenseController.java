@@ -4,6 +4,7 @@ import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
 import com.pickmebackend.domain.dto.license.LicenseRequestDto;
+import com.pickmebackend.domain.dto.license.LicenseResponseDto;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.LicenseRepository;
 import com.pickmebackend.resource.LicenseResource;
@@ -14,9 +15,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.LICENSENOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -32,10 +31,10 @@ public class LicenseController {
 
     @PostMapping
     ResponseEntity<?> saveLicense(@RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
-        License license = licenseService.saveLicense(licenseRequestDto, currentUser);
+        LicenseResponseDto licenseResponseDto = licenseService.saveLicense(licenseRequestDto, currentUser);
 
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(license.getId());
-        LicenseResource licenseResource = new LicenseResource(license);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(licenseResponseDto.getId());
+        LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
         licenseResource.add(selfLinkBuilder.withRel("update-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
 
@@ -54,9 +53,9 @@ public class LicenseController {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        License modifiedLicense = licenseService.updateLicense(license, licenseRequestDto, currentUser);
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(modifiedLicense.getId());
-        LicenseResource licenseResource = new LicenseResource(modifiedLicense);
+        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto, currentUser);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(modifiedLicenseResponseDto.getId());
+        LicenseResource licenseResource = new LicenseResource(modifiedLicenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
 
