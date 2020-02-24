@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -33,29 +34,42 @@ public class AccountService{
 
     private final Environment environment;
 
-    public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
+    public ResponseEntity<?> saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         account.setUserRole(UserRole.USER);
         account.setCreatedAt(LocalDateTime.now());
         account.setImage(defaultImage());
-        Account savedAccount = accountRepository.save(account);
-
-        return modelMapper.map(savedAccount, AccountResponseDto.class);
+        return new ResponseEntity<>(accountRepository.save(account), HttpStatus.CREATED);
     }
 
-    public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto, Account currentUser) {
+    public ResponseEntity<?> updateAccount(Long accountId, AccountRequestDto accountDto, Account currentUser) {
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!accountId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        Account account = accountOptional.get();
         modelMapper.map(accountDto, account);
-        Account modifiedAccount = this.accountRepository.save(account);
-
-        return modelMapper.map(modifiedAccount, AccountResponseDto.class);
+        return new ResponseEntity<>(accountRepository.save(account), HttpStatus.OK);
     }
 
-    public AccountResponseDto deleteAccount(Account account, Account currentUser) {
-        AccountResponseDto accountResponseDto = modelMapper.map(account, AccountResponseDto.class);
-        accountRepository.delete(account);
+    public ResponseEntity<?> deleteAccount(Long accountId, Account currentUser) {
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
 
-        return accountResponseDto;
+        if (!accountId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        accountRepository.delete(accountOptional.get());
+        return ResponseEntity.ok().build();
     }
 
     public ResponseEntity<?> getAccount(Account currentUser) {

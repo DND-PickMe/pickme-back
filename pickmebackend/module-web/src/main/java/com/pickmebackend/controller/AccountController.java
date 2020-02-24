@@ -3,22 +3,15 @@ package com.pickmebackend.controller;
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
-import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.repository.AccountRepository;
-import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static com.pickmebackend.error.ErrorMessageConstant.DUPLICATEDUSER;
 
 @RestController
 @RequestMapping(value = "/api/accounts", produces = MediaTypes.HAL_JSON_VALUE)
@@ -26,8 +19,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class AccountController {
 
     private final AccountService accountService;
-
-    private final AccountRepository accountRepository;
 
     @PostMapping
     ResponseEntity<?> saveAccount(@Valid @RequestBody AccountRequestDto accountDto, Errors errors) {
@@ -37,11 +28,7 @@ public class AccountController {
         if(accountService.isDuplicatedAccount(accountDto))  {
             return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
-        AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
-        AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(linkTo(LoginController.class).withRel("login"));
-
-        return new ResponseEntity<>(accountResource, HttpStatus.CREATED);
+        return accountService.saveAccount(accountDto);
     }
 
     @PutMapping("/{accountId}")
@@ -49,37 +36,13 @@ public class AccountController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
-        Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
-        }
-        if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
 
-        AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.get(), accountDto, currentUser);
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountResponseDto.class).slash(accountResponseDto.getId());
-        AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(selfLinkBuilder.withRel("delete-account"));
-
-        return new ResponseEntity<>(accountResource, HttpStatus.OK);
+        return accountService.updateAccount(accountId, accountDto, currentUser);
     }
 
     @DeleteMapping("/{accountId}")
     ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
-        Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
-        }
-
-        if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-        AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get(), currentUser);
-        AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(linkTo(LoginController.class).withRel("login"));
-
-        return new ResponseEntity<>(accountResource, HttpStatus.OK);
+        return accountService.deleteAccount(accountId, currentUser);
     }
 
     @GetMapping
