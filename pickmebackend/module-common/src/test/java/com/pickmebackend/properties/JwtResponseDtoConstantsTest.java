@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static com.pickmebackend.properties.JwtConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JwtConstantsTest {
+class JwtResponseDtoConstantsTest {
 
     @Test
     void propertyTest() {

@@ -44,7 +44,7 @@ public class EnterpriseService {
         return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.OK);
     }
 
-    public ResponseEntity<?> saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
+    public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
         Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(enterpriseRequestDto.getPassword()));
         account.setNickName(enterpriseRequestDto.getName());
@@ -59,16 +59,12 @@ public class EnterpriseService {
 
         EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(savedEnterprise, EnterpriseResponseDto.class);
         enterpriseResponseDto.setEmail(savedAccount.getEmail());
+        enterpriseResponseDto.setAccount(savedAccount);
 
-        return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.CREATED);
+        return enterpriseResponseDto;
     }
 
-    public ResponseEntity<?> updateEnterprise(Long enterpriseId, EnterpriseRequestDto enterpriseRequestDto, Account currentUser) {
-        Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
-        if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-        Account account = accountOptional.get();
+    public EnterpriseResponseDto updateEnterprise(Account account, EnterpriseRequestDto enterpriseRequestDto, Account currentUser) {
         modelMapper.map(enterpriseRequestDto, account);
         account.setPassword(passwordEncoder.encode(enterpriseRequestDto.getPassword()));
         account.setNickName(enterpriseRequestDto.getName());
@@ -83,16 +79,16 @@ public class EnterpriseService {
 
         EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(modifiedEnterprise, EnterpriseResponseDto.class);
         enterpriseResponseDto.setEmail(modifiedAccount.getEmail());
+        enterpriseResponseDto.setAccount(modifiedAccount);
 
-        return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.OK);
+        return enterpriseResponseDto;
     }
 
-    public ResponseEntity<?> deleteEnterprise(Long enterpriseId, Account currentUser) {
-        if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-        this.accountRepository.deleteById(enterpriseId);
-        return ResponseEntity.ok().build();
+    public EnterpriseResponseDto deleteEnterprise(Account account, Account currentUser) {
+        EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(account, EnterpriseResponseDto.class);
+        this.accountRepository.delete(account);
+
+        return enterpriseResponseDto;
     }
 
     public boolean isDuplicatedEnterprise(EnterpriseRequestDto enterpriseRequestDto) {

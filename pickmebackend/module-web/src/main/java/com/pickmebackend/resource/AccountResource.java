@@ -1,16 +1,17 @@
 package com.pickmebackend.resource;
 
 import com.pickmebackend.controller.AccountController;
-import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.dto.account.AccountResponseDto;
+import lombok.NoArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-public class AccountResource extends EntityModel<Account> {
+@NoArgsConstructor
+public class AccountResource extends EntityModel<AccountResponseDto> {
 
-    public AccountResource(Account account, Link... links) {
-        super(account, links);
-        add(linkTo(AccountController.class).slash(account.getId()).withSelfRel());
+    public AccountResource(AccountResponseDto accountResponseDto, Link... links) {
+        super(accountResponseDto, links);
+        add(linkTo(AccountController.class).slash(accountResponseDto.getId()).withSelfRel());
     }
 }

@@ -16,11 +16,6 @@ public class LoginController {
 
     private final LoginService loginService;
 
-    @GetMapping
-    public String login() {
-        return "/login";
-    }
-
     @PostMapping
     ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) throws Exception {
         if (errors.hasErrors()) {
