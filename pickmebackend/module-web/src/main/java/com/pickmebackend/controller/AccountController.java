@@ -17,7 +17,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -39,10 +38,11 @@ public class AccountController {
             return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(linkTo(LoginController.class).withRel("login"));
+        accountResource.add(linkTo(LoginController.class).withRel("login-account"));
 
-        return new ResponseEntity<>(accountResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(accountResource);
     }
 
     @PutMapping("/{accountId}")
@@ -79,7 +79,7 @@ public class AccountController {
 
         AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
         AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(linkTo(LoginController.class).withRel("login"));
+        accountResource.add(linkTo(LoginController.class).withRel("login-account"));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }

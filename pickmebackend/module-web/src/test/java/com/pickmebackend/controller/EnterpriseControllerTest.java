@@ -23,10 +23,16 @@ import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class EnterpriseControllerTest extends BaseControllerTest {
 
@@ -118,6 +124,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("email").value(appProperties.getTestEmail()))
                 .andExpect(jsonPath("password").doesNotExist())
@@ -126,7 +133,60 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("address").value(appProperties.getTestAddress()))
                 .andExpect(jsonPath("ceoName").value(appProperties.getTestCeoName()))
                 .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.login").exists())
+                .andExpect(jsonPath("_links.login-enterprise").exists())
+                .andDo(document("create-enterprise",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("login-enterprise").description("link to login")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("email").description("기업 담당자가 사용할 이메일"),
+                                fieldWithPath("password").description("기업 담당자가 사용할 패스워드"),
+                                fieldWithPath("registrationNumber").description("사업자 등록 번호"),
+                                fieldWithPath("name").description("회사 이름"),
+                                fieldWithPath("address").description("회사 주소"),
+                                fieldWithPath("ceoName").description("회사 사장 이름")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("Location Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("기업 담당자 식별자"),
+                                fieldWithPath("email").description("기업 담당자가 사용할 이메일"),
+                                fieldWithPath("registrationNumber").description("사업자 등록 번호"),
+                                fieldWithPath("name").description("회사 이름"),
+                                fieldWithPath("address").description("회사 주소"),
+                                fieldWithPath("ceoName").description("회사 사장 이름"),
+                                fieldWithPath("account.id").description("사용자 식별자"),
+                                fieldWithPath("account.email").description("사용자 이메일"),
+                                fieldWithPath("account.nickName").description("회사 이름"),
+                                fieldWithPath("account.technology").ignored(),
+                                fieldWithPath("account.favorite").ignored(),
+                                fieldWithPath("account.userRole").description("사용자 권한"),
+                                fieldWithPath("account.createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").ignored(),
+                                fieldWithPath("account.image").ignored(),
+
+                                fieldWithPath("account.enterprise.id").ignored(),
+                                fieldWithPath("account.enterprise.registrationNumber").ignored(),
+                                fieldWithPath("account.enterprise.name").ignored(),
+                                fieldWithPath("account.enterprise.address").ignored(),
+                                fieldWithPath("account.enterprise.ceoName").ignored(),
+                                fieldWithPath("account.enterprise.account").ignored(),
+
+                                fieldWithPath("account.experiences").ignored(),
+                                fieldWithPath("account.licenses").ignored(),
+                                fieldWithPath("account.prizes").ignored(),
+                                fieldWithPath("account.projects").ignored(),
+                                fieldWithPath("account.selfInterviews").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
         ;
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
@@ -253,6 +313,59 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("ceoName").value("newCeoName"))
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.delete-enterprise").exists())
+                .andDo(document("update-enterprise",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("delete-enterprise").description("link to delete enterprise")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("email").description("수정할 기업 담당자가 사용할 이메일"),
+                                fieldWithPath("password").description("수정할 기업 담당자가 사용할 패스워드"),
+                                fieldWithPath("registrationNumber").description("수정할 사업자 등록 번호"),
+                                fieldWithPath("name").description("수정할 회사 이름"),
+                                fieldWithPath("address").description("수정할 회사 주소"),
+                                fieldWithPath("ceoName").description("수정할 회사 사장 이름")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("수정할 기업 담당자 식별자"),
+                                fieldWithPath("email").description("수정할 기업 담당자가 사용할 이메일"),
+                                fieldWithPath("registrationNumber").description("수정할 사업자 등록 번호"),
+                                fieldWithPath("name").description("수정할 회사 이름"),
+                                fieldWithPath("address").description("수정할 회사 주소"),
+                                fieldWithPath("ceoName").description("수정할 회사 사장 이름"),
+                                fieldWithPath("account.id").description("수정할 사용자 식별자"),
+                                fieldWithPath("account.email").description("수정할 사용자 이메일"),
+                                fieldWithPath("account.nickName").description("수정할 회사 이름"),
+                                fieldWithPath("account.technology").ignored(),
+                                fieldWithPath("account.favorite").ignored(),
+                                fieldWithPath("account.userRole").description("수정할 사용자 권한"),
+                                fieldWithPath("account.createdAt").description("수정할 사용자 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").ignored(),
+                                fieldWithPath("account.image").ignored(),
+
+                                fieldWithPath("account.enterprise.id").ignored(),
+                                fieldWithPath("account.enterprise.registrationNumber").ignored(),
+                                fieldWithPath("account.enterprise.name").ignored(),
+                                fieldWithPath("account.enterprise.address").ignored(),
+                                fieldWithPath("account.enterprise.ceoName").ignored(),
+                                fieldWithPath("account.enterprise.account").ignored(),
+
+                                fieldWithPath("account.experiences").ignored(),
+                                fieldWithPath("account.licenses").ignored(),
+                                fieldWithPath("account.prizes").ignored(),
+                                fieldWithPath("account.projects").ignored(),
+                                fieldWithPath("account.selfInterviews").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
         ;
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         EnterpriseResource enterpriseResource = objectMapper.readValue(contentAsString, EnterpriseResource.class);
@@ -434,7 +547,32 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
-                .andExpect(jsonPath("_links.login").exists())
+                .andExpect(jsonPath("_links.login-enterprise").exists())
+                .andDo(document("delete-enterprise",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("login-enterprise").description("link to login")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        relaxedResponseFields(
+                                fieldWithPath("id").description("삭제할 기업 담당자 식별자"),
+                                fieldWithPath("email").description("삭제할 기업 담당자가 사용할 이메일"),
+                                fieldWithPath("registrationNumber").description("삭제할 사업자 등록 번호"),
+                                fieldWithPath("name").description("삭제할 회사 이름"),
+                                fieldWithPath("address").description("삭제할 회사 주소"),
+                                fieldWithPath("ceoName").description("삭제할 회사 사장 이름"),
+                                fieldWithPath("account.id").description("삭제할 사용자 식별자"),
+                                fieldWithPath("account.email").description("삭제할 사용자 이메일"),
+                                fieldWithPath("account.nickName").description("삭제할 회사 이름"),
+                                fieldWithPath("account.userRole").description("삭제할 사용자 권한"),
+                                fieldWithPath("account.createdAt").description("삭제할 사용자 생성 날짜")
+                        )
+                ))
         ;
     }
 

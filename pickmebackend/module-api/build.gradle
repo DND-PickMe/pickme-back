@@ -12,8 +12,6 @@ jar { enabled = true }
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-hateoas'
     compile 'org.springframework.boot:spring-boot-starter-security'
-    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
-    
 }
 
 test {

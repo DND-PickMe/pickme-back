@@ -4,16 +4,10 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.project.ProjectRequestDto;
 import com.pickmebackend.domain.dto.project.ProjectResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +26,7 @@ public class ProjectService {
         return projectResponseDto;
     }
 
-    public ProjectResponseDto updateProject(Project project, ProjectRequestDto projectRequestDto, Account currentUser) {
+    public ProjectResponseDto updateProject(Project project, ProjectRequestDto projectRequestDto) {
         modelMapper.map(projectRequestDto, project);
         Project modifiedProject = this.projectRepository.save(project);
         ProjectResponseDto projectResponseDto = modelMapper.map(modifiedProject, ProjectResponseDto.class);
@@ -40,18 +34,10 @@ public class ProjectService {
         return projectResponseDto;
     }
 
-    public ResponseEntity<?> deleteProject(Long projectId, Account currentUser) {
-        Optional<Project> projectOptional = this.projectRepository.findById(projectId);
-        if (!projectOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
-        }
-
-        Project project = projectOptional.get();
-        if (!project.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-
+    public ProjectResponseDto deleteProject(Project project) {
+        ProjectResponseDto projectResponseDto = modelMapper.map(project, ProjectResponseDto.class);
         this.projectRepository.delete(project);
-        return ResponseEntity.ok().build();
+
+        return projectResponseDto;
     }
 }

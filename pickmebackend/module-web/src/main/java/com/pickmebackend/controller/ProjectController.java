@@ -38,7 +38,7 @@ public class ProjectController {
         projectResource.add(selfLinkBuilder.withRel("update-project"));
         projectResource.add(selfLinkBuilder.withRel("delete-project"));
 
-        return new ResponseEntity<>(projectResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(projectResource);
     }
 
     @PutMapping("/{projectId}")
@@ -52,7 +52,7 @@ public class ProjectController {
         if (!project.getAccount().getId().equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(project, projectRequestDto, currentUser);
+        ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(project, projectRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ProjectController.class).slash(modifiedProjectResponseDto.getId());
         ProjectResource projectResource = new ProjectResource(modifiedProjectResponseDto);
         projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
@@ -63,6 +63,20 @@ public class ProjectController {
 
     @DeleteMapping("/{projectId}")
     ResponseEntity<?> deleteProject(@PathVariable Long projectId, @CurrentUser Account currentUser) {
-        return projectService.deleteProject(projectId, currentUser);
+        Optional<Project> projectOptional = this.projectRepository.findById(projectId);
+        if (!projectOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
+        }
+
+        Project project = projectOptional.get();
+        if (!project.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        ProjectResponseDto projectResponseDto = projectService.deleteProject(project);
+        ProjectResource projectResource = new ProjectResource(projectResponseDto);
+        projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
+
+        return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }
 }

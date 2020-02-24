@@ -38,7 +38,7 @@ public class LicenseController {
         licenseResource.add(selfLinkBuilder.withRel("update-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
 
-        return new ResponseEntity<>(licenseResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(licenseResource);
     }
 
     @PutMapping("/{licenseId}")
@@ -53,7 +53,7 @@ public class LicenseController {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto, currentUser);
+        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(modifiedLicenseResponseDto.getId());
         LicenseResource licenseResource = new LicenseResource(modifiedLicenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
@@ -64,6 +64,20 @@ public class LicenseController {
 
     @DeleteMapping("/{licenseId}")
     ResponseEntity<?> deleteLicense(@PathVariable Long licenseId, @CurrentUser Account currentUser) {
-        return licenseService.deleteLicense(licenseId, currentUser);
+        Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
+        if (!licenseOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(LICENSENOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+
+        License license = licenseOptional.get();
+        if (!license.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(license);
+        LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
+        licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
+
+        return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }
 }

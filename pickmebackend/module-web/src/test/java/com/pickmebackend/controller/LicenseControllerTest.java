@@ -17,10 +17,16 @@ import static com.pickmebackend.error.ErrorMessageConstant.LICENSENOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class LicenseControllerTest extends BaseControllerTest {
 
@@ -60,6 +66,7 @@ class LicenseControllerTest extends BaseControllerTest {
                         .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(jsonPath("id").isNotEmpty())
                 .andExpect(jsonPath("name", is(name)))
                 .andExpect(jsonPath("institution", is(institution)))
@@ -69,6 +76,51 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.update-license").exists())
                 .andExpect(jsonPath("_links.delete-license").exists())
+                .andDo(document("create-license",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("update-license").description("link to update license"),
+                                linkWithRel("delete-license").description("link to delete license")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("자격증 명"),
+                                fieldWithPath("institution").description("자격증 발급 기관"),
+                                fieldWithPath("issuedDate").description("자격증 발급 날짜"),
+                                fieldWithPath("description").description("자격증 설명")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
+                                headerWithName(HttpHeaders.LOCATION).description("Location Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("자격증 식별자"),
+                                fieldWithPath("name").description("자격증 명"),
+                                fieldWithPath("institution").description("자격증 발급 기관"),
+                                fieldWithPath("issuedDate").description("자격증 발급 날짜"),
+                                fieldWithPath("description").description("자격증 설명"),
+                                fieldWithPath("account.id").description("자격증 등록자 식별자"),
+                                fieldWithPath("account.email").description("자격증 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("자격증 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("자격증 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("자격증 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("자격증 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("자격증 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("자격증 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("자격증 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("자격증 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("자격증 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses[*].*").ignored(),
+                                fieldWithPath("account.prizes").description("자격증 등록자의 수상 내역"),
+                                fieldWithPath("account.projects").description("자격증 등록자의 프로젝트"),
+                                fieldWithPath("account.selfInterviews").description("자격증 등록자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
         ;
     }
 
@@ -129,6 +181,50 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
                 .andExpect(jsonPath("_links.delete-license").exists())
+                .andDo(document("update-license",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-license").description("link to create license"),
+                                linkWithRel("delete-license").description("link to delete license")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("수정할 자격증 명"),
+                                fieldWithPath("institution").description("수정할 발급 기관"),
+                                fieldWithPath("issuedDate").description("수정할 발급 날짜"),
+                                fieldWithPath("description").description("수정할 자격증 설명")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("수정된 자격증 식별자"),
+                                fieldWithPath("name").description("수정된 자격증 명"),
+                                fieldWithPath("institution").description("수정된 자격증 발급 기관"),
+                                fieldWithPath("issuedDate").description("수정된 자격증 발급 날짜"),
+                                fieldWithPath("description").description("수정된 자격증 설명"),
+                                fieldWithPath("account.id").description("수정된 자격증 등록자 식별자"),
+                                fieldWithPath("account.email").description("수정된 자격증 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("수정된 자격증 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("수정된 자격증 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("수정된 자격증 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("수정된 자격증 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("수정된 자격증 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("수정된 자격증 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("수정된 자격증 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("수정된 자격증 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("수정된 자격증 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses[*].*").ignored(),
+                                fieldWithPath("account.prizes").description("수정된 자격증 등록자의 수상 내역"),
+                                fieldWithPath("account.projects").description("수정된 자격증 등록자의 프로젝트"),
+                                fieldWithPath("account.selfInterviews").description("수정된 자격증 등록자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
         ;
     }
 
@@ -217,7 +313,45 @@ class LicenseControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(licenseUrl + "{licenseId}", license.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-license").exists())
+                .andDo(document("delete-license",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-license").description("link to create license")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("삭제된 자격증 식별자"),
+                                fieldWithPath("name").description("삭제된 자격증 명"),
+                                fieldWithPath("institution").description("삭제된 자격증 발급 기관"),
+                                fieldWithPath("issuedDate").description("삭제된 자격증 발급 날짜"),
+                                fieldWithPath("description").description("삭제된 자격증 설명"),
+                                fieldWithPath("account.id").description("삭제된 자격증 등록자 식별자"),
+                                fieldWithPath("account.email").description("삭제된 자격증 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("삭제된 자격증 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("삭제된 자격증 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("삭제된 자격증 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("삭제된 자격증 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("삭제된 자격증 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("삭제된 자격증 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("삭제된 자격증 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("삭제된 자격증 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("삭제된 자격증 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses[*].*").ignored(),
+                                fieldWithPath("account.prizes").description("삭제된 자격증 등록자의 수상 내역"),
+                                fieldWithPath("account.projects").description("삭제된 자격증 등록자의 프로젝트"),
+                                fieldWithPath("account.selfInterviews").description("삭제된 자격증 등록자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        ))
+                )
+        ;
     }
 
     @Test

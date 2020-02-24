@@ -17,7 +17,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -47,10 +46,11 @@ public class EnterpriseController {
             return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
         }
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.saveEnterprise(enterpriseRequestDto);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(linkTo(LoginController.class).withRel("login"));
+        enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
 
-        return new ResponseEntity<>(enterpriseResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(enterpriseResource);
     }
 
     @PutMapping("/{enterpriseId}")
@@ -84,7 +84,7 @@ public class EnterpriseController {
         Optional<Account> optionalAccount = this.accountRepository.findById(enterpriseId);
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.deleteEnterprise(optionalAccount.get());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(linkTo(LoginController.class).withRel("login"));
+        enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }

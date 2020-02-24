@@ -17,7 +17,7 @@ asciidoctor {
     dependsOn test
 }
 
-bootJar {
+jar {
     dependsOn asciidoctor
     from("${asciidoctor.outputDir}/html5") {
         into 'static/docs'
@@ -26,4 +26,5 @@ bootJar {
 
 dependencies {
     asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }

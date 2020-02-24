@@ -38,7 +38,7 @@ public class SelfInterviewController {
         selfInterviewResource.add(selfLinkBuilder.withRel("update-selfInterview"));
         selfInterviewResource.add(selfLinkBuilder.withRel("delete-selfInterview"));
 
-        return new ResponseEntity<>(selfInterviewResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(selfInterviewResource);
     }
 
     @PutMapping("/{selfInterviewId}")
@@ -52,7 +52,7 @@ public class SelfInterviewController {
         if (!selfInterview.getAccount().getId().equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        SelfInterviewResponseDto modifiedSelfInterviewResponseDto = selfInterviewService.updateSelfInterview(selfInterview, selfInterviewRequestDto, currentUser);
+        SelfInterviewResponseDto modifiedSelfInterviewResponseDto = selfInterviewService.updateSelfInterview(selfInterview, selfInterviewRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(SelfInterviewController.class).slash(modifiedSelfInterviewResponseDto.getId());
         SelfInterviewResource selfInterviewResource = new SelfInterviewResource(modifiedSelfInterviewResponseDto);
         selfInterviewResource.add(linkTo(SelfInterviewController.class).withRel("create-selfInterview"));
@@ -63,6 +63,20 @@ public class SelfInterviewController {
 
     @DeleteMapping("/{selfInterviewId}")
     ResponseEntity<?> deleteSelfInterview(@PathVariable Long selfInterviewId, @CurrentUser Account currentUser) {
-        return selfInterviewService.deleteSelfInterview(selfInterviewId, currentUser);
+        Optional<SelfInterview> selfInterviewOptional = this.selfInterviewRepository.findById(selfInterviewId);
+        if (!selfInterviewOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new ErrorMessage(SELFINTERVIEWNOTFOUND));
+        }
+
+        SelfInterview selfInterview = selfInterviewOptional.get();
+        if (!selfInterview.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        SelfInterviewResponseDto selfInterviewResponseDto = selfInterviewService.deleteSelfInterview(selfInterview);
+        SelfInterviewResource selfInterviewResource = new SelfInterviewResource(selfInterviewResponseDto);
+        selfInterviewResource.add(linkTo(SelfInterviewController.class).withRel("create-selfInterview"));
+
+        return new ResponseEntity<>(selfInterviewResource, HttpStatus.OK);
     }
 }
