@@ -1,16 +1,18 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
-import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
+import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.login.LoginRequestDto;
+import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Description;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -155,11 +157,12 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("createdAt").exists());
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
-        Account account = objectMapper.readValue(contentAsString, Account.class);
-        assertNotNull(account.getId());
-        assertEquals(account.getEmail(), appProperties.getTestEmail());
-        assertEquals(account.getNickName(), appProperties.getTestNickname());
-        assertNotNull(account.getCreatedAt());
+        AccountResource accountResource = objectMapper.readValue(contentAsString, AccountResource.class);
+        AccountResponseDto accountResponseDto = accountResource.getContent();
+        assertNotNull(accountResponseDto.getId());
+        assertEquals(accountResponseDto.getEmail(), appProperties.getTestEmail());
+        assertEquals(accountResponseDto.getNickName(), appProperties.getTestNickname());
+        assertNotNull(accountResponseDto.getCreatedAt());
     }
 
     private EnterpriseRequestDto saveEnterprise() throws Exception {

@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.resource.EnterpriseResource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -124,10 +125,13 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("name").value(appProperties.getTestName()))
                 .andExpect(jsonPath("address").value(appProperties.getTestAddress()))
                 .andExpect(jsonPath("ceoName").value(appProperties.getTestCeoName()))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.login").exists())
         ;
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
-        EnterpriseResponseDto enterpriseResponseDto = objectMapper.readValue(contentAsString, EnterpriseResponseDto.class);
+        EnterpriseResource enterpriseResource = objectMapper.readValue(contentAsString, EnterpriseResource.class);
+        EnterpriseResponseDto enterpriseResponseDto = enterpriseResource.getContent();
         Account account = accountRepository.findByEmail(enterpriseResponseDto.getEmail()).get();
         Enterprise enterprise = enterpriseRepository.findById(enterpriseResponseDto.getId()).get();
 
@@ -247,9 +251,12 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("name").value("newName"))
                 .andExpect(jsonPath("address").value("newAddress"))
                 .andExpect(jsonPath("ceoName").value("newCeoName"))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.delete-enterprise").exists())
         ;
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-        EnterpriseResponseDto enterpriseResponseDto = objectMapper.readValue(contentAsString, EnterpriseResponseDto.class);
+        EnterpriseResource enterpriseResource = objectMapper.readValue(contentAsString, EnterpriseResource.class);
+        EnterpriseResponseDto enterpriseResponseDto = enterpriseResource.getContent();
         Account modifiedAccount = accountRepository.findByEmail(enterpriseResponseDto.getEmail()).get();
         Enterprise modifiedEnterprise = enterpriseRepository.findById(enterpriseResponseDto.getId()).get();
 
@@ -426,6 +433,8 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.login").exists())
         ;
     }
 

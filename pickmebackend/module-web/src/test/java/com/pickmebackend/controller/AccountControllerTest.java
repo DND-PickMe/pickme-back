@@ -3,7 +3,9 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
+import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -62,14 +64,19 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
-                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))));
+                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.login").exists())
+        ;
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
-        Account account = objectMapper.readValue(contentAsString, Account.class);
-        assertNotNull(account.getId());
-        assertEquals(account.getEmail(), appProperties.getTestEmail());
-        assertEquals(account.getNickName(), appProperties.getTestNickname());
-        assertNotNull(account.getCreatedAt());
+        AccountResource accountResource = objectMapper.readValue(contentAsString, AccountResource.class);
+        AccountResponseDto accountResponseDto = accountResource.getContent();
+
+        assertNotNull(accountResponseDto.getId());
+        assertEquals(accountResponseDto.getEmail(), appProperties.getTestEmail());
+        assertEquals(accountResponseDto.getNickName(), appProperties.getTestNickname());
+        assertNotNull(accountResponseDto.getCreatedAt());
     }
 
     @Test
@@ -185,7 +192,10 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(updateNickname))
                 .andExpect(jsonPath("technology", is(technology)))
                 .andExpect(jsonPath("createdAt").exists())
-                .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce));
+                .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.delete-account").exists())
+        ;
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -320,7 +330,10 @@ class AccountControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(accountURL + "{accountId}", newAccount.getId())
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.login").exists())
+        ;
     }
 
     @Test
