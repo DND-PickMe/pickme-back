@@ -1,4 +1,4 @@
-package com.pickmebackend.domain.dto.jwt;
+package com.pickmebackend.config.jwt;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter
-public class JwtResponseDto {
+public class Jwt {
 
     private String jwt;
 }

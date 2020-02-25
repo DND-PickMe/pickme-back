@@ -15,10 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -39,19 +41,19 @@ public class AccountService{
         account.setUserRole(UserRole.USER);
         account.setCreatedAt(LocalDateTime.now());
         account.setImage(defaultImage());
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount = this.accountRepository.save(account);
 
         return modelMapper.map(savedAccount, AccountResponseDto.class);
     }
 
-    public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto, Account currentUser) {
+    public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto) {
         modelMapper.map(accountDto, account);
         Account modifiedAccount = this.accountRepository.save(account);
 
         return modelMapper.map(modifiedAccount, AccountResponseDto.class);
     }
 
-    public AccountResponseDto deleteAccount(Account account, Account currentUser) {
+    public AccountResponseDto deleteAccount(Account account) {
         AccountResponseDto accountResponseDto = modelMapper.map(account, AccountResponseDto.class);
         accountRepository.delete(account);
 

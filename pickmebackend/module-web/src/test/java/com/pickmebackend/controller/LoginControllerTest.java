@@ -2,15 +2,21 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
+import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.login.LoginRequestDto;
+import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Description;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
+
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -138,7 +144,7 @@ class LoginControllerTest extends BaseControllerTest {
     }
 
     void saveAccount(AccountRequestDto accountDto) throws Exception {
-        mockMvc.perform(post("/api/accounts")
+        ResultActions actions = mockMvc.perform(post("/api/accounts")
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDto)))
@@ -149,6 +155,14 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists());
+
+        String contentAsString = actions.andReturn().getResponse().getContentAsString();
+        AccountResource accountResource = objectMapper.readValue(contentAsString, AccountResource.class);
+        AccountResponseDto accountResponseDto = accountResource.getContent();
+        assertNotNull(accountResponseDto.getId());
+        assertEquals(accountResponseDto.getEmail(), appProperties.getTestEmail());
+        assertEquals(accountResponseDto.getNickName(), appProperties.getTestNickname());
+        assertNotNull(accountResponseDto.getCreatedAt());
     }
 
     private EnterpriseRequestDto saveEnterprise() throws Exception {

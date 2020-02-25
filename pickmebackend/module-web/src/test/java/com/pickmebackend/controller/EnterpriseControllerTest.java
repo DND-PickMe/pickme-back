@@ -17,10 +17,8 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-
 import java.util.Optional;
 import java.util.stream.Stream;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,6 +134,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
         EnterpriseResponseDto enterpriseResponseDto = enterpriseResource.getContent();
         Account account = accountRepository.findByEmail(enterpriseResponseDto.getEmail()).get();
         Enterprise enterprise = enterpriseRepository.findById(enterpriseResponseDto.getId()).get();
+
 
         assertNotNull(account.getId());
         assertEquals(account.getEmail(), appProperties.getTestEmail());

@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -66,7 +65,7 @@ public class EnterpriseController {
         if (!enterpriseId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        EnterpriseResponseDto enterpriseResponseDto = enterpriseService.updateEnterprise(accountOptional.get(), enterpriseRequestDto, currentUser);
+        EnterpriseResponseDto enterpriseResponseDto = enterpriseService.updateEnterprise(accountOptional.get(), enterpriseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(selfLinkBuilder.withRel("delete-enterprise"));
@@ -82,9 +81,8 @@ public class EnterpriseController {
         if (!enterpriseId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        Account account = accountRepository.findById(enterpriseId).get();
-
-        EnterpriseResponseDto enterpriseResponseDto = enterpriseService.deleteEnterprise(account, currentUser);
+        Optional<Account> optionalAccount = this.accountRepository.findById(enterpriseId);
+        EnterpriseResponseDto enterpriseResponseDto = enterpriseService.deleteEnterprise(optionalAccount.get());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(linkTo(LoginController.class).withRel("login"));
 

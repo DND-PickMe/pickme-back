@@ -1,6 +1,6 @@
 package com.pickmebackend.service;
 
-import com.pickmebackend.domain.dto.jwt.JwtResponseDto;
+import com.pickmebackend.config.jwt.Jwt;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.login.LoginRequestDto;
@@ -32,7 +32,7 @@ public class LoginService {
         }
         Account account = modelMapper.map(loginRequestDto, Account.class);
 
-        return new ResponseEntity<>(new JwtResponseDto(jwtProvider.generateToken(account)), HttpStatus.OK);
+        return new ResponseEntity<>(new Jwt(jwtProvider.generateToken(account)), HttpStatus.OK);
     }
 
     private boolean authenticate(String username, String password) {
@@ -44,4 +44,6 @@ public class LoginService {
             return false;
         }
     }
+
+
 }

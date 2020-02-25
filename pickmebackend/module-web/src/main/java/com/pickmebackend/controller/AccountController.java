@@ -17,6 +17,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -53,12 +54,12 @@ public class AccountController {
         if (!accountOptional.isPresent()) {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
+
         if (!accountId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-
-        AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.get(), accountDto, currentUser);
-        WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountResponseDto.class).slash(accountResponseDto.getId());
+        AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.get(), accountDto);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(selfLinkBuilder.withRel("delete-account"));
 
@@ -75,7 +76,8 @@ public class AccountController {
         if (!accountId.equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get(), currentUser);
+
+        AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login"));
 

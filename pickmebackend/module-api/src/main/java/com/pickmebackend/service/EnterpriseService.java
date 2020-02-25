@@ -64,7 +64,7 @@ public class EnterpriseService {
         return enterpriseResponseDto;
     }
 
-    public EnterpriseResponseDto updateEnterprise(Account account, EnterpriseRequestDto enterpriseRequestDto, Account currentUser) {
+    public EnterpriseResponseDto updateEnterprise(Account account, EnterpriseRequestDto enterpriseRequestDto) {
         modelMapper.map(enterpriseRequestDto, account);
         account.setPassword(passwordEncoder.encode(enterpriseRequestDto.getPassword()));
         account.setNickName(enterpriseRequestDto.getName());
@@ -84,7 +84,7 @@ public class EnterpriseService {
         return enterpriseResponseDto;
     }
 
-    public EnterpriseResponseDto deleteEnterprise(Account account, Account currentUser) {
+    public EnterpriseResponseDto deleteEnterprise(Account account) {
         EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(account, EnterpriseResponseDto.class);
         this.accountRepository.delete(account);
 
