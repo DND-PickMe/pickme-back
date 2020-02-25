@@ -9,6 +9,7 @@ import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.resource.EnterpriseResource;
 import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,7 @@ public class EnterpriseController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
+        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(enterpriseResource);
     }
@@ -69,6 +71,7 @@ public class EnterpriseController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(selfLinkBuilder.withRel("delete-enterprise"));
+        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-update").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
@@ -85,6 +88,7 @@ public class EnterpriseController {
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.deleteEnterprise(optionalAccount.get());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
+        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-delete").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }

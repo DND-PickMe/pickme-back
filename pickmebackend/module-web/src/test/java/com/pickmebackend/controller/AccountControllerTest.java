@@ -72,10 +72,12 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))))
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-account",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("login-account").description("link to login")
+                                linkWithRel("login-account").description("link to login"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -237,10 +239,12 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.delete-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-account",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("delete-account").description("link to delete account")
+                                linkWithRel("delete-account").description("link to delete account"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -412,10 +416,12 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-account",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("login-account").description("link to login")
+                                linkWithRel("login-account").description("link to login"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

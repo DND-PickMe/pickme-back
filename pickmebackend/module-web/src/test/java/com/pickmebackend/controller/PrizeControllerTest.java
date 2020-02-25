@@ -83,11 +83,13 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.update-prize").exists())
                 .andExpect(jsonPath("_links.delete-prize").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-prize",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("update-prize").description("link to update prize"),
-                                linkWithRel("delete-prize").description("link to delete prize")
+                                linkWithRel("delete-prize").description("link to delete prize"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -185,11 +187,13 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-prize").exists())
                 .andExpect(jsonPath("_links.delete-prize").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-prize",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("create-prize").description("link to create prize"),
-                                linkWithRel("delete-prize").description("link to delete prize")
+                                linkWithRel("delete-prize").description("link to delete prize"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -312,10 +316,12 @@ class PrizeControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-prize").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-prize",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("create-prize").description("link to create prize")
+                                linkWithRel("create-prize").description("link to create prize"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

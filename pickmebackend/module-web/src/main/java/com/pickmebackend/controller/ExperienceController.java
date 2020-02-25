@@ -10,6 +10,7 @@ import com.pickmebackend.repository.ExperienceRepository;
 import com.pickmebackend.resource.ExperienceResource;
 import com.pickmebackend.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class ExperienceController {
         ExperienceResource experienceResource = new ExperienceResource(experienceResponseDto);
         experienceResource.add(selfLinkBuilder.withRel("update-experience"));
         experienceResource.add(selfLinkBuilder.withRel("delete-experience"));
+        experienceResource.add(new Link("/docs/index.html#resources-experiences-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(experienceResource);
     }
@@ -58,6 +60,7 @@ public class ExperienceController {
         ExperienceResource experienceResource = new ExperienceResource(modifiedExperienceResponseDto);
         experienceResource.add(linkTo(ExperienceController.class).withRel("create-experience"));
         experienceResource.add(selfLinkBuilder.withRel("delete-experience"));
+        experienceResource.add(new Link("/docs/index.html#resources-experiences-update").withRel("profile"));
 
         return new ResponseEntity<>(experienceResource, HttpStatus.OK);
     }
@@ -77,6 +80,7 @@ public class ExperienceController {
         ExperienceResponseDto experienceResponseDto = experienceService.deleteExperience(experience);
         ExperienceResource experienceResource = new ExperienceResource(experienceResponseDto);
         experienceResource.add(linkTo(ExperienceController.class).withRel("create-experience"));
+        experienceResource.add(new Link("/docs/index.html#resources-experiences-delete").withRel("profile"));
 
         return new ResponseEntity<>(experienceResource, HttpStatus.OK);
     }

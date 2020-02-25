@@ -50,6 +50,13 @@ class LoginControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-experience").exists())
+                .andExpect(jsonPath("_links.create-license").exists())
+                .andExpect(jsonPath("_links.create-prize").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("login-account",
                         links(
                                 linkWithRel("self").description("link to self"),
@@ -57,7 +64,8 @@ class LoginControllerTest extends BaseControllerTest {
                                 linkWithRel("create-license").description("link to create license"),
                                 linkWithRel("create-prize").description("link to create prize"),
                                 linkWithRel("create-project").description("link to create project"),
-                                linkWithRel("create-selfInterview").description("link to create self interview")
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -91,6 +99,13 @@ class LoginControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-experience").exists())
+                .andExpect(jsonPath("_links.create-license").exists())
+                .andExpect(jsonPath("_links.create-prize").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("login-enterprise",
                         links(
                                 linkWithRel("self").description("link to self"),
@@ -98,7 +113,8 @@ class LoginControllerTest extends BaseControllerTest {
                                 linkWithRel("create-license").description("link to create license"),
                                 linkWithRel("create-prize").description("link to create prize"),
                                 linkWithRel("create-project").description("link to create project"),
-                                linkWithRel("create-selfInterview").description("link to create self interview")
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),

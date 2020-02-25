@@ -63,11 +63,13 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.update-selfInterview").exists())
                 .andExpect(jsonPath("_links.delete-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-selfInterview",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("update-selfInterview").description("link to update self interview"),
-                                linkWithRel("delete-selfInterview").description("link to delete self interview")
+                                linkWithRel("delete-selfInterview").description("link to delete self interview"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -152,11 +154,13 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-selfInterview").exists())
                 .andExpect(jsonPath("_links.delete-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-selfInterview",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("create-selfInterview").description("link to create self interview"),
-                                linkWithRel("delete-selfInterview").description("link to delete self interview")
+                                linkWithRel("delete-selfInterview").description("link to delete self interview"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -275,10 +279,12 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-selfInterview",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("create-selfInterview").description("link to create self interview")
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

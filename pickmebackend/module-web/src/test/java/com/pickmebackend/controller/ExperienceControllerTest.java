@@ -78,11 +78,13 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.update-experience").exists())
                 .andExpect(jsonPath("_links.delete-experience").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-experience",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("update-experience").description("link to update experience"),
-                                linkWithRel("delete-experience").description("link to delete experience")
+                                linkWithRel("delete-experience").description("link to delete experience"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -188,11 +190,13 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-experience").exists())
                 .andExpect(jsonPath("_links.delete-experience").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-experience",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("create-experience").description("link to create experience"),
-                                linkWithRel("delete-experience").description("link to delete experience")
+                                linkWithRel("delete-experience").description("link to delete experience"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -325,10 +329,12 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-experience").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-experience",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("create-experience").description("link to create experience")
+                                linkWithRel("create-experience").description("link to create experience"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

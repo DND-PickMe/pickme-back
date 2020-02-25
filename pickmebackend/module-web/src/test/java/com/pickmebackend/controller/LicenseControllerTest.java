@@ -76,11 +76,13 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.update-license").exists())
                 .andExpect(jsonPath("_links.delete-license").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-license",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("update-license").description("link to update license"),
-                                linkWithRel("delete-license").description("link to delete license")
+                                linkWithRel("delete-license").description("link to delete license"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -181,11 +183,13 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
                 .andExpect(jsonPath("_links.delete-license").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-license",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("create-license").description("link to create license"),
-                                linkWithRel("delete-license").description("link to delete license")
+                                linkWithRel("delete-license").description("link to delete license"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -316,10 +320,12 @@ class LicenseControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-license",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("create-license").description("link to create license")
+                                linkWithRel("create-license").description("link to create license"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

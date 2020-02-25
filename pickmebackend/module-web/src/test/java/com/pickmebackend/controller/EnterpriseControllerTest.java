@@ -134,10 +134,12 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("ceoName").value(appProperties.getTestCeoName()))
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-enterprise").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-enterprise",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("login-enterprise").description("link to login")
+                                linkWithRel("login-enterprise").description("link to login"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -313,10 +315,12 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("ceoName").value("newCeoName"))
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.delete-enterprise").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-enterprise",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("delete-enterprise").description("link to delete enterprise")
+                                linkWithRel("delete-enterprise").description("link to delete enterprise"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -548,10 +552,12 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-enterprise").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-enterprise",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("login-enterprise").description("link to login")
+                                linkWithRel("login-enterprise").description("link to login"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

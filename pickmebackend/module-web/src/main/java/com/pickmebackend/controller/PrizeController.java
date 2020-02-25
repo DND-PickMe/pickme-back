@@ -10,6 +10,7 @@ import com.pickmebackend.repository.PrizeRepository;
 import com.pickmebackend.resource.PrizeResource;
 import com.pickmebackend.service.PrizeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class PrizeController {
         PrizeResource prizeResource = new PrizeResource(prizeResponseDto);
         prizeResource.add(selfLinkBuilder.withRel("update-prize"));
         prizeResource.add(selfLinkBuilder.withRel("delete-prize"));
+        prizeResource.add(new Link("/docs/index.html#resources-prizes-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(prizeResource);
     }
@@ -58,6 +60,7 @@ public class PrizeController {
         PrizeResource prizeResource = new PrizeResource(modifiedPrizeResponseDto);
         prizeResource.add(linkTo(PrizeController.class).withRel("create-prize"));
         prizeResource.add(selfLinkBuilder.withRel("delete-prize"));
+        prizeResource.add(new Link("/docs/index.html#resources-prizes-update").withRel("profile"));
 
         return new ResponseEntity<>(prizeResource, HttpStatus.OK);
     }
@@ -77,6 +80,7 @@ public class PrizeController {
         PrizeResponseDto prizeResponseDto = prizeService.deletePrize(prize);
         PrizeResource prizeResource = new PrizeResource(prizeResponseDto);
         prizeResource.add(linkTo(PrizeController.class).withRel("create-prize"));
+        prizeResource.add(new Link("/docs/index.html#resources-prizes-delete").withRel("profile"));
 
         return new ResponseEntity<>(prizeResource, HttpStatus.OK);
     }

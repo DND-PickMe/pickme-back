@@ -10,6 +10,7 @@ import com.pickmebackend.repository.ProjectRepository;
 import com.pickmebackend.resource.ProjectResource;
 import com.pickmebackend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class ProjectController {
         ProjectResource projectResource = new ProjectResource(projectResponseDto);
         projectResource.add(selfLinkBuilder.withRel("update-project"));
         projectResource.add(selfLinkBuilder.withRel("delete-project"));
+        projectResource.add(new Link("/docs/index.html#resources-projects-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(projectResource);
     }
@@ -57,6 +59,7 @@ public class ProjectController {
         ProjectResource projectResource = new ProjectResource(modifiedProjectResponseDto);
         projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
         projectResource.add(selfLinkBuilder.withRel("delete-project"));
+        projectResource.add(new Link("/docs/index.html#resources-projects-update").withRel("profile"));
 
         return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }
@@ -76,6 +79,7 @@ public class ProjectController {
         ProjectResponseDto projectResponseDto = projectService.deleteProject(project);
         ProjectResource projectResource = new ProjectResource(projectResponseDto);
         projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
+        projectResource.add(new Link("/docs/index.html#resources-projects-delete").withRel("profile"));
 
         return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }

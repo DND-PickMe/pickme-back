@@ -10,6 +10,7 @@ import com.pickmebackend.repository.LicenseRepository;
 import com.pickmebackend.resource.LicenseResource;
 import com.pickmebackend.service.LicenseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class LicenseController {
         LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
         licenseResource.add(selfLinkBuilder.withRel("update-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
+        licenseResource.add(new Link("/docs/index.html#resources-licenses-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(licenseResource);
     }
@@ -58,6 +60,7 @@ public class LicenseController {
         LicenseResource licenseResource = new LicenseResource(modifiedLicenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
+        licenseResource.add(new Link("/docs/index.html#resources-licenses-update").withRel("profile"));
 
         return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }
@@ -77,6 +80,7 @@ public class LicenseController {
         LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(license);
         LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
+        licenseResource.add(new Link("/docs/index.html#resources-licenses-delete").withRel("profile"));
 
         return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }

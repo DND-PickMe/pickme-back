@@ -9,6 +9,7 @@ import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,7 @@ public class AccountController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login-account"));
+        accountResource.add(new Link("/docs/index.html#resources-account-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(accountResource);
     }
@@ -62,6 +64,7 @@ public class AccountController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(selfLinkBuilder.withRel("delete-account"));
+        accountResource.add(new Link("/docs/index.html#resources-account-update").withRel("profile"));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -80,6 +83,7 @@ public class AccountController {
         AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login-account"));
+        accountResource.add(new Link("/docs/index.html#resources-account-delete").withRel("profile"));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }

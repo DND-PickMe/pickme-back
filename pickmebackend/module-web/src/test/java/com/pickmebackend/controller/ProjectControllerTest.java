@@ -86,11 +86,13 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.update-project").exists())
                 .andExpect(jsonPath("_links.delete-project").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("create-project",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("update-project").description("link to update project"),
-                                linkWithRel("delete-project").description("link to delete project")
+                                linkWithRel("delete-project").description("link to delete project"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -199,11 +201,13 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-project").exists())
                 .andExpect(jsonPath("_links.delete-project").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("update-project",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("create-project").description("link to create project"),
-                                linkWithRel("delete-project").description("link to delete project")
+                                linkWithRel("delete-project").description("link to delete project"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
@@ -333,10 +337,12 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 .andDo(document("delete-project",
                         links(
                                 linkWithRel("self").description("link to self"),
-                                linkWithRel("create-project").description("link to create project")
+                                linkWithRel("create-project").description("link to create project"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         requestHeaders(
                                 headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")

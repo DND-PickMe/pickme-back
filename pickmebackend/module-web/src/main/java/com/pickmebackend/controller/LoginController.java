@@ -8,6 +8,7 @@ import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.resource.LoginResource;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -53,6 +54,7 @@ public class LoginController {
         loginResource.add(linkTo(PrizeController.class).withRel("create-prize"));
         loginResource.add(linkTo(ProjectController.class).withRel("create-project"));
         loginResource.add(linkTo(SelfInterviewController.class).withRel("create-selfInterview"));
+        loginResource.add(new Link("/docs/index.html#resources-login").withRel("profile"));
 
         return ResponseEntity.ok().body(loginResource);
     }
