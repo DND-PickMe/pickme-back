@@ -18,10 +18,14 @@ import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class ProjectControllerTest extends BaseControllerTest {
 
@@ -70,6 +74,7 @@ class ProjectControllerTest extends BaseControllerTest {
                                     .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("name", is(name)))
                 .andExpect(jsonPath("description", is(description)))
@@ -77,7 +82,62 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("projectLink", is(projectLink)))
                 .andExpect(jsonPath("startedAt", is(startedAt.toString())))
                 .andExpect(jsonPath("endedAt", is(endedAt.toString())))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-project").exists())
+                .andExpect(jsonPath("_links.delete-project").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("create-project",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("update-project").description("link to update project"),
+                                linkWithRel("delete-project").description("link to delete project"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("프로젝트 이름"),
+                                fieldWithPath("role").description("프로젝트에서의 역할"),
+                                fieldWithPath("description").description("프로젝트 설명"),
+                                fieldWithPath("startedAt").description("프로젝트 시작 날짜"),
+                                fieldWithPath("endedAt").description("프로젝트 완료 날짜"),
+                                fieldWithPath("projectLink").description("프로젝트 관련 주소")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
+                                headerWithName(HttpHeaders.LOCATION).description("Location Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("프로젝트 식별자"),
+                                fieldWithPath("name").description("프로젝트 이름"),
+                                fieldWithPath("role").description("프로젝트에서의 역할"),
+                                fieldWithPath("description").description("프로젝트 설명"),
+                                fieldWithPath("startedAt").description("프로젝트 시작 날짜"),
+                                fieldWithPath("endedAt").description("프로젝트 완료 날짜"),
+                                fieldWithPath("projectLink").description("프로젝트 관련 주소"),
+                                fieldWithPath("account.id").description("프로젝트 등록자 식별자"),
+                                fieldWithPath("account.email").description("프로젝트 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("프로젝트 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("프로젝트 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("프로젝트 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("프로젝트 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("프로젝트 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("프로젝트 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("프로젝트 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("프로젝트 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("프로젝트 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses").description("프로젝트 등록자의 자격증"),
+                                fieldWithPath("account.prizes").description("프로젝트 등록자의 수상 내역"),
+                                fieldWithPath("account.projects[*].*").ignored(),
+                                fieldWithPath("account.selfInterviews").description("프로젝트 등록자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                        ))
+        ;
     }
 
     @Test
@@ -137,7 +197,61 @@ class ProjectControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("projectLink").isNotEmpty())
                 .andExpect(jsonPath("startedAt").isNotEmpty())
                 .andExpect(jsonPath("endedAt").isNotEmpty())
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.delete-project").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("update-project",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-project").description("link to create project"),
+                                linkWithRel("delete-project").description("link to delete project"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("name").description("수정할 프로젝트 이름"),
+                                fieldWithPath("role").description("수정할 프로젝트에서의 역할"),
+                                fieldWithPath("description").description("수정할 프로젝트 설명"),
+                                fieldWithPath("startedAt").description("수정할 프로젝트 시작 날짜"),
+                                fieldWithPath("endedAt").description("수정할 프로젝트 완료 날짜"),
+                                fieldWithPath("projectLink").description("수정할 프로젝트 관련 주소")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("수정된 프로젝트 식별자"),
+                                fieldWithPath("name").description("수정된 프로젝트 이름"),
+                                fieldWithPath("role").description("수정된 프로젝트에서의 역할"),
+                                fieldWithPath("description").description("수정된 프로젝트 설명"),
+                                fieldWithPath("startedAt").description("수정된 프로젝트 시작 날짜"),
+                                fieldWithPath("endedAt").description("수정된 프로젝트 완료 날짜"),
+                                fieldWithPath("projectLink").description("수정된 프로젝트 관련 주소"),
+                                fieldWithPath("account.id").description("수정된 프로젝트 등록자 식별자"),
+                                fieldWithPath("account.email").description("수정된 프로젝트 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("수정된 프로젝트 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("수정된 프로젝트 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("수정된 프로젝트 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("수정된 프로젝트 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("수정된 프로젝트 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("수정된 프로젝트 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("수정된 프로젝트 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("수정된 프로젝트 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("수정된 프로젝트 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses").description("수정된 프로젝트 등록자의 자격증"),
+                                fieldWithPath("account.prizes").description("수정된 프로젝트 등록자의 수상 내역"),
+                                fieldWithPath("account.projects[*].*").ignored(),
+                                fieldWithPath("account.selfInterviews").description("수정된 프로젝트 등록자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
     }
 
     @Test
@@ -220,7 +334,49 @@ class ProjectControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(projectUrl + "{projectId}", project.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("delete-project",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-project").description("link to create project"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("삭제된 프로젝트 식별자"),
+                                fieldWithPath("name").description("삭제된 프로젝트 이름"),
+                                fieldWithPath("role").description("삭제된 프로젝트에서의 역할"),
+                                fieldWithPath("description").description("삭제된 프로젝트 설명"),
+                                fieldWithPath("startedAt").description("삭제된 프로젝트 시작 날짜"),
+                                fieldWithPath("endedAt").description("삭제된 프로젝트 완료 날짜"),
+                                fieldWithPath("projectLink").description("삭제된 프로젝트 관련 주소"),
+                                fieldWithPath("account.id").description("삭제된 프로젝트 등록자 식별자"),
+                                fieldWithPath("account.email").description("삭제된 프로젝트 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("삭제된 프로젝트 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("삭제된 프로젝트 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("삭제된 프로젝트 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("삭제된 프로젝트 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("삭제된 프로젝트 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("삭제된 프로젝트 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("삭제된 프로젝트 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("삭제된 프로젝트 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("삭제된 프로젝트 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses").description("삭제된 프로젝트 등록자의 자격증"),
+                                fieldWithPath("account.prizes").description("삭제된 프로젝트 등록자의 수상 내역"),
+                                fieldWithPath("account.projects[*].*").ignored(),
+                                fieldWithPath("account.selfInterviews").description("삭제된 프로젝트 등록자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
     }
 
     @Test

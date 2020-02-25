@@ -15,10 +15,14 @@ import org.springframework.http.MediaType;
 import static com.pickmebackend.error.ErrorMessageConstant.SELFINTERVIEWNOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class SelfInterviewControllerTest extends BaseControllerTest {
 
@@ -51,10 +55,58 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                         .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").value(title))
                 .andExpect(jsonPath("content").value(content))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-selfInterview").exists())
+                .andExpect(jsonPath("_links.delete-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("create-selfInterview",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("update-selfInterview").description("link to update self interview"),
+                                linkWithRel("delete-selfInterview").description("link to delete self interview"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("title").description("사용할 셀프 인터뷰 질문"),
+                                fieldWithPath("content").description("사용할 셀프 인터뷰 답변")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
+                                headerWithName(HttpHeaders.LOCATION).description("Location Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("셀프 인터뷰 식별자"),
+                                fieldWithPath("title").description("셀프 인터뷰 제목"),
+                                fieldWithPath("content").description("셀프 인터뷰 질문"),
+                                fieldWithPath("account.id").description("셀프 인터뷰 등록자 식별자"),
+                                fieldWithPath("account.email").description("셀프 인터뷰 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("셀프 인터뷰 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("셀프 인터뷰 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("셀프 인터뷰 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("셀프 인터뷰 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("셀프 인터뷰 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("셀프 인터뷰 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("셀프 인터뷰 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("셀프 인터뷰 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("셀프 인터뷰 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses").description("셀프 인터뷰 등록자의 자격증"),
+                                fieldWithPath("account.prizes").description("셀프 인터뷰 등록자의 수상 내역"),
+                                fieldWithPath("account.projects").description("셀프 인터뷰 등록자의 프로젝트"),
+                                fieldWithPath("account.selfInterviews[*].*").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                        ))
+        ;
     }
 
     @Test
@@ -98,7 +150,53 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("title").value("회사를 고를 때 가장 중요하게 생각하는 것은?"))
                 .andExpect(jsonPath("content").value(updateContent))
-                .andExpect(jsonPath("account").isNotEmpty());
+                .andExpect(jsonPath("account").isNotEmpty())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.delete-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("update-selfInterview",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("delete-selfInterview").description("link to delete self interview"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("title").description("수정할 셀프 인터뷰 질문"),
+                                fieldWithPath("content").description("수정할 셀프 인터뷰 답변")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("수정된 셀프 인터뷰 식별자"),
+                                fieldWithPath("title").description("수정된 셀프 인터뷰 제목"),
+                                fieldWithPath("content").description("수정된 셀프 인터뷰 질문"),
+                                fieldWithPath("account.id").description("수정된 셀프 인터뷰 등록자 식별자"),
+                                fieldWithPath("account.email").description("수정된 셀프 인터뷰 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("수정된 셀프 인터뷰 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("수정된 셀프 인터뷰 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("수정된 셀프 인터뷰 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("수정된 셀프 인터뷰 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("수정된 셀프 인터뷰 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("수정된 셀프 인터뷰 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("수정된 셀프 인터뷰 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("수정된 셀프 인터뷰 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("수정된 셀프 인터뷰 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses").description("수정된 셀프 인터뷰 등록자의 자격증"),
+                                fieldWithPath("account.prizes").description("수정된 셀프 인터뷰 등록자의 수상 내역"),
+                                fieldWithPath("account.projects").description("수정된 셀프 인터뷰 등록자의 프로젝트"),
+                                fieldWithPath("account.selfInterviews[*].*").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
     }
 
     @Test
@@ -178,7 +276,45 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("delete-selfInterview",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("삭제된 셀프 인터뷰 식별자"),
+                                fieldWithPath("title").description("삭제된 셀프 인터뷰 제목"),
+                                fieldWithPath("content").description("삭제된 셀프 인터뷰 질문"),
+                                fieldWithPath("account.id").description("삭제된 셀프 인터뷰 등록자 식별자"),
+                                fieldWithPath("account.email").description("삭제된 셀프 인터뷰 등록자 이메일"),
+                                fieldWithPath("account.nickName").description("삭제된 셀프 인터뷰 등록자 닉네임"),
+                                fieldWithPath("account.technology").description("삭제된 셀프 인터뷰 등록자 기술 스택"),
+                                fieldWithPath("account.favorite").description("삭제된 셀프 인터뷰 등록자를 좋아요한 사용자 목록"),
+                                fieldWithPath("account.userRole").description("삭제된 셀프 인터뷰 등록자의 권한"),
+                                fieldWithPath("account.createdAt").description("삭제된 셀프 인터뷰 등록자의 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").description("삭제된 셀프 인터뷰 등록자의 한 줄 소개"),
+                                fieldWithPath("account.image").description("삭제된 셀프 인터뷰 등록자의 프로필 이미지"),
+                                fieldWithPath("account.enterprise").description("삭제된 셀프 인터뷰 등록자의 기업 정보"),
+                                fieldWithPath("account.experiences").description("삭제된 셀프 인터뷰 등록자의 경력 사항"),
+                                fieldWithPath("account.licenses").description("삭제된 셀프 인터뷰 등록자의 자격증"),
+                                fieldWithPath("account.prizes").description("삭제된 셀프 인터뷰 등록자의 수상 내역"),
+                                fieldWithPath("account.projects").description("삭제된 셀프 인터뷰 등록자의 프로젝트"),
+                                fieldWithPath("account.selfInterviews[*].*").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
     }
 
     @Test

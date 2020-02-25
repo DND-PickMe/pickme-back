@@ -3,7 +3,9 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
+import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,19 +13,21 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class AccountControllerTest extends BaseControllerTest {
 
@@ -58,20 +62,65 @@ class AccountControllerTest extends BaseControllerTest {
                 .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("email").value(appProperties.getTestEmail()))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
-                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))));
+                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.login-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("create-account",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("login-account").description("link to login"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("email").description("사용자가 사용할 이메일"),
+                                fieldWithPath("password").description("사용자가 사용할 패스워드"),
+                                fieldWithPath("nickName").description("사용자가 사용할 닉네임"),
+                                fieldWithPath("technology").description("사용자가 가지고 있는 기술스택"),
+                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("Location Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 식별자"),
+                                fieldWithPath("email").description("사용자 이메일"),
+                                fieldWithPath("nickName").description("사용자 닉네임"),
+                                fieldWithPath("technology").description("사용자가 가진 기술스택"),
+                                fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("experiences").description("사용자의 경력 사항"),
+                                fieldWithPath("licenses").description("사용자의 자격증"),
+                                fieldWithPath("prizes").description("사용자의 수상 내역"),
+                                fieldWithPath("projects").description("사용자의 프로젝트"),
+                                fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
-        Account account = objectMapper.readValue(contentAsString, Account.class);
-        assertNotNull(account.getId());
-        assertEquals(account.getEmail(), appProperties.getTestEmail());
-        assertEquals(account.getNickName(), appProperties.getTestNickname());
-        assertNotNull(account.getCreatedAt());
+        AccountResource accountResource = objectMapper.readValue(contentAsString, AccountResource.class);
+        AccountResponseDto accountResponseDto = accountResource.getContent();
+
+        assertNotNull(accountResponseDto.getId());
+        assertEquals(accountResponseDto.getEmail(), appProperties.getTestEmail());
+        assertEquals(accountResponseDto.getNickName(), appProperties.getTestNickname());
+        assertNotNull(accountResponseDto.getCreatedAt());
     }
 
     @Test
@@ -187,7 +236,49 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(updateNickname))
                 .andExpect(jsonPath("technology", is(technology)))
                 .andExpect(jsonPath("createdAt").exists())
-                .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce));
+                .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.delete-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("update-account",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("delete-account").description("link to delete account"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("email").description("사용자가 수정할 이메일"),
+                                fieldWithPath("password").description("사용자가 수정할 패스워드"),
+                                fieldWithPath("nickName").description("사용자가 수정할 닉네임"),
+                                fieldWithPath("technology").description("사용자가 수정할 기술스택"),
+                                fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 식별자"),
+                                fieldWithPath("email").description("수정된 사용자 이메일"),
+                                fieldWithPath("nickName").description("수정된 사용자 닉네임"),
+                                fieldWithPath("technology").description("수정된 사용자가 가진 기술스택"),
+                                fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("oneLineIntroduce").description("수정된 사용자의 한 줄 소개"),
+                                fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("experiences").description("사용자의 경력 사항"),
+                                fieldWithPath("licenses").description("사용자의 자격증"),
+                                fieldWithPath("prizes").description("사용자의 수상 내역"),
+                                fieldWithPath("projects").description("사용자의 프로젝트"),
+                                fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                        ))
+        ;
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -322,7 +413,40 @@ class AccountControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(accountURL + "{accountId}", newAccount.getId())
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.login-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("delete-account",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("login-account").description("link to login"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 식별자"),
+                                fieldWithPath("email").description("삭제된 사용자 이메일"),
+                                fieldWithPath("nickName").description("삭제된 사용자 닉네임"),
+                                fieldWithPath("technology").description("삭제된 사용자가 가진 기술스택"),
+                                fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("oneLineIntroduce").description("삭제된 사용자의 한 줄 소개"),
+                                fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("experiences").description("사용자의 경력 사항"),
+                                fieldWithPath("licenses").description("사용자의 자격증"),
+                                fieldWithPath("prizes").description("사용자의 수상 내역"),
+                                fieldWithPath("projects").description("사용자의 프로젝트"),
+                                fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                        ))
+        ;
     }
 
     @Test

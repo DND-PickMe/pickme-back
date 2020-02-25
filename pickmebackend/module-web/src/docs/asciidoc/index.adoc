@@ -1,0 +1,326 @@
+= REST API Guide
+Pick Me;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= 개요
+
+[[overview-http-verbs]]
+== HTTP 동사
+
+본 REST API에서 사용하는 HTTP 동사(verbs)는 가능한한 표준 HTTP와 REST 규약을 따릅니다.
+
+|===
+| 동사 | 용례
+
+| `GET`
+| 리소스를 가져올 때 사용
+
+| `POST`
+| 새 리소스를 만들 때 사용
+
+| `PUT`
+| 기존 리소스를 수정할 때 사용
+
+| `PATCH`
+| 기존 리소스의 일부를 수정할 때 사용
+
+| `DELETE`
+| 기존 리소스를 삭제할 떄 사용
+|===
+
+[[overview-http-status-codes]]
+== HTTP 상태 코드
+
+본 REST API에서 사용하는 HTTP 상태 코드는 가능한한 표준 HTTP와 REST 규약을 따릅니다.
+
+|===
+| 상태 코드 | 용례
+
+| `200 OK`
+| 요청을 성공적으로 처리함
+
+| `201 Created`
+| 새 리소스를 성공적으로 생성함. 응답의 `Location` 헤더에 해당 리소스의 URI가 담겨있다.
+
+| `400 Bad Request`
+| 잘못된 요청을 보낸 경우. 응답 본문에 더 오류에 대한 정보가 담겨있다.
+
+| `401 UnAuthorized`
+| 해당 리소스에 유효한 인증 자격 증명이 없기 때문에 요청이 적용되지 않았음
+
+| `404 Not Found`
+| 요청한 리소스가 없음.
+
+| `500 Server Internal Server error`
+| 서버 내부에서 오류 발생
+
+|===
+
+[[overview-hypermedia]]
+== 하이퍼미디어
+
+본 REST API는 하이퍼미디어와 사용하며 응답에 담겨있는 리소스는 다른 리소스에 대한 링크를 가지고 있다.
+응답은 http://stateless.co/hal_specification.html[Hypertext Application from resource to resource. Language (HAL)] 형식을 따른다.
+링크는 `_links`라는 키로 제공한다. 본 API의 사용자(클라이언트)는 URI를 직접 생성하지 않아야 하며, 리소스에서 제공하는 링크를 사용해야 한다.
+
+[[resources]]
+= 리소스
+
+[[resources-index]]
+== 인덱스
+
+인덱스는 서비스 진입점을 제공한다.
+
+[[resources-index-access]]
+=== 인덱스 조회
+
+`GET` 요청을 사용하여 인덱스에 접근할 수 있다.
+
+operation::index[snippets='curl-request,http-request,http-response,links']
+
+[[resources-login]]
+== 로그인
+
+Login 리소스는 `POST` 요청을 사용해서 사용자가 로그인할 수 있다.
+
+operation::login-account[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+operation::login-enterprise[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-account]]
+== 사용자
+
+Account 리소스는 사용자를 만들거나 조회할 때 사용한다.
+
+[[resources-account-load]]
+=== 사용자 조회
+
+`GET` 요청을 사용하여 사용자를 조회할 수 있다.
+
+operation::load-account[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-account-create]]
+=== 사용자 생성
+
+`POST` 요청을 사용해서 사용자를 생성할 수 있다.
+
+operation::create-account[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-account-update]]
+=== 사용자 수정
+
+`PUT` 요청을 사용해서 사용자를 수정할 수 있다.
+
+operation::update-account[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-account-delete]]
+=== 사용자 삭제
+
+`DELETE` 요청을 사용해서 사용자를 삭제할 수 있다.
+
+operation::delete-account[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-enterprise]]
+== 기업 담당자
+
+Enterprise 리소스는 기업 담당자를 만들거나 조회할 때 사용한다.
+
+[[resources-enterprise-load]]
+=== 기업 담당자 조회
+
+`GET` 요청을 사용하여 기업 담당자를 조회할 수 있다.
+
+operation::load-enterprise[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-enterprise-create]]
+=== 기업 담당자 생성
+
+`POST` 요청을 사용해서 기업 담당자를 생성할 수 있다.
+
+operation::create-enterprise[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-enterprise-update]]
+=== 기업 담당자 수정
+
+`PUT` 요청을 사용해서 기업 담당자를 수정할 수 있다.
+
+operation::update-enterprise[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-enterprise-delete]]
+=== 기업 담당자 삭제
+
+`DELETE` 요청을 사용해서 기업 담당자를 삭제할 수 있다.
+
+operation::delete-enterprise[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-experiences]]
+== 경력 사항
+
+Experience 리소스는 경력 사항을 만들거나 조회할 때 사용한다.
+
+[[resources-experiences-load]]
+=== 경력 사항 조회
+
+`GET` 요청을 사용하여 경력 사항을 조회할 수 있다.
+
+operation::load-experience[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-experiences-create]]
+=== 경력 사항 생성
+
+`POST` 요청을 사용해서 경력 사항을 생성할 수 있다.
+
+operation::create-experience[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-experiences-update]]
+=== 경력 사항 수정
+
+`PUT` 요청을 사용해서 경력 사항을 수정할 수 있다.
+
+operation::update-experience[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-experiences-delete]]
+=== 경력 사항 삭제
+
+`DELETE` 요청을 사용해서 경력 사항을 삭제할 수 있다.
+
+operation::delete-experience[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-licenses]]
+== 자격증
+
+License 리소스는 자격증을 만들거나 조회할 때 사용한다.
+
+[[resources-licenses-load]]
+=== 자격증 조회
+
+`GET` 요청을 사용하여 자격증을 조회할 수 있다.
+
+operation::load-license[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-licenses-create]]
+=== 자격증 생성
+
+`POST` 요청을 사용해서 자격증을 생성할 수 있다.
+
+operation::create-license[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-licenses-update]]
+=== 자격증 수정
+
+`PUT` 요청을 사용해서 자격증을 수정할 수 있다.
+
+operation::update-license[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-licenses-delete]]
+=== 자격증 삭제
+
+`DELETE` 요청을 사용해서 자격증을 삭제할 수 있다.
+
+operation::delete-license[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-prizes]]
+== 수상 내역
+
+Prize 리소스는 수상 내역을 만들거나 조회할 때 사용한다.
+
+[[resources-prizes-load]]
+=== 수상 내역 조회
+
+`GET` 요청을 사용하여 수상 내역을 조회할 수 있다.
+
+operation::load-prize[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-prizes-create]]
+=== 수상 내역 생성
+
+`POST` 요청을 사용해서 수상 내역을 생성할 수 있다.
+
+operation::create-prize[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-prizes-update]]
+=== 수상 내역 수정
+
+`PUT` 요청을 사용해서 수상 내역을 수정할 수 있다.
+
+operation::update-prize[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-prizes-delete]]
+=== 수상 내역 삭제
+
+`DELETE` 요청을 사용해서 수상 내역을 삭제할 수 있다.
+
+operation::delete-prize[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-projects]]
+== 프로젝트
+
+Project 리소스는 프로젝트를 만들거나 조회할 때 사용한다.
+
+[[resources-projects-load]]
+=== 프로젝트 조회
+
+`GET` 요청을 사용하여 프로젝트를 조회할 수 있다.
+
+operation::load-project[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-projects-create]]
+=== 프로젝트 생성
+
+`POST` 요청을 사용해서 프로젝트를 생성할 수 있다.
+
+operation::create-project[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-projects-update]]
+=== 프로젝트 수정
+
+`PUT` 요청을 사용해서 프로젝트를 수정할 수 있다.
+
+operation::update-project[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-projects-delete]]
+=== 프로젝트 삭제
+
+`DELETE` 요청을 사용해서 프로젝트를 삭제할 수 있다.
+
+operation::delete-project[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-selfInterviews]]
+== 셀프 인터뷰
+
+SelfInterview 리소스는 셀프 인터뷰를 만들거나 조회할 때 사용한다.
+
+[[resources-selfInterviews-load]]
+=== 셀프 인터뷰 조회
+
+`GET` 요청을 사용하여 셀프 인터뷰를 조회할 수 있다.
+
+operation::load-selfInterview[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-selfInterviews-create]]
+=== 셀프 인터뷰 생성
+
+`POST` 요청을 사용해서 셀프 인터뷰를 생성할 수 있다.
+
+operation::create-selfInterview[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-selfInterviews-update]]
+=== 셀프 인터뷰 수정
+
+`PUT` 요청을 사용해서 셀프 인터뷰를 수정할 수 있다.
+
+operation::update-selfInterview[snippets='curl-request,http-request,request-headers,request-fields,http-response,response-headers,response-fields,links']
+
+[[resources-selfInterviews-delete]]
+=== 셀프 인터뷰 삭제
+
+`DELETE` 요청을 사용해서 셀프 인터뷰를 삭제할 수 있다.
+
+operation::delete-selfInterview[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']

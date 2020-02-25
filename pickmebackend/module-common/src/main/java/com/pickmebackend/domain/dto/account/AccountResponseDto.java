@@ -2,7 +2,7 @@ package com.pickmebackend.domain.dto.account;
 
 import com.pickmebackend.domain.*;
 import lombok.*;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -22,6 +22,8 @@ public class AccountResponseDto {
     private String oneLineIntroduce;
 
     private String image;
+
+    private LocalDateTime createdAt;
 
     private Set<Experience> experiences;
 
