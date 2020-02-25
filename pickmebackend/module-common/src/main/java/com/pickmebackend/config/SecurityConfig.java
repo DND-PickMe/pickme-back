@@ -4,7 +4,6 @@ import com.pickmebackend.config.jwt.JwtAuthenticationEntryPoint;
 import com.pickmebackend.config.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -50,12 +48,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/docs/index.html");
-        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-    }
-
-    @Override
     protected void configure(HttpSecurity http) throws Exception {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader(CorsConfiguration.ALL);
@@ -72,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .configurationSource(source)
                 .and()
                 .authorizeRequests()
-                    .antMatchers(HttpMethod.GET, "/api", "/api/accounts/**/favorite").permitAll()
+                    .antMatchers(HttpMethod.GET, "/api", "/index", "/api/accounts/**/favorite").permitAll()
                     .antMatchers(HttpMethod.POST, "/api/accounts/", "/api/enterprises", "/api/accounts", "/api/enterprises/", "/api/login").permitAll()
                     .antMatchers(HttpMethod.POST, "/api/experiences", "/api/experiences/", "/api/licenses", "/api/licenses/", "/api/prizes", "/api/prizes/", "/api/projects", "/api/projects/", "/api/selfInterviews", "/api/selfInterviews/").hasRole("USER")
                     .antMatchers(HttpMethod.PUT, "/api/accounts/**", "/api/experiences/**", "/api/licenses/**", "/api/prizes/**", "/api/projects/**", "/api/selfInterviews/**").hasRole("USER")
