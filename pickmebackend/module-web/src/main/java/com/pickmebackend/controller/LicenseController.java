@@ -10,6 +10,7 @@ import com.pickmebackend.repository.LicenseRepository;
 import com.pickmebackend.resource.LicenseResource;
 import com.pickmebackend.service.LicenseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -37,8 +38,9 @@ public class LicenseController {
         LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
         licenseResource.add(selfLinkBuilder.withRel("update-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
+        licenseResource.add(new Link("/docs/index.html#resources-licenses-create").withRel("profile"));
 
-        return new ResponseEntity<>(licenseResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(licenseResource);
     }
 
     @PutMapping("/{licenseId}")
@@ -53,17 +55,33 @@ public class LicenseController {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
-        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto, currentUser);
+        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(modifiedLicenseResponseDto.getId());
         LicenseResource licenseResource = new LicenseResource(modifiedLicenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
         licenseResource.add(selfLinkBuilder.withRel("delete-license"));
+        licenseResource.add(new Link("/docs/index.html#resources-licenses-update").withRel("profile"));
 
         return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }
 
     @DeleteMapping("/{licenseId}")
     ResponseEntity<?> deleteLicense(@PathVariable Long licenseId, @CurrentUser Account currentUser) {
-        return licenseService.deleteLicense(licenseId, currentUser);
+        Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
+        if (!licenseOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(LICENSENOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+
+        License license = licenseOptional.get();
+        if (!license.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(license);
+        LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
+        licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
+        licenseResource.add(new Link("/docs/index.html#resources-licenses-delete").withRel("profile"));
+
+        return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }
 }

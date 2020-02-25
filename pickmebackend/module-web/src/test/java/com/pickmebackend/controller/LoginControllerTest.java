@@ -10,13 +10,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Description;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -45,6 +50,39 @@ class LoginControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-experience").exists())
+                .andExpect(jsonPath("_links.create-license").exists())
+                .andExpect(jsonPath("_links.create-prize").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("login-account",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-experience").description("link to create experience"),
+                                linkWithRel("create-license").description("link to create license"),
+                                linkWithRel("create-prize").description("link to create prize"),
+                                linkWithRel("create-project").description("link to create project"),
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("email").description("사용자의 이메일"),
+                                fieldWithPath("password").description("사용자의 패스워드")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("jwt").description("인증된 사용자에게 발급되는 jwt 토큰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                        ))
         ;
     }
 
@@ -61,6 +99,39 @@ class LoginControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.create-experience").exists())
+                .andExpect(jsonPath("_links.create-license").exists())
+                .andExpect(jsonPath("_links.create-prize").exists())
+                .andExpect(jsonPath("_links.create-project").exists())
+                .andExpect(jsonPath("_links.create-selfInterview").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("login-enterprise",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("create-experience").description("link to create experience"),
+                                linkWithRel("create-license").description("link to create license"),
+                                linkWithRel("create-prize").description("link to create prize"),
+                                linkWithRel("create-project").description("link to create project"),
+                                linkWithRel("create-selfInterview").description("link to create self interview"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("Accept Header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        requestFields(
+                                fieldWithPath("email").description("기업 담당자의 이메일"),
+                                fieldWithPath("password").description("기업 담당자의 패스워드")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("jwt").description("인증된 기업 담당자에게 발급되는 jwt 토큰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
         ;
     }
 

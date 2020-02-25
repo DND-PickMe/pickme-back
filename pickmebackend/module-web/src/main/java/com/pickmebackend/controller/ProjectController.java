@@ -10,6 +10,7 @@ import com.pickmebackend.repository.ProjectRepository;
 import com.pickmebackend.resource.ProjectResource;
 import com.pickmebackend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -37,8 +38,9 @@ public class ProjectController {
         ProjectResource projectResource = new ProjectResource(projectResponseDto);
         projectResource.add(selfLinkBuilder.withRel("update-project"));
         projectResource.add(selfLinkBuilder.withRel("delete-project"));
+        projectResource.add(new Link("/docs/index.html#resources-projects-create").withRel("profile"));
 
-        return new ResponseEntity<>(projectResource, HttpStatus.CREATED);
+        return ResponseEntity.created(selfLinkBuilder.toUri()).body(projectResource);
     }
 
     @PutMapping("/{projectId}")
@@ -52,17 +54,33 @@ public class ProjectController {
         if (!project.getAccount().getId().equals(currentUser.getId())) {
             return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
-        ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(project, projectRequestDto, currentUser);
+        ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(project, projectRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ProjectController.class).slash(modifiedProjectResponseDto.getId());
         ProjectResource projectResource = new ProjectResource(modifiedProjectResponseDto);
         projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
         projectResource.add(selfLinkBuilder.withRel("delete-project"));
+        projectResource.add(new Link("/docs/index.html#resources-projects-update").withRel("profile"));
 
         return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }
 
     @DeleteMapping("/{projectId}")
     ResponseEntity<?> deleteProject(@PathVariable Long projectId, @CurrentUser Account currentUser) {
-        return projectService.deleteProject(projectId, currentUser);
+        Optional<Project> projectOptional = this.projectRepository.findById(projectId);
+        if (!projectOptional.isPresent()) {
+            return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
+        }
+
+        Project project = projectOptional.get();
+        if (!project.getAccount().getId().equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+
+        ProjectResponseDto projectResponseDto = projectService.deleteProject(project);
+        ProjectResource projectResource = new ProjectResource(projectResponseDto);
+        projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
+        projectResource.add(new Link("/docs/index.html#resources-projects-delete").withRel("profile"));
+
+        return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }
 }
