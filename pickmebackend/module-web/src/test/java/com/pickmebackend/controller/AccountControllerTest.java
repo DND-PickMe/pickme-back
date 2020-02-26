@@ -13,6 +13,7 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +56,6 @@ class AccountControllerTest extends BaseControllerTest {
                                             .password(appProperties.getTestPassword())
                                             .nickName(appProperties.getTestNickname())
                                             .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
-                                            .technology(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))
                                             .build();
 
         ResultActions actions = mockMvc.perform(post(accountURL)
@@ -71,7 +71,6 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
-                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))))
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
@@ -89,7 +88,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("email").description("사용자가 사용할 이메일"),
                                 fieldWithPath("password").description("사용자가 사용할 패스워드"),
                                 fieldWithPath("nickName").description("사용자가 사용할 닉네임"),
-                                fieldWithPath("technology").description("사용자가 가지고 있는 기술스택"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개")
                         ),
                         responseHeaders(
@@ -100,7 +98,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("사용자 이메일"),
                                 fieldWithPath("nickName").description("사용자 닉네임"),
-                                fieldWithPath("technology").description("사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -217,12 +214,10 @@ class AccountControllerTest extends BaseControllerTest {
         String updatedEmail = "update@email.com";
         String updateNickname = "updateNick";
         String oneLineIntroduce = "안녕하세요. 저는 백엔드 개발자를 지망하고 있습니다.";
-        List<String> technology = Arrays.asList("SpringBoot", "Java8", "MySQL");
 
         newAccount.setEmail(updatedEmail);
         newAccount.setNickName(updateNickname);
         newAccount.setOneLineIntroduce(oneLineIntroduce);
-        newAccount.setTechnology(technology);
 
         AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
@@ -237,7 +232,6 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("email").value(updatedEmail))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").value(updateNickname))
-                .andExpect(jsonPath("technology", is(technology)))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
                 .andExpect(jsonPath("_links.self").exists())
@@ -258,7 +252,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("email").description("사용자가 수정할 이메일"),
                                 fieldWithPath("password").description("사용자가 수정할 패스워드"),
                                 fieldWithPath("nickName").description("사용자가 수정할 닉네임"),
-                                fieldWithPath("technology").description("사용자가 수정할 기술스택"),
                                 fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개")
                         ),
                         responseHeaders(
@@ -268,7 +261,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("수정된 사용자 이메일"),
                                 fieldWithPath("nickName").description("수정된 사용자 닉네임"),
-                                fieldWithPath("technology").description("수정된 사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("수정된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -437,7 +429,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("삭제된 사용자 이메일"),
                                 fieldWithPath("nickName").description("삭제된 사용자 닉네임"),
-                                fieldWithPath("technology").description("삭제된 사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("삭제된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -525,7 +516,6 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("[*].email").exists())
                 .andExpect(jsonPath("[*].password").doesNotExist())
                 .andExpect(jsonPath("[*].nickName").exists())
-                .andExpect(jsonPath("[*].technology").exists())
                 .andExpect(jsonPath("[*].oneLineIntroduce").exists())
         ;
     }
