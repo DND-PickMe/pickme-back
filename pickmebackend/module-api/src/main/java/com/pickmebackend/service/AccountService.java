@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +34,6 @@ public class AccountService{
     private final ModelMapper modelMapper;
 
     private final PasswordEncoder passwordEncoder;
-
-    private final Environment environment;
 
     public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
@@ -76,14 +76,9 @@ public class AccountService{
     }
 
     private String defaultImage() {
-        final String port = environment.getProperty("local.server.port");
         final String USER_DEFAULT_IMG = "default_user.png";
         final String requestURI = "/api/images/";
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                                .port(port)
-                                                                .path(requestURI)
-                                                                .path(USER_DEFAULT_IMG)
-                                                                .toUriString();
+        return UriComponentsBuilder.fromUriString("https://pickme-back.ga").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
     }
 
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
