@@ -16,8 +16,6 @@ public class AccountResponseDto {
 
     private String nickName;
 
-    private List<String> technology;
-
     private Integer favoriteCount;
 
     private String oneLineIntroduce;
@@ -42,7 +40,6 @@ public class AccountResponseDto {
         this.id = account.getId();
         this.email = account.getEmail();
         this.nickName = account.getNickName();
-        this.technology = account.getTechnology();
         this.favoriteCount = account.getFavorite().size();
         this.oneLineIntroduce = account.getOneLineIntroduce();
         this.image = account.getImage();

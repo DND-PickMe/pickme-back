@@ -22,8 +22,5 @@ public class AccountRequestDto {
     private String nickName;
 
     @Nullable
-    private List<String> technology = new ArrayList<>();
-
-    @Nullable
     private String oneLineIntroduce;
 }

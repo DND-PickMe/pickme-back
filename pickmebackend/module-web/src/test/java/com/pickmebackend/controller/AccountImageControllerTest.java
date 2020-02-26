@@ -149,7 +149,6 @@ class AccountImageControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .oneLineIntroduce("테스트 코드 작성을 중요시 합니다!")
-                .technology(Arrays.asList("스프링부트", "주피터", "Mysql"))
                 .build();
 
     }
@@ -160,7 +159,6 @@ class AccountImageControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .oneLineIntroduce("테스트 코드 작성을 중요시 합니다!")
-                .technology(Arrays.asList("스프링부트", "주피터", "Mysql"))
                 .build(), Account.class);
 
         account.setUserRole(UserRole.USER);

@@ -29,9 +29,6 @@ public class Account {
     private String nickName;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> technology = new ArrayList<>();
-
-    @ElementCollection(fetch = FetchType.EAGER)
     private Set<Account> favorite = new HashSet<>();
 
     @Column
