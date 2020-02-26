@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -75,6 +76,18 @@ public class BaseControllerTest {
                 .userRole(UserRole.USER)
                 .build();
         return accountRepository.save(account);
+    }
+
+    protected void createAccounts(int i) {
+        Account account = Account.builder()
+                .email(i + appProperties.getTestEmail())
+                .password(i + appProperties.getTestPassword())
+                .nickName(i + appProperties.getTestNickname())
+                .oneLineIntroduce("한 줄 소개")
+                .createdAt(LocalDateTime.now())
+                .userRole(UserRole.USER)
+                .build();
+        accountRepository.save(account);
     }
 
     protected EnterpriseRequestDto createEnterpriseDto() {

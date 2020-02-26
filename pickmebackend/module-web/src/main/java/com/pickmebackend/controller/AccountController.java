@@ -88,7 +88,7 @@ public class AccountController {
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/profile")
     ResponseEntity<?> getAccount(@CurrentUser Account currentUser) {
         return accountService.getAccount(currentUser);
     }
@@ -102,4 +102,10 @@ public class AccountController {
     ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) {
         return accountService.getFavoriteUsers(accountId);
     }
+
+    @GetMapping
+    ResponseEntity<?> getAllAccounts()  {
+        return accountService.getAllAccounts();
+    }
+
 }

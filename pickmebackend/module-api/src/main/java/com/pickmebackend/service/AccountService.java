@@ -9,20 +9,15 @@ import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -34,6 +29,15 @@ public class AccountService{
     private final ModelMapper modelMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+    public ResponseEntity<?> getAllAccounts() {
+        List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAllDesc()
+                .stream()
+                .map(AccountResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(accountResponseDtos, HttpStatus.OK);
+    }
 
     public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);

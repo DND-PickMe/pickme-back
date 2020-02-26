@@ -16,6 +16,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -102,6 +104,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
@@ -269,6 +272,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("수정된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
@@ -437,6 +441,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("삭제된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
@@ -494,7 +499,7 @@ class AccountControllerTest extends BaseControllerTest {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
 
-        mockMvc.perform(get(accountURL)
+        mockMvc.perform(get(accountURL + "/profile")
                                     .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -502,6 +507,27 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())));
+    }
+
+    @Test
+    @DisplayName("정상적으로 모든 유저 조회")
+    void getAllAccounts() throws Exception  {
+        IntStream.rangeClosed(1, 30).forEach(this::createAccounts);
+
+        Account anotherAccount = createAnotherAccount();
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        this.mockMvc.perform(get(accountURL)
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("[*].id").exists())
+                .andExpect(jsonPath("[*].email").exists())
+                .andExpect(jsonPath("[*].password").doesNotExist())
+                .andExpect(jsonPath("[*].nickName").exists())
+                .andExpect(jsonPath("[*].technology").exists())
+                .andExpect(jsonPath("[*].oneLineIntroduce").exists())
+        ;
     }
 
     @Test
