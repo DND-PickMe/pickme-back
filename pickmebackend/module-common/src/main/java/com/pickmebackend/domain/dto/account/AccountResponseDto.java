@@ -1,6 +1,7 @@
 package com.pickmebackend.domain.dto.account;
 
 import com.pickmebackend.domain.*;
+import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,8 @@ public class AccountResponseDto {
     private String oneLineIntroduce;
 
     private String image;
+
+    private UserRole userRole;
 
     private LocalDateTime createdAt;
 

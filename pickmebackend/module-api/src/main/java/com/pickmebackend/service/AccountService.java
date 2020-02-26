@@ -35,6 +35,14 @@ public class AccountService{
 
     private final Environment environment;
 
+    public ResponseEntity<?> getAllAccounts() {
+        List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAll().stream()
+                .map(AccountResponseDto::new)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(accountResponseDtos, HttpStatus.OK);
+    }
+
     public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
