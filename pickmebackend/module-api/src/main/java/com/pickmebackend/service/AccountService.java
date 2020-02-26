@@ -31,7 +31,8 @@ public class AccountService{
     private final PasswordEncoder passwordEncoder;
 
     public ResponseEntity<?> getAllAccounts() {
-        List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAll().stream()
+        List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAllDesc()
+                .stream()
                 .map(AccountResponseDto::new)
                 .collect(Collectors.toList());
 
