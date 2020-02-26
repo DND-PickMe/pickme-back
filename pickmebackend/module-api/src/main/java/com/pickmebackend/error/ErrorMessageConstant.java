@@ -10,4 +10,5 @@ public class ErrorMessageConstant {
     public static final String PRIZENOTFOUND = "수상 내역을 찾을 수 없습니다.";
     public static final String PROJECTNOTFOUND = "프로젝트를 찾을 수 없습니다.";
     public static final String INVALIDIMAGE = "적합한 이미지가 아닙니다.";
+    public static final String CANNOTREADABLEIMAGE = "이지지를 읽을 수 없습니다.";
 }

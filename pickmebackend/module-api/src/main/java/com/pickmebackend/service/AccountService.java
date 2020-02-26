@@ -9,18 +9,15 @@ import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -32,8 +29,6 @@ public class AccountService{
     private final ModelMapper modelMapper;
 
     private final PasswordEncoder passwordEncoder;
-
-    private final Environment environment;
 
     public ResponseEntity<?> getAllAccounts() {
         List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAll().stream()
@@ -84,14 +79,9 @@ public class AccountService{
     }
 
     private String defaultImage() {
-        final String port = environment.getProperty("local.server.port");
         final String USER_DEFAULT_IMG = "default_user.png";
         final String requestURI = "/api/images/";
-        return ServletUriComponentsBuilder.fromCurrentContextPath()
-                                                                .port(port)
-                                                                .path(requestURI)
-                                                                .path(USER_DEFAULT_IMG)
-                                                                .toUriString();
+        return UriComponentsBuilder.fromUriString("https://pickme-back.ga").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
     }
 
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {

@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +31,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.UUID;
-import static com.pickmebackend.error.ErrorMessageConstant.INVALIDIMAGE;
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+
+import static com.pickmebackend.error.ErrorMessageConstant.*;
 
 /**
  * Reference
@@ -82,11 +86,12 @@ public class AccountImageService {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
-
-        String newImagePath = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/image/")
+        String newImagePath = UriComponentsBuilder
+                .fromUriString("https://pickme-back.ga")
+                .path("/api/images/")
                 .path(imageName)
                 .toUriString();
+
         account.setImage(newImagePath);
         return new ResponseEntity<>(accountRepository.save(account), HttpStatus.CREATED);
     }
@@ -111,7 +116,7 @@ public class AccountImageService {
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {
-                return new ResponseEntity<>(INVALIDIMAGE, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(CANNOTREADABLEIMAGE, HttpStatus.BAD_REQUEST);
             }
         } catch (MalformedURLException e) {
             return new ResponseEntity<>(INVALIDIMAGE, HttpStatus.BAD_REQUEST);
