@@ -106,7 +106,7 @@ class PrizeControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수상 내역 식별자"),
                                 fieldWithPath("competition").description("수상 대회 명"),
                                 fieldWithPath("name").description("수상 내역"),
@@ -208,7 +208,7 @@ class PrizeControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 프로젝트 식별자"),
                                 fieldWithPath("competition").description("수정된 수상대회 명"),
                                 fieldWithPath("name").description("수정된 수상 내역"),
@@ -327,7 +327,7 @@ class PrizeControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 프로젝트 식별자"),
                                 fieldWithPath("competition").description("삭제된 수상대회 명"),
                                 fieldWithPath("name").description("삭제된 수상 내역"),

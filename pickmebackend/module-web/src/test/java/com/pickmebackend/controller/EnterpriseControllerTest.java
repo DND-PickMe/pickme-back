@@ -157,7 +157,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("기업 담당자 식별자"),
                                 fieldWithPath("email").description("기업 담당자가 사용할 이메일"),
                                 fieldWithPath("registrationNumber").description("사업자 등록 번호"),
@@ -337,7 +337,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정할 기업 담당자 식별자"),
                                 fieldWithPath("email").description("수정할 기업 담당자가 사용할 이메일"),
                                 fieldWithPath("registrationNumber").description("수정할 사업자 등록 번호"),

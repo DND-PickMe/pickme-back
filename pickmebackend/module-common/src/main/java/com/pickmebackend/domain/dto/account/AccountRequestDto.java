@@ -1,9 +1,11 @@
 package com.pickmebackend.domain.dto.account;
 
+import com.pickmebackend.domain.Technology;
 import lombok.*;
 import org.springframework.lang.Nullable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,4 +25,10 @@ public class AccountRequestDto {
 
     @Nullable
     private String oneLineIntroduce;
+
+    @Nullable
+    private String socialLink;
+
+    @Nullable
+    private List<Technology> technologyList;
 }
