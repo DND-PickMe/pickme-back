@@ -32,7 +32,15 @@ public class AccountService{
 
     private final PasswordEncoder passwordEncoder;
 
-    public Page<Account> getAllAccounts(Pageable pageable) {
+    public AccountResponseDto loadProfile(Account account) {
+        return modelMapper.map(account, AccountResponseDto.class);
+    }
+
+    public AccountResponseDto loadAccount(Account account) {
+        return modelMapper.map(account, AccountResponseDto.class);
+    }
+
+    public Page<Account> loadAllAccounts(Pageable pageable) {
         return this.accountRepository.findAllAccountsDesc(pageable);
     }
 
@@ -59,10 +67,6 @@ public class AccountService{
         accountRepository.delete(account);
 
         return accountResponseDto;
-    }
-
-    public AccountResponseDto getAccount(Account account) {
-        return modelMapper.map(account, AccountResponseDto.class);
     }
 
     public boolean isDuplicatedAccount(AccountRequestDto accountDto) {

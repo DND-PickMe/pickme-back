@@ -38,7 +38,7 @@ public class AccountController {
     private final ModelMapper modelMapper;
 
     @GetMapping("/profile")
-    ResponseEntity<?> getAccount(@CurrentUser Account currentUser) {
+    ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
         if (currentUser == null) {
             return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
         }
@@ -47,7 +47,7 @@ public class AccountController {
             return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
-        AccountResponseDto accountResponseDto = accountService.getAccount(account);
+        AccountResponseDto accountResponseDto = accountService.loadProfile(account);
         accountResponseDto.setFavoriteCount(account.getFavorite().size());
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
@@ -58,12 +58,26 @@ public class AccountController {
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
 
-//    @GetMapping("/{accountId}")
-//    ResponseEntity<?> ge
+    @GetMapping("/{accountId}")
+    ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser)    {
+        if (currentUser == null) {
+            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+        }
+        Optional<Account> accountOptional = accountRepository.findById(accountId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+        Account account = accountOptional.get();
+        AccountResponseDto accountResponseDto = accountService.loadAccount(account);
+        AccountResource accountResource = new AccountResource(accountResponseDto);
+        accountResource.add(new Link("/docs/index.html#resources-account-load").withRel("profile"));
+
+        return new ResponseEntity<>(accountResource, HttpStatus.OK);
+    }
 
     @GetMapping
-    ResponseEntity<?> getAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler)  {
-        Page<Account> all = accountService.getAllAccounts(pageable);
+    ResponseEntity<?> loadAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler)  {
+        Page<Account> all = accountService.loadAllAccounts(pageable);
         PagedModel<AccountResource> accountResources = assembler.toModel(all, e -> new AccountResource(modelMapper.map(e, AccountResponseDto.class)));
         accountResources.add(new Link("/docs/index.html#resources-allAccounts-load").withRel("profile"));
         return new ResponseEntity<>(accountResources, HttpStatus.OK);
