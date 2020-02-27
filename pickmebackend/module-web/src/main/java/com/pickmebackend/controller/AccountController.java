@@ -76,8 +76,9 @@ public class AccountController {
     }
 
     @GetMapping
-    ResponseEntity<?> loadAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler)  {
-        Page<Account> all = accountService.loadAllAccounts(pageable);
+    ResponseEntity<?> loadAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler,
+                                      @RequestParam(value = "orderBy", required = false) String orderBy)  {
+        Page<Account> all = accountService.loadAllAccounts(pageable, orderBy);
         PagedModel<AccountResource> accountResources = assembler.toModel(all, e -> new AccountResource(modelMapper.map(e, AccountResponseDto.class)));
         accountResources.add(new Link("/docs/index.html#resources-allAccounts-load").withRel("profile"));
 
