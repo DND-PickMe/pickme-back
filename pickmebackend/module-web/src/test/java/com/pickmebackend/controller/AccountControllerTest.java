@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,12 +50,12 @@ class AccountControllerTest extends BaseControllerTest {
         assert appProperties.getTestNickname() != null;
 
         AccountRequestDto accountDto = AccountRequestDto.builder()
-                                            .email(appProperties.getTestEmail())
-                                            .password(appProperties.getTestPassword())
-                                            .nickName(appProperties.getTestNickname())
-                                            .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
-                                            .technology(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))
-                                            .build();
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
+                .technology(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))
+                .build();
 
         ResultActions actions = mockMvc.perform(post(accountURL)
                 .accept(MediaTypes.HAL_JSON)
@@ -114,7 +113,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
-        ;
+                ;
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
         AccountResource accountResource = objectMapper.readValue(contentAsString, AccountResource.class);
@@ -161,10 +160,10 @@ class AccountControllerTest extends BaseControllerTest {
         assertNotNull(nickName);
 
         AccountRequestDto accountDto = AccountRequestDto.builder()
-                                            .email(email)
-                                            .password(password)
-                                            .nickName(nickName)
-                                            .build();
+                .email(email)
+                .password(password)
+                .nickName(nickName)
+                .build();
 
         mockMvc.perform(post(accountURL)
                 .accept(MediaTypes.HAL_JSON)
@@ -182,10 +181,10 @@ class AccountControllerTest extends BaseControllerTest {
     @DisplayName("유저 생성 시 email, password, nickname 중 하나라도 null이 들어올 경우 Bad Request 반환")
     void saveAccount_null_input(RepetitionInfo info) throws Exception {
         AccountRequestDto accountDto = AccountRequestDto.builder()
-                                            .email(appProperties.getTestEmail())
-                                            .password(appProperties.getTestPassword())
-                                            .nickName(appProperties.getTestNickname())
-                                            .build();
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .build();
 
         int currentRepetition = info.getCurrentRepetition();
         if (currentRepetition == 1) {
@@ -281,7 +280,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
-                        ))
+                ))
         ;
     }
 
@@ -450,7 +449,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
-                        ))
+                ))
         ;
     }
 
@@ -500,13 +499,57 @@ class AccountControllerTest extends BaseControllerTest {
         jwt = jwtProvider.generateToken(newAccount);
 
         mockMvc.perform(get(accountURL + "/profile")
-                                    .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
                 .andExpect(jsonPath("password").doesNotExist())
-                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())));
+                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technology").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("experiences").exists())
+                .andExpect(jsonPath("licenses").exists())
+                .andExpect(jsonPath("prizes").exists())
+                .andExpect(jsonPath("projects").exists())
+                .andExpect(jsonPath("selfInterviews").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-account").exists())
+                .andExpect(jsonPath("_links.delete-account").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("load-profile",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("update-account").description("link to update account"),
+                                linkWithRel("delete-account").description("link to delete account")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 식별자"),
+                                fieldWithPath("email").description("사용자 이메일"),
+                                fieldWithPath("nickName").description("사용자 닉네임"),
+                                fieldWithPath("technology").description("사용자가 가진 기술스택"),
+                                fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("userRole").description("사용자 권한"),
+                                fieldWithPath("createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("experiences").description("사용자의 경력 사항"),
+                                fieldWithPath("licenses").description("사용자의 자격증"),
+                                fieldWithPath("prizes").description("사용자의 수상 내역"),
+                                fieldWithPath("projects").description("사용자의 프로젝트"),
+                                fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
     }
 
     @Test
@@ -514,19 +557,57 @@ class AccountControllerTest extends BaseControllerTest {
     void getAllAccounts() throws Exception  {
         IntStream.rangeClosed(1, 30).forEach(this::createAccounts);
 
-        Account anotherAccount = createAnotherAccount();
-        jwt = jwtProvider.generateToken(anotherAccount);
-
-        this.mockMvc.perform(get(accountURL)
-                .header(HttpHeaders.AUTHORIZATION, jwt))
+        this.mockMvc.perform(get(accountURL))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("[*].id").exists())
-                .andExpect(jsonPath("[*].email").exists())
-                .andExpect(jsonPath("[*].password").doesNotExist())
-                .andExpect(jsonPath("[*].nickName").exists())
-                .andExpect(jsonPath("[*].technology").exists())
-                .andExpect(jsonPath("[*].oneLineIntroduce").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].email").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].password").doesNotExist())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].nickName").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].userRole").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].technology").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("load-allAccounts",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("next").description("link to next page"),
+                                linkWithRel("first").description("link to first page"),
+                                linkWithRel("last").description("link to last page")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.accountResponseDtoList[*].id").description("사용자 식별자"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].email").description("사용자 이메일"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].nickName").description("사용자 이름"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technology").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].image").description("사용자 이미지"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].userRole").description("사용자 권한"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*]._links.self.href").ignored(),
+                                fieldWithPath("_links.*.*").ignored(),
+                                fieldWithPath("page.size").description("size of page"),
+                                fieldWithPath("page.totalElements").description("total elements of pages"),
+                                fieldWithPath("page.totalPages").description("total pages"),
+                                fieldWithPath("page.number").description("current page number")
+                        )
+                ))
         ;
     }
 
@@ -587,12 +668,12 @@ class AccountControllerTest extends BaseControllerTest {
     void getFavoriteUser() throws Exception {
         Account account = createAccount();
         Account secondAccount = accountRepository.save(Account.builder()
-                                                        .email("sangyeop@email.com")
-                                                        .password(passwordEncoder.encode("password"))
-                                                        .nickName("sangyeopzzangzzang")
-                                                        .userRole(UserRole.USER)
-                                                        .createdAt(LocalDateTime.now())
-                                                        .build());
+                .email("sangyeop@email.com")
+                .password(passwordEncoder.encode("password"))
+                .nickName("sangyeopzzangzzang")
+                .userRole(UserRole.USER)
+                .createdAt(LocalDateTime.now())
+                .build());
         String firstAccountjwt = createAccountJwt();
         String secondJwt = jwtProvider.generateToken(secondAccount);
 

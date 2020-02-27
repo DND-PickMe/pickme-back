@@ -9,8 +9,13 @@ import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +35,45 @@ public class AccountController {
 
     private final AccountRepository accountRepository;
 
+    private final ModelMapper modelMapper;
+
+    @GetMapping("/profile")
+    ResponseEntity<?> getAccount(@CurrentUser Account currentUser) {
+        if (currentUser == null) {
+            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+        }
+        Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+        Account account = accountOptional.get();
+        AccountResponseDto accountResponseDto = accountService.getAccount(account);
+        accountResponseDto.setFavoriteCount(account.getFavorite().size());
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
+        AccountResource accountResource = new AccountResource(accountResponseDto);
+        accountResource.add(selfLinkBuilder.withRel("update-account"));
+        accountResource.add(selfLinkBuilder.withRel("delete-account"));
+        accountResource.add(new Link("/docs/index.html#resources-profile-load").withRel("profile"));
+
+        return new ResponseEntity<>(accountResource, HttpStatus.OK);
+    }
+
+//    @GetMapping("/{accountId}")
+//    ResponseEntity<?> ge
+
+    @GetMapping
+    ResponseEntity<?> getAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler)  {
+        Page<Account> all = accountService.getAllAccounts(pageable);
+        PagedModel<AccountResource> accountResources = assembler.toModel(all, e -> new AccountResource(modelMapper.map(e, AccountResponseDto.class)));
+        accountResources.add(new Link("/docs/index.html#resources-allAccounts-load").withRel("profile"));
+        return new ResponseEntity<>(accountResources, HttpStatus.OK);
+    }
+
+    @GetMapping("/{accountId}/favorite")
+    ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) {
+        return accountService.getFavoriteUsers(accountId);
+    }
+
     @PostMapping
     ResponseEntity<?> saveAccount(@Valid @RequestBody AccountRequestDto accountDto, Errors errors) {
         if (errors.hasErrors()) {
@@ -45,6 +89,11 @@ public class AccountController {
         accountResource.add(new Link("/docs/index.html#resources-account-create").withRel("profile"));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(accountResource);
+    }
+
+    @PostMapping("/{accountId}/favorite")
+    ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) {
+        return accountService.favorite(accountId, currentUser);
     }
 
     @PutMapping("/{accountId}")
@@ -87,25 +136,4 @@ public class AccountController {
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
-
-    @GetMapping("/profile")
-    ResponseEntity<?> getAccount(@CurrentUser Account currentUser) {
-        return accountService.getAccount(currentUser);
-    }
-
-    @PostMapping("/{accountId}/favorite")
-    ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) {
-        return accountService.favorite(accountId, currentUser);
-    }
-
-    @GetMapping("/{accountId}/favorite")
-    ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) {
-        return accountService.getFavoriteUsers(accountId);
-    }
-
-    @GetMapping
-    ResponseEntity<?> getAllAccounts()  {
-        return accountService.getAllAccounts();
-    }
-
 }

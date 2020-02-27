@@ -9,6 +9,8 @@ import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,13 +32,8 @@ public class AccountService{
 
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<?> getAllAccounts() {
-        List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAllDesc()
-                .stream()
-                .map(AccountResponseDto::new)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(accountResponseDtos, HttpStatus.OK);
+    public Page<Account> getAllAccounts(Pageable pageable) {
+        return this.accountRepository.findAllAccountsDesc(pageable);
     }
 
     public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
@@ -64,15 +61,8 @@ public class AccountService{
         return accountResponseDto;
     }
 
-    public ResponseEntity<?> getAccount(Account currentUser) {
-        if (currentUser == null) {
-            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
-        }
-        Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.ok().body(accountOptional.get());
+    public AccountResponseDto getAccount(Account account) {
+        return modelMapper.map(account, AccountResponseDto.class);
     }
 
     public boolean isDuplicatedAccount(AccountRequestDto accountDto) {

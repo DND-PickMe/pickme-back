@@ -49,6 +49,7 @@ public class LoginController {
 
         JwtResponseDto jwtResponseDto = new JwtResponseDto(jwt);
         LoginResource loginResource = new LoginResource(jwtResponseDto);
+        loginResource.add(linkTo(AccountController.class).withRel("load-allAccounts"));
         loginResource.add(linkTo(ExperienceController.class).withRel("create-experience"));
         loginResource.add(linkTo(LicenseController.class).withRel("create-license"));
         loginResource.add(linkTo(PrizeController.class).withRel("create-prize"));
