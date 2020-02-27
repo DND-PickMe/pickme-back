@@ -3,6 +3,7 @@ package com.pickmebackend.service;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
 import com.pickmebackend.domain.Technology;
+import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountListResponseDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
@@ -57,23 +58,11 @@ public class AccountService{
     }
 
     @Transactional
-    public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
+    public AccountResponseDto saveAccount(AccountInitialRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         account.setValue();
         Account savedAccount = this.accountRepository.save(account);
-
-        List<Technology> technologyList = accountDto.getTechnologies();
-
-        if (technologyList != null) {
-            technologyList.forEach(tech -> savedAccount.getAccountTechSet().add(
-                    accountTechRepository.save(AccountTech.builder()
-                            .account(savedAccount)
-                            .technology(tech)
-                            .build()))
-            );
-        }
-
         AccountResponseDto accountResponseDto = modelMapper.map(savedAccount, AccountResponseDto.class);
         accountResponseDto.toTech(savedAccount);
         return accountResponseDto;
@@ -106,7 +95,7 @@ public class AccountService{
         return accountResponseDto;
     }
 
-    public boolean isDuplicatedAccount(AccountRequestDto accountDto) {
+    public boolean isDuplicatedAccount(AccountInitialRequestDto accountDto) {
         return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
     }
 

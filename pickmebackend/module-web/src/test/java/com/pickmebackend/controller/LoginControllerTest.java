@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
+import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
@@ -40,7 +41,7 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("정상적으로 일반 유저 로그인 하기")
     void loginAccountSuccess() throws Exception {
-        AccountRequestDto accountDto = this.createAccountDto();
+        AccountInitialRequestDto accountDto = this.createAccountDto();
         LoginRequestDto loginRequestDto = modelMapper.map(accountDto, LoginRequestDto.class);
 
         this.mockMvc.perform(post(loginURL)
@@ -142,7 +143,7 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("일반유저가 잘못된 이메일 입력시 400")
     void loginFailByAccountEmail() throws Exception {
-        AccountRequestDto accountDto = this.createAccountDto();
+        AccountInitialRequestDto accountDto = this.createAccountDto();
         accountDto.setEmail("kiseok@email.com");
         LoginRequestDto loginRequestDto = modelMapper.map(accountDto, LoginRequestDto.class);
 
@@ -176,7 +177,7 @@ class LoginControllerTest extends BaseControllerTest {
     @Test
     @Description("일반유저가 잘못된 패스워드 입력시 400")
     void loginFailByAccountPassword() throws Exception {
-        AccountRequestDto accountDto = this.createAccountDto();
+        AccountInitialRequestDto accountDto = this.createAccountDto();
         accountDto.setPassword("kiseokyang");
         LoginRequestDto loginRequestDto = modelMapper.map(accountDto, LoginRequestDto.class);
 
@@ -207,18 +208,19 @@ class LoginControllerTest extends BaseControllerTest {
         ;
     }
 
-    AccountRequestDto createAccountDto() throws Exception {
-        AccountRequestDto accountDto =  AccountRequestDto.builder()
+    AccountInitialRequestDto createAccountDto() throws Exception {
+        AccountInitialRequestDto accountDto =  AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .build();
+
         saveAccount(accountDto);
 
         return accountDto;
     }
 
-    void saveAccount(AccountRequestDto accountDto) throws Exception {
+    void saveAccount(AccountInitialRequestDto accountDto) throws Exception {
         ResultActions actions = mockMvc.perform(post("/api/accounts")
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

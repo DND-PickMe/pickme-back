@@ -3,20 +3,21 @@ package com.pickmebackend.domain.dto.account;
 import com.pickmebackend.domain.Technology;
 import lombok.*;
 import org.springframework.lang.Nullable;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class AccountRequestDto {
 
-    @Email @NotBlank
+    @NotBlank
     private String email;
-
-    @NotBlank @Size(min = 8, max = 20)
-    private String password;
 
     @NotBlank
     private String nickName;
@@ -28,5 +29,12 @@ public class AccountRequestDto {
     private String socialLink;
 
     @Nullable
-    private List<Technology> technologies;
+    private String career;
+
+    @Nullable
+    private Set<String> positions;
+
+    @Nullable
+    private List<Technology> technologies = new ArrayList<>();
+
 }
