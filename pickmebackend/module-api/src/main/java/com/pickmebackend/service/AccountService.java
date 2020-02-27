@@ -49,7 +49,10 @@ public class AccountService{
         return modelMapper.map(account, AccountResponseDto.class);
     }
 
-    public Page<Account> loadAllAccounts(Pageable pageable) {
+    public Page<Account> loadAllAccounts(Pageable pageable, String orderBy) {
+        if ("favorite".equals(orderBy)) {
+            return this.accountRepository.findAllAccountsDescAndOrderBy(pageable);
+        }
         return this.accountRepository.findAllAccountsDesc(pageable);
     }
 
