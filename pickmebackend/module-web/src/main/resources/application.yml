@@ -2,9 +2,6 @@ spring:
   profiles:
     include: real-db
   jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     hibernate:
       ddl-auto: update
     show-sql: true
