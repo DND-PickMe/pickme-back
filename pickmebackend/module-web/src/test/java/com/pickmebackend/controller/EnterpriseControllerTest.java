@@ -157,7 +157,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("기업 담당자 식별자"),
                                 fieldWithPath("email").description("기업 담당자가 사용할 이메일"),
                                 fieldWithPath("registrationNumber").description("사업자 등록 번호"),
@@ -167,7 +167,6 @@ class EnterpriseControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("사용자 식별자"),
                                 fieldWithPath("account.email").description("사용자 이메일"),
                                 fieldWithPath("account.nickName").description("회사 이름"),
-                                fieldWithPath("account.technology").ignored(),
                                 fieldWithPath("account.favorite").ignored(),
                                 fieldWithPath("account.userRole").description("사용자 권한"),
                                 fieldWithPath("account.createdAt").description("사용자 생성 날짜"),
@@ -338,7 +337,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정할 기업 담당자 식별자"),
                                 fieldWithPath("email").description("수정할 기업 담당자가 사용할 이메일"),
                                 fieldWithPath("registrationNumber").description("수정할 사업자 등록 번호"),
@@ -348,7 +347,6 @@ class EnterpriseControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("수정할 사용자 식별자"),
                                 fieldWithPath("account.email").description("수정할 사용자 이메일"),
                                 fieldWithPath("account.nickName").description("수정할 회사 이름"),
-                                fieldWithPath("account.technology").ignored(),
                                 fieldWithPath("account.favorite").ignored(),
                                 fieldWithPath("account.userRole").description("수정할 사용자 권한"),
                                 fieldWithPath("account.createdAt").description("수정할 사용자 생성 날짜"),

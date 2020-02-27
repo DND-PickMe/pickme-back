@@ -102,7 +102,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("경력 내역 식별자"),
                                 fieldWithPath("companyName").description("회사 명"),
                                 fieldWithPath("position").description("포지션"),
@@ -112,7 +112,6 @@ class ExperienceControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("경력 내역 등록자 식별자"),
                                 fieldWithPath("account.email").description("경력 내역 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("경력 내역 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("경력 내역 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("경력 내역 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("경력 내역 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("경력 내역 등록자의 생성 날짜"),
@@ -213,7 +212,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 경력 내역 식별자"),
                                 fieldWithPath("companyName").description("수정된 회사 명"),
                                 fieldWithPath("position").description("수정된 포지션"),
@@ -223,7 +222,6 @@ class ExperienceControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("수정된 경력 내역 등록자 식별자"),
                                 fieldWithPath("account.email").description("수정된 경력 내역 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("수정된 경력 내역 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("수정된 경력 내역 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("수정된 경력 내역 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("수정된 경력 내역 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("수정된 경력 내역 등록자의 생성 날짜"),
@@ -342,7 +340,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 경력 내역 식별자"),
                                 fieldWithPath("companyName").description("삭제된 회사 명"),
                                 fieldWithPath("position").description("삭제된 포지션"),
@@ -352,7 +350,6 @@ class ExperienceControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("삭제된 경력 내역 등록자 식별자"),
                                 fieldWithPath("account.email").description("삭제된 경력 내역 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("삭제된 경력 내역 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("삭제된 경력 내역 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("삭제된 경력 내역 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("삭제된 경력 내역 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("삭제된 경력 내역 등록자의 생성 날짜"),

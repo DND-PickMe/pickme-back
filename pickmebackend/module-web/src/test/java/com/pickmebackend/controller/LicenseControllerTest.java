@@ -99,7 +99,7 @@ class LicenseControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("자격증 식별자"),
                                 fieldWithPath("name").description("자격증 명"),
                                 fieldWithPath("institution").description("자격증 발급 기관"),
@@ -108,7 +108,6 @@ class LicenseControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("자격증 등록자 식별자"),
                                 fieldWithPath("account.email").description("자격증 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("자격증 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("자격증 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("자격증 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("자격증 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("자격증 등록자의 생성 날짜"),
@@ -205,7 +204,7 @@ class LicenseControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 자격증 식별자"),
                                 fieldWithPath("name").description("수정된 자격증 명"),
                                 fieldWithPath("institution").description("수정된 자격증 발급 기관"),
@@ -214,7 +213,6 @@ class LicenseControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("수정된 자격증 등록자 식별자"),
                                 fieldWithPath("account.email").description("수정된 자격증 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("수정된 자격증 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("수정된 자격증 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("수정된 자격증 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("수정된 자격증 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("수정된 자격증 등록자의 생성 날짜"),
@@ -333,7 +331,7 @@ class LicenseControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 자격증 식별자"),
                                 fieldWithPath("name").description("삭제된 자격증 명"),
                                 fieldWithPath("institution").description("삭제된 자격증 발급 기관"),
@@ -342,7 +340,6 @@ class LicenseControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.id").description("삭제된 자격증 등록자 식별자"),
                                 fieldWithPath("account.email").description("삭제된 자격증 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("삭제된 자격증 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("삭제된 자격증 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("삭제된 자격증 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("삭제된 자격증 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("삭제된 자격증 등록자의 생성 날짜"),

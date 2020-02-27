@@ -1,12 +1,14 @@
 package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.AccountTech;
+import com.pickmebackend.domain.Technology;
 import com.pickmebackend.domain.dto.account.AccountListResponseDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
-import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.AccountTechRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -15,8 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
-import java.time.LocalDateTime;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +36,14 @@ public class AccountService{
     public AccountResponseDto loadProfile(Account account) {
         return modelMapper.map(account, AccountResponseDto.class);
     }
+    private final AccountTechRepository accountTechRepository;
+
+    public List<AccountResponseDto> getAllAccounts(Pageable pageable) {
+        return this.accountRepository.findAllAccountsDesc(pageable)
+                .stream()
+                .map(AccountResponseDto::new)
+                .collect(Collectors.toList());
+    }
 
     public AccountResponseDto loadAccount(Account account) {
         return modelMapper.map(account, AccountResponseDto.class);
@@ -44,22 +53,47 @@ public class AccountService{
         return this.accountRepository.findAllAccountsDesc(pageable);
     }
 
+    @Transactional
     public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
-        account.setUserRole(UserRole.USER);
-        account.setCreatedAt(LocalDateTime.now());
-        account.setImage(defaultImage());
+        account.setValue();
         Account savedAccount = this.accountRepository.save(account);
 
-        return modelMapper.map(savedAccount, AccountResponseDto.class);
+        List<Technology> technologyList = accountDto.getTechnologies();
+
+        if (technologyList != null) {
+            technologyList.forEach(tech -> savedAccount.getAccountTechSet().add(
+                    accountTechRepository.save(AccountTech.builder()
+                            .account(savedAccount)
+                            .technology(tech)
+                            .build()))
+            );
+        }
+
+        AccountResponseDto accountResponseDto = modelMapper.map(savedAccount, AccountResponseDto.class);
+        accountResponseDto.toTech(savedAccount);
+        return accountResponseDto;
     }
 
     public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto) {
         modelMapper.map(accountDto, account);
+        if (account.getAccountTechSet() != null) {
+            account.getAccountTechSet().forEach(e -> accountTechRepository.deleteById(e.getId()));
+            account.getAccountTechSet().clear();
+        }
+        if (accountDto.getTechnologies() != null) {
+            accountDto.getTechnologies()
+                    .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(AccountTech.builder()
+                            .account(account)
+                            .technology(tech)
+                            .build())));
+        }
         Account modifiedAccount = this.accountRepository.save(account);
 
-        return modelMapper.map(modifiedAccount, AccountResponseDto.class);
+        AccountResponseDto accountResponseDto = modelMapper.map(modifiedAccount, AccountResponseDto.class);
+        accountResponseDto.toTech(modifiedAccount);
+        return accountResponseDto;
     }
 
     public AccountResponseDto deleteAccount(Account account) {
@@ -71,12 +105,6 @@ public class AccountService{
 
     public boolean isDuplicatedAccount(AccountRequestDto accountDto) {
         return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
-    }
-
-    private String defaultImage() {
-        final String USER_DEFAULT_IMG = "default_user.png";
-        final String requestURI = "/api/images/";
-        return UriComponentsBuilder.fromUriString("https://pickme-back.ga").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
     }
 
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {

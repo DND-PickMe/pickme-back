@@ -18,6 +18,6 @@ class AccountImagePropertiesTest {
     @Test
     void accountImagePropertiesTest() {
         assertNotNull(accountImageProperties.getLocation());
-        assertEquals(accountImageProperties.getLocation(), "./pickme-images");
+        assertEquals(accountImageProperties.getLocation(), "../pickme-images");
     }
 }

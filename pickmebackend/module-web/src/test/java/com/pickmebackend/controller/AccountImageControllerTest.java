@@ -21,8 +21,8 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import java.util.Arrays;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+
+import static com.pickmebackend.error.ErrorMessageConstant.INVALIDIMAGE;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -149,7 +149,6 @@ class AccountImageControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .oneLineIntroduce("테스트 코드 작성을 중요시 합니다!")
-                .technology(Arrays.asList("스프링부트", "주피터", "Mysql"))
                 .build();
 
     }
@@ -160,7 +159,6 @@ class AccountImageControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .oneLineIntroduce("테스트 코드 작성을 중요시 합니다!")
-                .technology(Arrays.asList("스프링부트", "주피터", "Mysql"))
                 .build(), Account.class);
 
         account.setUserRole(UserRole.USER);

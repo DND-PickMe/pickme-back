@@ -4,8 +4,10 @@ import com.pickmebackend.domain.*;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter @Setter @AllArgsConstructor @Builder @NoArgsConstructor
 public class AccountResponseDto {
@@ -16,8 +18,6 @@ public class AccountResponseDto {
 
     private String nickName;
 
-    private List<String> technology;
-
     private Integer favoriteCount;
 
     private String oneLineIntroduce;
@@ -25,6 +25,8 @@ public class AccountResponseDto {
     private String image;
 
     private UserRole userRole;
+
+    private String socialLink;
 
     private LocalDateTime createdAt;
 
@@ -38,11 +40,12 @@ public class AccountResponseDto {
 
     private Set<SelfInterview> selfInterviews;
 
+    private List<Technology> technologies = new ArrayList<>();
+
     public AccountResponseDto (Account account) {
         this.id = account.getId();
         this.email = account.getEmail();
         this.nickName = account.getNickName();
-        this.technology = account.getTechnology();
         this.favoriteCount = account.getFavorite().size();
         this.oneLineIntroduce = account.getOneLineIntroduce();
         this.image = account.getImage();
@@ -52,5 +55,11 @@ public class AccountResponseDto {
         this.prizes = account.getPrizes();
         this.projects = account.getProjects();
         this.selfInterviews = account.getSelfInterviews();
+        this.createdAt = account.getCreatedAt();
+        this.userRole = account.getUserRole();
+    }
+
+    public void toTech(Account account) {
+        this.technologies = account.getAccountTechSet().stream().map(AccountTech::getTechnology).collect(Collectors.toList());
     }
 }

@@ -2,20 +2,27 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.AccountTech;
+import com.pickmebackend.domain.Technology;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.repository.AccountTechRepository;
+import com.pickmebackend.repository.TechnologyRepository;
 import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -36,8 +43,15 @@ class AccountControllerTest extends BaseControllerTest {
 
     private final String BEARER = "Bearer ";
 
+    @Autowired
+    private TechnologyRepository technologyRepository;
+
+    @Autowired
+    private AccountTechRepository accountTechRepository;
+
     @AfterEach
     void setUp() {
+        accountTechRepository.deleteAll();
         accountRepository.deleteAll();
         enterpriseRepository.deleteAll();
     }
@@ -49,12 +63,17 @@ class AccountControllerTest extends BaseControllerTest {
         assert appProperties.getTestPassword() != null;
         assert appProperties.getTestNickname() != null;
 
+        List<Technology> technologyList = Arrays.asList(Technology.builder().name("Java").build(), Technology.builder().name("Python").build());
+        List<Technology> savedTechnologyList = technologyRepository.saveAll(technologyList);
+        assertEquals(technologyRepository.findAll().size(), 2);
+
         AccountRequestDto accountDto = AccountRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
+                .socialLink("https://github.com/mkshin96")
                 .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
-                .technology(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))
+                .technologies(savedTechnologyList)
                 .build();
 
         ResultActions actions = mockMvc.perform(post(accountURL)
@@ -70,7 +89,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
-                .andExpect(jsonPath("technology", is(Arrays.asList("SpringBoot", "NodeJS", "Git", "Github", "JPA", "Java8"))))
+                .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
@@ -88,8 +107,10 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("email").description("사용자가 사용할 이메일"),
                                 fieldWithPath("password").description("사용자가 사용할 패스워드"),
                                 fieldWithPath("nickName").description("사용자가 사용할 닉네임"),
-                                fieldWithPath("technology").description("사용자가 가지고 있는 기술스택"),
-                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개")
+                                fieldWithPath("socialLink").description("사용자의 소셜 링크"),
+                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
+                                fieldWithPath("technologies[*].name").description("사용자의 기술 이름")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header"),
@@ -99,7 +120,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("사용자 이메일"),
                                 fieldWithPath("nickName").description("사용자 닉네임"),
-                                fieldWithPath("technology").description("사용자가 가진 기술스택"),
+                                fieldWithPath("socialLink").description("사용자의 소셜 링크"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -110,10 +131,12 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
+                                fieldWithPath("technologies[*].name").description("사용자의 기술 이름"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
-                ;
+        ;
 
         String contentAsString = actions.andReturn().getResponse().getContentAsString();
         AccountResource accountResource = objectMapper.readValue(contentAsString, AccountResource.class);
@@ -123,6 +146,11 @@ class AccountControllerTest extends BaseControllerTest {
         assertEquals(accountResponseDto.getEmail(), appProperties.getTestEmail());
         assertEquals(accountResponseDto.getNickName(), appProperties.getTestNickname());
         assertNotNull(accountResponseDto.getCreatedAt());
+
+        List<AccountTech> allAccountTech = accountTechRepository.findAllByAccount_Id(accountResponseDto.getId());
+
+        AccountTech accountTech = allAccountTech.get(0);
+        assertEquals(accountTech.getTechnology().getName(), "Java");
     }
 
     @Test
@@ -216,12 +244,10 @@ class AccountControllerTest extends BaseControllerTest {
         String updatedEmail = "update@email.com";
         String updateNickname = "updateNick";
         String oneLineIntroduce = "안녕하세요. 저는 백엔드 개발자를 지망하고 있습니다.";
-        List<String> technology = Arrays.asList("SpringBoot", "Java8", "MySQL");
 
         newAccount.setEmail(updatedEmail);
         newAccount.setNickName(updateNickname);
         newAccount.setOneLineIntroduce(oneLineIntroduce);
-        newAccount.setTechnology(technology);
 
         AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
@@ -236,9 +262,9 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("email").value(updatedEmail))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").value(updateNickname))
-                .andExpect(jsonPath("technology", is(technology)))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
+                .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.delete-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
@@ -257,8 +283,9 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("email").description("사용자가 수정할 이메일"),
                                 fieldWithPath("password").description("사용자가 수정할 패스워드"),
                                 fieldWithPath("nickName").description("사용자가 수정할 닉네임"),
-                                fieldWithPath("technology").description("사용자가 수정할 기술스택"),
-                                fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개")
+                                fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개"),
+                                fieldWithPath("socialLink").description("사용자의 소셜 링크"),
+                                fieldWithPath("technologies").description("사용자의 기술 리스트")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
@@ -267,7 +294,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("수정된 사용자 이메일"),
                                 fieldWithPath("nickName").description("수정된 사용자 닉네임"),
-                                fieldWithPath("technology").description("수정된 사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("수정된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -278,10 +304,47 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("socialLink").description("사용자의 소셜 링크"),
+                                fieldWithPath("technologies").description("사용자의 기술 리스트"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
         ;
+    }
+
+    @Test
+    @DisplayName("정상적으로 유저의 기술 리스트가 수정되는지 테스트")
+    void updateAccount_technology() throws Exception {
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().name("Java").build(), Technology.builder().name("Python").build(), Technology.builder().name("C").build(), Technology.builder().name("C#").build()));
+        Account account = Account.builder()
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .createdAt(LocalDateTime.now())
+                .userRole(UserRole.USER)
+                .build();
+        Account account1 = accountRepository.save(account);
+        jwt = jwtProvider.generateToken(account1);
+        Set<AccountTech> set = new HashSet<>();
+        set.add(AccountTech.builder().account(account1).technology(technologyList.get(0)).build());
+        set.add(AccountTech.builder().account(account1).technology(technologyList.get(1)).build());
+        account.setAccountTechSet(set);
+        Account savedAccount = accountRepository.save(account);
+        AccountRequestDto map = modelMapper.map(savedAccount, AccountRequestDto.class);
+        map.setTechnologies(Arrays.asList(technologyList.get(2), technologyList.get(3)));
+
+        mockMvc.perform(put(accountURL + "{accountId}", account1.getId())
+                .header(HttpHeaders.AUTHORIZATION,BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(map)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("technologies").exists());
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -436,7 +499,6 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("삭제된 사용자 이메일"),
                                 fieldWithPath("nickName").description("삭제된 사용자 닉네임"),
-                                fieldWithPath("technology").description("삭제된 사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("삭제된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -447,6 +509,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("socialLink").description("사용자의 소셜 링크"),
+                                fieldWithPath("technologies").description("사용자의 기술 리스트"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
@@ -507,7 +571,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
                 .andExpect(jsonPath("userRole").exists())
-                .andExpect(jsonPath("technology").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("socialLink").exists())
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("experiences").exists())
                 .andExpect(jsonPath("licenses").exists())
@@ -535,7 +600,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("사용자 이메일"),
                                 fieldWithPath("nickName").description("사용자 닉네임"),
-                                fieldWithPath("technology").description("사용자가 가진 기술스택"),
+                                fieldWithPath("socialLink").description("사용자의 소셜링크"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -546,6 +611,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("technologies").description("사용자가 가진 기술스택"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
@@ -567,7 +633,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
                 .andExpect(jsonPath("userRole").exists())
-                .andExpect(jsonPath("technology").exists())
+                .andExpect(jsonPath("socialLink").exists())
+                .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("experiences").exists())
                 .andExpect(jsonPath("licenses").exists())
@@ -591,7 +658,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("id").description("사용자 식별자"),
                                 fieldWithPath("email").description("사용자 이메일"),
                                 fieldWithPath("nickName").description("사용자 닉네임"),
-                                fieldWithPath("technology").description("사용자가 가진 기술스택"),
+                                fieldWithPath("socialLink").description("사용자의 소셜링크"),
+                                fieldWithPath("technologies").description("사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
@@ -635,7 +703,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].password").doesNotExist())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].nickName").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].userRole").exists())
-                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].technology").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].socialLink").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
@@ -659,15 +727,16 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("_embedded.accountResponseDtoList[*].id").description("사용자 식별자"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].email").description("사용자 이메일"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].nickName").description("사용자 이름"),
-                                fieldWithPath("_embedded.accountResponseDtoList[*].technology").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].image").description("사용자 이미지"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].socialLink").description("사용자의 소셜링크"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].userRole").description("사용자 권한"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies").description("사용자의 기술스택"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*]._links.self.href").ignored(),

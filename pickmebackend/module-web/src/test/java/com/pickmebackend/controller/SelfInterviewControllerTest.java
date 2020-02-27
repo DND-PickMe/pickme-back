@@ -84,14 +84,13 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("셀프 인터뷰 식별자"),
                                 fieldWithPath("title").description("셀프 인터뷰 제목"),
                                 fieldWithPath("content").description("셀프 인터뷰 질문"),
                                 fieldWithPath("account.id").description("셀프 인터뷰 등록자 식별자"),
                                 fieldWithPath("account.email").description("셀프 인터뷰 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("셀프 인터뷰 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("셀프 인터뷰 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("셀프 인터뷰 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("셀프 인터뷰 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("셀프 인터뷰 등록자의 생성 날짜"),
@@ -174,14 +173,13 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 셀프 인터뷰 식별자"),
                                 fieldWithPath("title").description("수정된 셀프 인터뷰 제목"),
                                 fieldWithPath("content").description("수정된 셀프 인터뷰 질문"),
                                 fieldWithPath("account.id").description("수정된 셀프 인터뷰 등록자 식별자"),
                                 fieldWithPath("account.email").description("수정된 셀프 인터뷰 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("수정된 셀프 인터뷰 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("수정된 셀프 인터뷰 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("수정된 셀프 인터뷰 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("수정된 셀프 인터뷰 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("수정된 셀프 인터뷰 등록자의 생성 날짜"),
@@ -292,14 +290,13 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 셀프 인터뷰 식별자"),
                                 fieldWithPath("title").description("삭제된 셀프 인터뷰 제목"),
                                 fieldWithPath("content").description("삭제된 셀프 인터뷰 질문"),
                                 fieldWithPath("account.id").description("삭제된 셀프 인터뷰 등록자 식별자"),
                                 fieldWithPath("account.email").description("삭제된 셀프 인터뷰 등록자 이메일"),
                                 fieldWithPath("account.nickName").description("삭제된 셀프 인터뷰 등록자 닉네임"),
-                                fieldWithPath("account.technology").description("삭제된 셀프 인터뷰 등록자 기술 스택"),
                                 fieldWithPath("account.favorite").description("삭제된 셀프 인터뷰 등록자를 좋아요한 사용자 목록"),
                                 fieldWithPath("account.userRole").description("삭제된 셀프 인터뷰 등록자의 권한"),
                                 fieldWithPath("account.createdAt").description("삭제된 셀프 인터뷰 등록자의 생성 날짜"),

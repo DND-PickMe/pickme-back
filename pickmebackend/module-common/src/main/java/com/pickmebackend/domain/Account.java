@@ -5,9 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
+import org.springframework.web.util.UriComponentsBuilder;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder @ToString
@@ -29,10 +32,10 @@ public class Account {
     private String nickName;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> technology = new ArrayList<>();
+    private List<Account> favorite;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Account> favorite = new HashSet<>();
+    private Set<String> position;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -47,24 +50,31 @@ public class Account {
     @Column
     private String image;
 
+    @Column
+    private String socialLink;
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "enterprise_id")
     private Enterprise enterprise;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
-    private Set<Experience> experiences;
+    private Set<Experience> experiences = new HashSet<>();
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
-    private Set<License> licenses;
+    private Set<License> licenses = new HashSet<>();
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
-    private Set<Prize> prizes;
+    private Set<Prize> prizes = new HashSet<>();
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
-    private Set<Project> projects;
+    private Set<Project> projects = new HashSet<>();
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
-    private Set<SelfInterview> selfInterviews;
+    private Set<SelfInterview> selfInterviews = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    @JsonIgnore
+    private Set<AccountTech> accountTechSet = new HashSet<>();
 
     public void addFavorite(Account currentUser) {
         if (this.getFavorite().contains(currentUser)) {
@@ -72,5 +82,17 @@ public class Account {
         } else {
             this.getFavorite().add(currentUser);
         }
+    }
+
+    public void setValue() {
+        this.userRole = UserRole.USER;
+        this.createdAt = LocalDateTime.now();
+        this.image = defaultImage();
+    }
+
+    private String defaultImage() {
+        final String USER_DEFAULT_IMG = "default_user.png";
+        final String requestURI = "/api/images/";
+        return UriComponentsBuilder.fromUriString("https://pickme-back.ga").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
     }
 }

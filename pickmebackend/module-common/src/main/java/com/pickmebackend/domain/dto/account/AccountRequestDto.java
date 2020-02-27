@@ -1,11 +1,11 @@
 package com.pickmebackend.domain.dto.account;
 
+import com.pickmebackend.domain.Technology;
 import lombok.*;
 import org.springframework.lang.Nullable;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
@@ -22,8 +22,11 @@ public class AccountRequestDto {
     private String nickName;
 
     @Nullable
-    private List<String> technology = new ArrayList<>();
+    private String oneLineIntroduce;
 
     @Nullable
-    private String oneLineIntroduce;
+    private String socialLink;
+
+    @Nullable
+    private List<Technology> technologies;
 }
