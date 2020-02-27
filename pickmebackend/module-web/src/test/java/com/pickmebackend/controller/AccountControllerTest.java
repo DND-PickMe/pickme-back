@@ -22,9 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -312,6 +310,41 @@ class AccountControllerTest extends BaseControllerTest {
                         )
                         ))
         ;
+    }
+
+    @Test
+    @DisplayName("정상적으로 유저의 기술 리스트가 수정되는지 테스트")
+    void updateAccount_technology() throws Exception {
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().name("Java").build(), Technology.builder().name("Python").build(), Technology.builder().name("C").build(), Technology.builder().name("C#").build()));
+        Account account = Account.builder()
+                .email(appProperties.getTestEmail())
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .createdAt(LocalDateTime.now())
+                .userRole(UserRole.USER)
+                .build();
+        Account account1 = accountRepository.save(account);
+        jwt = jwtProvider.generateToken(account1);
+        Set<AccountTech> set = new HashSet<>();
+        set.add(AccountTech.builder().account(account1).technology(technologyList.get(0)).build());
+        set.add(AccountTech.builder().account(account1).technology(technologyList.get(1)).build());
+        account.setAccountTechSet(set);
+        Account savedAccount = accountRepository.save(account);
+        AccountRequestDto map = modelMapper.map(savedAccount, AccountRequestDto.class);
+        map.setTechnologyList(Arrays.asList(technologyList.get(2), technologyList.get(3)));
+
+        mockMvc.perform(put(accountURL + "{accountId}", account1.getId())
+                    .header(HttpHeaders.AUTHORIZATION,BEARER + jwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(map)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("technologyList").exists());
     }
 
     @ParameterizedTest(name = "{displayName}{index}")

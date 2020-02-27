@@ -60,7 +60,8 @@ public class AccountService{
                     accountTechRepository.save(AccountTech.builder()
                             .account(savedAccount)
                             .technology(tech)
-                            .build())));
+                            .build()))
+            );
         }
 
         AccountResponseDto accountResponseDto = modelMapper.map(savedAccount, AccountResponseDto.class);
@@ -70,9 +71,22 @@ public class AccountService{
 
     public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto) {
         modelMapper.map(accountDto, account);
+        if (account.getAccountTechSet() != null) {
+            account.getAccountTechSet().forEach(e -> accountTechRepository.deleteById(e.getId()));
+            account.getAccountTechSet().clear();
+        }
+        if (accountDto.getTechnologyList() != null) {
+            accountDto.getTechnologyList()
+                    .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(AccountTech.builder()
+                            .account(account)
+                            .technology(tech)
+                            .build())));
+        }
         Account modifiedAccount = this.accountRepository.save(account);
 
-        return modelMapper.map(modifiedAccount, AccountResponseDto.class);
+        AccountResponseDto accountResponseDto = modelMapper.map(modifiedAccount, AccountResponseDto.class);
+        accountResponseDto.toTech(modifiedAccount);
+        return accountResponseDto;
     }
 
     public AccountResponseDto deleteAccount(Account account) {
