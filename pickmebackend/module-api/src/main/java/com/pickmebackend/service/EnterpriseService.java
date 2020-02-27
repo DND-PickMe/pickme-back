@@ -5,18 +5,14 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 
 @Service
 @RequiredArgsConstructor
@@ -30,18 +26,12 @@ public class EnterpriseService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<?> loadEnterprise(Long enterpriseId, Account currentUser) {
-        Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
-        if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
-        Account account = accountOptional.get();
+    public EnterpriseResponseDto loadEnterprise(Account account) {
         Enterprise enterprise = account.getEnterprise();
-
         EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(enterprise, EnterpriseResponseDto.class);
         enterpriseResponseDto.setEmail(account.getEmail());
 
-        return new ResponseEntity<>(enterpriseResponseDto, HttpStatus.OK);
+        return enterpriseResponseDto;
     }
 
     public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
