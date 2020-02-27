@@ -841,4 +841,110 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("[*].email").exists())
                 .andExpect(jsonPath("[*].image").exists());
     }
+
+    @Test
+    @DisplayName("좋아요 순으로 정렬하여 반환")
+    void orderByFavorite() throws Exception {
+        IntStream.rangeClosed(1, 4).forEach(this::createAccount_need_index);
+
+        List<Account> all = accountRepository.findAll();
+        assertEquals(all.size(), 4);
+
+        Account first = all.get(0);
+        Account second = all.get(1);
+        Account third = all.get(2);
+        Account fourth = all.get(3);
+
+        String firstJwt = BEARER + jwtProvider.generateToken(first);
+        String secondJwt = BEARER + jwtProvider.generateToken(second);
+        String thirdJwt = BEARER + jwtProvider.generateToken(third);
+        String fourthJwt = BEARER + jwtProvider.generateToken(fourth);
+
+        List<String> jwtList = Arrays.asList(firstJwt, secondJwt, thirdJwt, fourthJwt);
+
+        jwtList.stream().limit(3).forEach(index -> {
+            try {
+                mockMvc.perform(post(accountURL + "{accountId}/favorite", fourth.getId())
+                        .header(HttpHeaders.AUTHORIZATION, index))
+                        .andDo(print())
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("id").exists())
+                        .andExpect(jsonPath("email", is(fourth.getEmail())))
+                        .andExpect(jsonPath("password").doesNotExist())
+                        .andExpect(jsonPath("nickName", is(fourth.getNickName())));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        jwtList.stream().limit(2).forEach(index -> {
+            try {
+                mockMvc.perform(post(accountURL + "{accountId}/favorite", third.getId())
+                        .header(HttpHeaders.AUTHORIZATION, index))
+                        .andDo(print())
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("id").exists())
+                        .andExpect(jsonPath("email", is(third.getEmail())))
+                        .andExpect(jsonPath("password").doesNotExist())
+                        .andExpect(jsonPath("nickName", is(third.getNickName())));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        jwtList.stream().limit(1).forEach(index -> {
+            try {
+                mockMvc.perform(post(accountURL + "{accountId}/favorite", second.getId())
+                        .header(HttpHeaders.AUTHORIZATION, index))
+                        .andDo(print())
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("id").exists())
+                        .andExpect(jsonPath("email", is(second.getEmail())))
+                        .andExpect(jsonPath("password").doesNotExist())
+                        .andExpect(jsonPath("nickName", is(second.getNickName())))
+                        .andExpect(jsonPath("favoriteCount", is(1)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        List<Account> accountList = accountRepository.findAll();
+        int fourthFavoriteCount = accountList.get(3).getFavorite().size();
+        int thirdFavoriteCount = accountList.get(2).getFavorite().size();
+        int secondFavoriteCount = accountList.get(1).getFavorite().size();
+        int firstFavoriteCount = accountList.get(0).getFavorite().size();
+
+        assertEquals(fourthFavoriteCount, 3);
+        assertEquals(thirdFavoriteCount, 2);
+        assertEquals(secondFavoriteCount, 1);
+        assertEquals(firstFavoriteCount, 0);
+
+        mockMvc.perform(get(accountURL)
+                        .queryParam("orderBy", "favorite"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].email").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].password").doesNotExist())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].nickName").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].userRole").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].socialLink").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*]._links.self").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[0].favoriteCount", is(3)))
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[1].favoriteCount", is(2)))
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[2].favoriteCount", is(1)))
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[3].favoriteCount", is(0)));
+    }
+
+    protected Account createAccount_need_index(int index) {
+        Account account = Account.builder()
+                .email("test" + index + "@email.com")
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .createdAt(LocalDateTime.now())
+                .userRole(UserRole.USER)
+                .build();
+        return accountRepository.save(account);
+    }
 }

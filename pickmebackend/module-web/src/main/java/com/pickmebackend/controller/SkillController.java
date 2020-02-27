@@ -16,7 +16,7 @@ public class SkillController {
     private final SkillService skillService;
 
     @GetMapping("/technology")
-    ResponseEntity<?> getTechnology(Pageable pageable) {
-        return skillService.getTechnology(pageable);
+    ResponseEntity<?> getTechnology() {
+        return skillService.getTechnology();
     }
 }

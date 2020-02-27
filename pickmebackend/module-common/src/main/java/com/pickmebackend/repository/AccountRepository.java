@@ -13,4 +13,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByEmail(String email);
 
+    @Query("SELECT acc FROM Account acc WHERE acc.userRole = 'USER' ORDER BY acc.favoriteCount DESC")
+    Page<Account> findAllAccountsDescAndOrderBy(Pageable pageable);
 }

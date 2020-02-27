@@ -31,8 +31,11 @@ public class Account {
     @Column
     private String nickName;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Account> favorite;
+
+    @JsonIgnore
+    private long favoriteCount;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Set<String> position;
@@ -79,8 +82,10 @@ public class Account {
     public void addFavorite(Account currentUser) {
         if (this.getFavorite().contains(currentUser)) {
             this.getFavorite().remove(currentUser);
+            this.favoriteCount--;
         } else {
             this.getFavorite().add(currentUser);
+            this.favoriteCount++;
         }
     }
 
