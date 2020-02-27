@@ -698,6 +698,68 @@ class AccountControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("정상적으로 다른 유저 조회")
+    void getAnotherAccount() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("career").exists())
+                .andExpect(jsonPath("positions").exists())
+                .andExpect(jsonPath("experiences").exists())
+                .andExpect(jsonPath("licenses").exists())
+                .andExpect(jsonPath("prizes").exists())
+                .andExpect(jsonPath("projects").exists())
+                .andExpect(jsonPath("selfInterviews").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("load-account",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("사용자 식별자"),
+                                fieldWithPath("email").description("사용자 이메일"),
+                                fieldWithPath("nickName").description("사용자 닉네임"),
+                                fieldWithPath("socialLink").description("사용자의 소셜링크"),
+                                fieldWithPath("technologies").description("사용자가 가진 기술스택"),
+                                fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
+                                fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("userRole").description("사용자 권한"),
+                                fieldWithPath("createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("experiences").description("사용자의 경력 사항"),
+                                fieldWithPath("licenses").description("사용자의 자격증"),
+                                fieldWithPath("prizes").description("사용자의 수상 내역"),
+                                fieldWithPath("projects").description("사용자의 프로젝트"),
+                                fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
+    }
+
+    @Test
     @DisplayName("DB에 없는 사용자 정보 요청시 Bad Request")
     void get_none_account() throws Exception {
         Account account = createAccount();

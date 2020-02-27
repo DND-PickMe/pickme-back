@@ -26,6 +26,14 @@ public class EnterpriseService {
 
     private final PasswordEncoder passwordEncoder;
 
+    public EnterpriseResponseDto loadProfile(Account account) {
+        Enterprise enterprise = account.getEnterprise();
+        EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(enterprise, EnterpriseResponseDto.class);
+        enterpriseResponseDto.setEmail(account.getEmail());
+
+        return enterpriseResponseDto;
+    }
+
     public EnterpriseResponseDto loadEnterprise(Account account) {
         Enterprise enterprise = account.getEnterprise();
         EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(enterprise, EnterpriseResponseDto.class);

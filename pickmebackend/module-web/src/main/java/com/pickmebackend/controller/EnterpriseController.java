@@ -30,6 +30,26 @@ public class EnterpriseController {
 
     private final AccountRepository accountRepository;
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
+        if (currentUser == null) {
+            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+        }
+        Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+        }
+        Account account = accountOptional.get();
+        EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadProfile(account);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
+        EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
+        enterpriseResource.add(selfLinkBuilder.withRel("update-enterprise"));
+        enterpriseResource.add(selfLinkBuilder.withRel("delete-enterprise"));
+        enterpriseResource.add(new Link("/docs/index.html#resources-profile-load").withRel("profile"));
+
+        return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
+    }
+
     @GetMapping("/{enterpriseId}")
     public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
         if (currentUser == null) {
@@ -39,9 +59,6 @@ public class EnterpriseController {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
-        if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
-        }
         Account account = accountOptional.get();
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadEnterprise(account);
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
