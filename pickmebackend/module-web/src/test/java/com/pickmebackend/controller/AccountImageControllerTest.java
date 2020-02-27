@@ -3,10 +3,12 @@ package com.pickmebackend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.AccountRepository;
+import org.h2.engine.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,7 +67,7 @@ class AccountImageControllerTest {
     @DisplayName("유저 생성 시 디폴트 이미지 주입 받는지 확인")
     void createUser_default_image() throws Exception {
         String oneLineIntroduce = "테스트 코드 작성을 중요시 합니다!";
-        AccountRequestDto accountDto = createAccount();
+        AccountInitialRequestDto accountDto = createAccount();
 
         mockMvc.perform(post("/api/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,8 +145,8 @@ class AccountImageControllerTest {
                 .andExpect(jsonPath("message", is(INVALIDIMAGE)));
     }
 
-    private AccountRequestDto createAccount() {
-        return AccountRequestDto.builder()
+    private AccountInitialRequestDto createAccount() {
+        return AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
@@ -154,14 +156,13 @@ class AccountImageControllerTest {
     }
 
     private Account generateAccount() {
-        Account account = modelMapper.map(AccountRequestDto.builder()
+        Account account = Account.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .oneLineIntroduce("테스트 코드 작성을 중요시 합니다!")
-                .build(), Account.class);
-
-        account.setUserRole(UserRole.USER);
+                .userRole(UserRole.USER)
+                .build();
 
         return accountRepository.save(account);
     }

@@ -4,6 +4,7 @@ import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
 import com.pickmebackend.domain.Technology;
+import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
@@ -60,19 +61,11 @@ class AccountControllerTest extends BaseControllerTest {
         assert appProperties.getTestPassword() != null;
         assert appProperties.getTestNickname() != null;
 
-        List<Technology> technologyList = Arrays.asList(Technology.builder().name("Java").build(), Technology.builder().name("Python").build());
-        List<Technology> savedTechnologyList = technologyRepository.saveAll(technologyList);
-        assertEquals(technologyRepository.findAll().size(), 2);
-
-        AccountRequestDto accountDto = AccountRequestDto.builder()
+        AccountInitialRequestDto accountDto = AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
-                .socialLink("https://github.com/mkshin96")
                 .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
-                .career("1년차")
-                .positions(new HashSet<>(Collections.singletonList("BackEnd")))
-                .technologies(savedTechnologyList)
                 .build();
 
         ResultActions actions = mockMvc.perform(post(accountURL)
@@ -88,7 +81,6 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
-                .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
@@ -106,12 +98,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("email").description("사용자가 사용할 이메일"),
                                 fieldWithPath("password").description("사용자가 사용할 패스워드"),
                                 fieldWithPath("nickName").description("사용자가 사용할 닉네임"),
-                                fieldWithPath("socialLink").description("사용자의 소셜 링크"),
-                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
-                                fieldWithPath("career").description("사용자의 경력"),
-                                fieldWithPath("positions").description("사용자의 역할"),
-                                fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
-                                fieldWithPath("technologies[*].name").description("사용자의 기술 이름")
+                                fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header"),
@@ -134,8 +121,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
-                                fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
-                                fieldWithPath("technologies[*].name").description("사용자의 기술 이름"),
+                                fieldWithPath("technologies").description("사용자의 기술"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
@@ -149,17 +135,12 @@ class AccountControllerTest extends BaseControllerTest {
         assertEquals(accountResponseDto.getEmail(), appProperties.getTestEmail());
         assertEquals(accountResponseDto.getNickName(), appProperties.getTestNickname());
         assertNotNull(accountResponseDto.getCreatedAt());
-
-        List<AccountTech> allAccountTech = accountTechRepository.findAllByAccount_Id(accountResponseDto.getId());
-
-        AccountTech accountTech = allAccountTech.get(0);
-        assertEquals(accountTech.getTechnology().getName(), "Java");
     }
 
     @Test
     @DisplayName("회원 가입시 중복된 email 존재할 경우 Bad Request 반환")
     void check_duplicated_Account() throws Exception {
-        AccountRequestDto accountDto = AccountRequestDto.builder()
+        AccountInitialRequestDto accountDto = AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
@@ -190,7 +171,7 @@ class AccountControllerTest extends BaseControllerTest {
         assertNotNull(password);
         assertNotNull(nickName);
 
-        AccountRequestDto accountDto = AccountRequestDto.builder()
+        AccountInitialRequestDto accountDto = AccountInitialRequestDto.builder()
                 .email(email)
                 .password(password)
                 .nickName(nickName)
@@ -211,7 +192,7 @@ class AccountControllerTest extends BaseControllerTest {
     @RepeatedTest(value = 3, name = "{displayName} {currentRepetition}")
     @DisplayName("유저 생성 시 email, password, nickname 중 하나라도 null이 들어올 경우 Bad Request 반환")
     void saveAccount_null_input(RepetitionInfo info) throws Exception {
-        AccountRequestDto accountDto = AccountRequestDto.builder()
+        AccountInitialRequestDto accountDto = AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
@@ -290,13 +271,12 @@ class AccountControllerTest extends BaseControllerTest {
                         ),
                         requestFields(
                                 fieldWithPath("email").description("사용자가 수정할 이메일"),
-                                fieldWithPath("password").description("사용자가 수정할 패스워드"),
                                 fieldWithPath("nickName").description("사용자가 수정할 닉네임"),
                                 fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
-                                fieldWithPath("technologies").description("사용자의 기술 리스트"),
                                 fieldWithPath("career").description("사용자의 경력"),
-                                fieldWithPath("positions").description("사용자의 역할")
+                                fieldWithPath("positions").description("사용자의 개발 직군"),
+                                fieldWithPath("technologies").description("사용자의 기술 리스트")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
@@ -362,13 +342,12 @@ class AccountControllerTest extends BaseControllerTest {
 
     @ParameterizedTest(name = "{displayName}{index}")
     @DisplayName("유저 수정 시 email, password, nickname 중 하나라도 공백이 들어올 경우 Bad Request 반환")
-    @CsvSource({"'', 'password', '디엔디'", "'user@email.com', '', '디엔디'", "'user@email.com', 'password', ''"})
-    void updateAccount_empty_input(String email, String password, String nickName) throws Exception {
+    @CsvSource({"'', '디엔디'", "'user@email.com', ''"})
+    void updateAccount_empty_input(String email, String nickName) throws Exception {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
 
         newAccount.setEmail(email);
-        newAccount.setPassword(password);
         newAccount.setNickName(nickName);
 
         AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
@@ -386,8 +365,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("[*].field").exists());
     }
 
-    @RepeatedTest(value = 3, name = "{displayName} {currentRepetition}")
-    @DisplayName("유저 수정 시 email, password, nickname 중 하나라도 null이 들어올 경우 Bad Request 반환")
+    @RepeatedTest(value = 2, name = "{displayName} {currentRepetition}")
+    @DisplayName("유저 수정 시 email, nickname 중 하나라도 null이 들어올 경우 Bad Request 반환")
     void updateAccount_null_input(RepetitionInfo info) throws Exception {
         Account newAccount = createAccount();
         jwt = jwtProvider.generateToken(newAccount);
@@ -396,8 +375,6 @@ class AccountControllerTest extends BaseControllerTest {
         if (currentRepetition == 1) {
             newAccount.setEmail(null);
         } else if (currentRepetition == 2) {
-            newAccount.setPassword(null);
-        } else if (currentRepetition == 3) {
             newAccount.setNickName(null);
         }
 
