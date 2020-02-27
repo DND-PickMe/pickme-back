@@ -3,7 +3,6 @@ package com.pickmebackend.domain.dto.account;
 import com.pickmebackend.domain.*;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +49,7 @@ public class AccountResponseDto {
         this.favoriteCount = account.getFavorite().size();
         this.oneLineIntroduce = account.getOneLineIntroduce();
         this.image = account.getImage();
+        this.userRole = account.getUserRole();
         this.experiences = account.getExperiences();
         this.licenses = account.getLicenses();
         this.prizes = account.getPrizes();

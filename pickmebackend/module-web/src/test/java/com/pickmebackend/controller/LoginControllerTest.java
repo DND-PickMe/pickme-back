@@ -51,6 +51,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
                 .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.load-allAccounts").exists())
                 .andExpect(jsonPath("_links.create-experience").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
                 .andExpect(jsonPath("_links.create-prize").exists())
@@ -60,6 +61,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andDo(document("login-account",
                         links(
                                 linkWithRel("self").description("link to self"),
+                                linkWithRel("load-allAccounts").description("link to load all accounts"),
                                 linkWithRel("create-experience").description("link to create experience"),
                                 linkWithRel("create-license").description("link to create license"),
                                 linkWithRel("create-prize").description("link to create prize"),
@@ -100,6 +102,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt").exists())
                 .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.load-allAccounts").exists())
                 .andExpect(jsonPath("_links.create-experience").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
                 .andExpect(jsonPath("_links.create-prize").exists())
@@ -109,6 +112,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andDo(document("login-enterprise",
                         links(
                                 linkWithRel("self").description("link to self"),
+                                linkWithRel("load-allAccounts").description("link to load all accounts"),
                                 linkWithRel("create-experience").description("link to create experience"),
                                 linkWithRel("create-license").description("link to create license"),
                                 linkWithRel("create-prize").description("link to create prize"),

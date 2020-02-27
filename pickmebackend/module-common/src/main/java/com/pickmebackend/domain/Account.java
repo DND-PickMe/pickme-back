@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;

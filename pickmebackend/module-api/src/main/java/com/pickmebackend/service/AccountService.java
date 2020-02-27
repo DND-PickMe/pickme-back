@@ -6,20 +6,18 @@ import com.pickmebackend.domain.Technology;
 import com.pickmebackend.domain.dto.account.AccountListResponseDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
-import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.AccountTechRepository;
-import com.pickmebackend.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.UriComponentsBuilder;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,15 +33,24 @@ public class AccountService{
 
     private final PasswordEncoder passwordEncoder;
 
+    public AccountResponseDto loadProfile(Account account) {
+        return modelMapper.map(account, AccountResponseDto.class);
+    }
     private final AccountTechRepository accountTechRepository;
 
-    public ResponseEntity<?> getAllAccounts() {
-        List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAllDesc()
+    public List<AccountResponseDto> getAllAccounts(Pageable pageable) {
+        return this.accountRepository.findAllAccountsDesc(pageable)
                 .stream()
                 .map(AccountResponseDto::new)
                 .collect(Collectors.toList());
+    }
 
-        return new ResponseEntity<>(accountResponseDtos, HttpStatus.OK);
+    public AccountResponseDto loadAccount(Account account) {
+        return modelMapper.map(account, AccountResponseDto.class);
+    }
+
+    public Page<Account> loadAllAccounts(Pageable pageable) {
+        return this.accountRepository.findAllAccountsDesc(pageable);
     }
 
     @Transactional
@@ -94,17 +101,6 @@ public class AccountService{
         accountRepository.delete(account);
 
         return accountResponseDto;
-    }
-
-    public ResponseEntity<?> getAccount(Account currentUser) {
-        if (currentUser == null) {
-            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
-        }
-        Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.ok().body(accountOptional.get());
     }
 
     public boolean isDuplicatedAccount(AccountRequestDto accountDto) {
