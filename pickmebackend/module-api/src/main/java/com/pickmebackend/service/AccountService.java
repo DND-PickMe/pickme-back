@@ -53,7 +53,7 @@ public class AccountService{
         account.setValue();
         Account savedAccount = this.accountRepository.save(account);
 
-        List<Technology> technologyList = accountDto.getTechnologyList();
+        List<Technology> technologyList = accountDto.getTechnologies();
 
         if (technologyList != null) {
             technologyList.forEach(tech -> savedAccount.getAccountTechSet().add(
@@ -75,8 +75,8 @@ public class AccountService{
             account.getAccountTechSet().forEach(e -> accountTechRepository.deleteById(e.getId()));
             account.getAccountTechSet().clear();
         }
-        if (accountDto.getTechnologyList() != null) {
-            accountDto.getTechnologyList()
+        if (accountDto.getTechnologies() != null) {
+            accountDto.getTechnologies()
                     .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(AccountTech.builder()
                             .account(account)
                             .technology(tech)
