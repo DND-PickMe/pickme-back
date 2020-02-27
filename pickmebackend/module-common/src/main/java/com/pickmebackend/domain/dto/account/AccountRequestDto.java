@@ -36,5 +36,4 @@ public class AccountRequestDto {
 
     @Nullable
     private List<Technology> technologies = new ArrayList<>();
-
 }

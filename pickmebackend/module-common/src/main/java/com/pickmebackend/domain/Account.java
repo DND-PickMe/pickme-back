@@ -38,11 +38,14 @@ public class Account {
     private long favoriteCount;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> position;
+    private Set<String> positions;
 
     @Column
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    @Column
+    private String career;
 
     @Column
     private LocalDateTime createdAt;

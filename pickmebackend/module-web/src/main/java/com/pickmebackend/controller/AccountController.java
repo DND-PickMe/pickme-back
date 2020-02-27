@@ -82,6 +82,7 @@ public class AccountController {
         Page<Account> all = accountService.loadAllAccounts(pageable, orderBy);
         PagedModel<AccountResource> accountResources = assembler.toModel(all, e -> new AccountResource(modelMapper.map(e, AccountResponseDto.class)));
         accountResources.add(new Link("/docs/index.html#resources-allAccounts-load").withRel("profile"));
+
         return new ResponseEntity<>(accountResources, HttpStatus.OK);
     }
 
