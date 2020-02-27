@@ -102,7 +102,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("경력 내역 식별자"),
                                 fieldWithPath("companyName").description("회사 명"),
                                 fieldWithPath("position").description("포지션"),
@@ -212,7 +212,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 경력 내역 식별자"),
                                 fieldWithPath("companyName").description("수정된 회사 명"),
                                 fieldWithPath("position").description("수정된 포지션"),
@@ -340,7 +340,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 경력 내역 식별자"),
                                 fieldWithPath("companyName").description("삭제된 회사 명"),
                                 fieldWithPath("position").description("삭제된 포지션"),

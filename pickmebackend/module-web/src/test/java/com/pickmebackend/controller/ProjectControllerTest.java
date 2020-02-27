@@ -111,7 +111,7 @@ class ProjectControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("프로젝트 식별자"),
                                 fieldWithPath("name").description("프로젝트 이름"),
                                 fieldWithPath("role").description("프로젝트에서의 역할"),
@@ -224,7 +224,7 @@ class ProjectControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 프로젝트 식별자"),
                                 fieldWithPath("name").description("수정된 프로젝트 이름"),
                                 fieldWithPath("role").description("수정된 프로젝트에서의 역할"),
@@ -348,7 +348,7 @@ class ProjectControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 프로젝트 식별자"),
                                 fieldWithPath("name").description("삭제된 프로젝트 이름"),
                                 fieldWithPath("role").description("삭제된 프로젝트에서의 역할"),

@@ -3,9 +3,12 @@ package com.pickmebackend.domain.dto.account;
 import com.pickmebackend.domain.*;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter @Setter @AllArgsConstructor @Builder @NoArgsConstructor
 public class AccountResponseDto {
@@ -24,6 +27,8 @@ public class AccountResponseDto {
 
     private UserRole userRole;
 
+    private String socialLink;
+
     private LocalDateTime createdAt;
 
     private Set<Experience> experiences;
@@ -35,6 +40,8 @@ public class AccountResponseDto {
     private Set<Project> projects;
 
     private Set<SelfInterview> selfInterviews;
+
+    private List<Technology> technologyList = new ArrayList<>();
 
     public AccountResponseDto (Account account) {
         this.id = account.getId();
@@ -48,5 +55,11 @@ public class AccountResponseDto {
         this.prizes = account.getPrizes();
         this.projects = account.getProjects();
         this.selfInterviews = account.getSelfInterviews();
+        this.createdAt = account.getCreatedAt();
+        this.userRole = account.getUserRole();
+    }
+
+    public void toTech(Account account) {
+        this.technologyList = account.getAccountTechSet().stream().map(AccountTech::getTechnology).collect(Collectors.toList());
     }
 }

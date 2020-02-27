@@ -1,18 +1,23 @@
 package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.AccountTech;
+import com.pickmebackend.domain.Technology;
 import com.pickmebackend.domain.dto.account.AccountListResponseDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.AccountTechRepository;
+import com.pickmebackend.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +35,8 @@ public class AccountService{
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AccountTechRepository accountTechRepository;
+
     public ResponseEntity<?> getAllAccounts() {
         List<AccountResponseDto> accountResponseDtos = this.accountRepository.findAllDesc()
                 .stream()
@@ -39,15 +46,26 @@ public class AccountService{
         return new ResponseEntity<>(accountResponseDtos, HttpStatus.OK);
     }
 
+    @Transactional
     public AccountResponseDto saveAccount(AccountRequestDto accountDto) {
         Account account = modelMapper.map(accountDto, Account.class);
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
-        account.setUserRole(UserRole.USER);
-        account.setCreatedAt(LocalDateTime.now());
-        account.setImage(defaultImage());
+        account.setValue();
         Account savedAccount = this.accountRepository.save(account);
 
-        return modelMapper.map(savedAccount, AccountResponseDto.class);
+        List<Technology> technologyList = accountDto.getTechnologyList();
+
+        if (technologyList != null) {
+            technologyList.forEach(tech -> savedAccount.getAccountTechSet().add(
+                    accountTechRepository.save(AccountTech.builder()
+                            .account(savedAccount)
+                            .technology(tech)
+                            .build())));
+        }
+
+        AccountResponseDto accountResponseDto = modelMapper.map(savedAccount, AccountResponseDto.class);
+        accountResponseDto.toTech(savedAccount);
+        return accountResponseDto;
     }
 
     public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto) {
@@ -77,12 +95,6 @@ public class AccountService{
 
     public boolean isDuplicatedAccount(AccountRequestDto accountDto) {
         return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
-    }
-
-    private String defaultImage() {
-        final String USER_DEFAULT_IMG = "default_user.png";
-        final String requestURI = "/api/images/";
-        return UriComponentsBuilder.fromUriString("https://pickme-back.ga").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
     }
 
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {

@@ -99,7 +99,7 @@ class LicenseControllerTest extends BaseControllerTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header"),
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("자격증 식별자"),
                                 fieldWithPath("name").description("자격증 명"),
                                 fieldWithPath("institution").description("자격증 발급 기관"),
@@ -204,7 +204,7 @@ class LicenseControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("수정된 자격증 식별자"),
                                 fieldWithPath("name").description("수정된 자격증 명"),
                                 fieldWithPath("institution").description("수정된 자격증 발급 기관"),
@@ -331,7 +331,7 @@ class LicenseControllerTest extends BaseControllerTest {
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("id").description("삭제된 자격증 식별자"),
                                 fieldWithPath("name").description("삭제된 자격증 명"),
                                 fieldWithPath("institution").description("삭제된 자격증 발급 기관"),
