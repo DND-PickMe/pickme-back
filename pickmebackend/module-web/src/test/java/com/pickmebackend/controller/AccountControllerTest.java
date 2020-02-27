@@ -10,25 +10,26 @@ import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.repository.AccountTechRepository;
 import com.pickmebackend.repository.TechnologyRepository;
 import com.pickmebackend.resource.AccountResource;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
@@ -74,7 +75,7 @@ class AccountControllerTest extends BaseControllerTest {
                                             .nickName(appProperties.getTestNickname())
                                             .socialLink("https://github.com/mkshin96")
                                             .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
-                                            .technologyList(savedTechnologyList)
+                                            .technologies(savedTechnologyList)
                                             .build();
 
         ResultActions actions = mockMvc.perform(post(accountURL)
@@ -90,7 +91,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(appProperties.getTestNickname()))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce", is("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")))
-                .andExpect(jsonPath("technologyList").exists())
+                .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.login-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
@@ -110,8 +111,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("nickName").description("사용자가 사용할 닉네임"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
-                                fieldWithPath("technologyList[*].id").description("사용자의 기술 식별자"),
-                                fieldWithPath("technologyList[*].name").description("사용자의 기술 이름")
+                                fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
+                                fieldWithPath("technologies[*].name").description("사용자의 기술 이름")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.LOCATION).description("Location Header"),
@@ -132,8 +133,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
-                                fieldWithPath("technologyList[*].id").description("사용자의 기술 식별자"),
-                                fieldWithPath("technologyList[*].name").description("사용자의 기술 이름"),
+                                fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
+                                fieldWithPath("technologies[*].name").description("사용자의 기술 이름"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ));
@@ -264,7 +265,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName").value(updateNickname))
                 .andExpect(jsonPath("createdAt").exists())
                 .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
-                .andExpect(jsonPath("technologyList").exists())
+                .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.delete-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
@@ -285,7 +286,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("nickName").description("사용자가 수정할 닉네임"),
                                 fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
-                                fieldWithPath("technologyList").description("사용자의 기술 리스트")
+                                fieldWithPath("technologies").description("사용자의 기술 리스트")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
@@ -305,7 +306,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
-                                fieldWithPath("technologyList").description("사용자의 기술 리스트"),
+                                fieldWithPath("technologies").description("사용자의 기술 리스트"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                         ))
@@ -331,7 +332,7 @@ class AccountControllerTest extends BaseControllerTest {
         account.setAccountTechSet(set);
         Account savedAccount = accountRepository.save(account);
         AccountRequestDto map = modelMapper.map(savedAccount, AccountRequestDto.class);
-        map.setTechnologyList(Arrays.asList(technologyList.get(2), technologyList.get(3)));
+        map.setTechnologies(Arrays.asList(technologyList.get(2), technologyList.get(3)));
 
         mockMvc.perform(put(accountURL + "{accountId}", account1.getId())
                     .header(HttpHeaders.AUTHORIZATION,BEARER + jwt)
@@ -344,7 +345,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").exists())
                 .andExpect(jsonPath("createdAt").exists())
-                .andExpect(jsonPath("technologyList").exists());
+                .andExpect(jsonPath("technologies").exists());
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -510,7 +511,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
-                                fieldWithPath("technologyList").description("사용자의 기술 리스트"),
+                                fieldWithPath("technologies").description("사용자의 기술 리스트"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                         ))

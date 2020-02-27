@@ -41,7 +41,7 @@ public class AccountResponseDto {
 
     private Set<SelfInterview> selfInterviews;
 
-    private List<Technology> technologyList = new ArrayList<>();
+    private List<Technology> technologies = new ArrayList<>();
 
     public AccountResponseDto (Account account) {
         this.id = account.getId();
@@ -60,6 +60,6 @@ public class AccountResponseDto {
     }
 
     public void toTech(Account account) {
-        this.technologyList = account.getAccountTechSet().stream().map(AccountTech::getTechnology).collect(Collectors.toList());
+        this.technologies = account.getAccountTechSet().stream().map(AccountTech::getTechnology).collect(Collectors.toList());
     }
 }

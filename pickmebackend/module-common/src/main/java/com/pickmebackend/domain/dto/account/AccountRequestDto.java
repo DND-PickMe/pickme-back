@@ -30,5 +30,5 @@ public class AccountRequestDto {
     private String socialLink;
 
     @Nullable
-    private List<Technology> technologyList;
+    private List<Technology> technologies;
 }
