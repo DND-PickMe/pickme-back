@@ -2,6 +2,7 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.error.ErrorMessage;
@@ -9,8 +10,13 @@ import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.resource.EnterpriseResource;
 import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +35,8 @@ public class EnterpriseController {
     private final EnterpriseService enterpriseService;
 
     private final AccountRepository accountRepository;
+
+    private final ModelMapper modelMapper;
 
     @GetMapping("/profile")
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
@@ -65,6 +73,20 @@ public class EnterpriseController {
         enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-load").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
+    }
+
+    @GetMapping
+    ResponseEntity<?> loadAllEnterprises(Pageable pageable, PagedResourcesAssembler<Enterprise> assembler)  {
+        Page<Enterprise> all = enterpriseService.loadAllEnterprises(pageable);
+        PagedModel<EnterpriseResource> enterpriseResources = assembler
+                .toModel(all, e -> {
+                    EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(e, EnterpriseResponseDto.class);
+                    enterpriseResponseDto.setEmail(e.getAccount().getEmail());
+                    return new EnterpriseResource(enterpriseResponseDto);
+                });
+        enterpriseResources.add(new Link("/docs/index.html#resources-allEnterprises-load").withRel("profile"));
+
+        return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
     }
 
     @PostMapping

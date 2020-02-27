@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -262,6 +263,74 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message", is(USERNOTFOUND)))
+        ;
+    }
+
+    @Test
+    @DisplayName("정상적으로 모든 기업 담당자 불러오기")
+    void load_all_enterprises() throws Exception    {
+        IntStream.rangeClosed(1, 30).forEach(this::createEnterpriseDtos);
+
+        this.mockMvc.perform(get(enterpriseURL))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].id").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].email").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].registrationNumber").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].name").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].address").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].ceoName").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].account").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("load-allEnterprises",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("next").description("link to next page"),
+                                linkWithRel("first").description("link to first page"),
+                                linkWithRel("last").description("link to last page")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].id").description("기업 식별자"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].email").description("기업 담당자 이메일"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].registrationNumber").description("사업자 등록 번호"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].name").description("회사 명"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].address").description("회사 주소"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].ceoName").description("ceo 이름"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.id").description("기업 담당자 식별자"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.email").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.nickName").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.favorite").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.positions").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.userRole").description("기업 담당자 권한"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.career").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.createdAt").description("기업 담당자 생성 날짜"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.oneLineIntroduce").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.image").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.socialLink").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.enterprise.*").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.experiences").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.licenses").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.prizes").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.projects").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.selfInterviews").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*]._links.self.href").ignored(),
+                                fieldWithPath("_links.*.*").ignored(),
+                                fieldWithPath("page.size").description("size of page"),
+                                fieldWithPath("page.totalElements").description("total elements of pages"),
+                                fieldWithPath("page.totalPages").description("total pages"),
+                                fieldWithPath("page.number").description("current page number")
+                                )
+                        ))
         ;
     }
 
