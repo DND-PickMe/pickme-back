@@ -32,10 +32,22 @@ public class EnterpriseController {
 
     @GetMapping("/{enterpriseId}")
     public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
+        if (currentUser == null) {
+            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+        }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
             return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
         }
-        return enterpriseService.loadEnterprise(enterpriseId, currentUser);
+        Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
+        if (!enterpriseId.equals(currentUser.getId())) {
+            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+        }
+        Account account = accountOptional.get();
+        EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadEnterprise(account);
+        EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
+        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-load").withRel("profile"));
+
+        return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
 
     @PostMapping

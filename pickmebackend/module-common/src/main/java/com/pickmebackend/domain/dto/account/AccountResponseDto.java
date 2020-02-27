@@ -28,6 +28,8 @@ public class AccountResponseDto {
 
     private String socialLink;
 
+    private String career;
+
     private LocalDateTime createdAt;
 
     private Set<Experience> experiences;
@@ -41,6 +43,8 @@ public class AccountResponseDto {
     private Set<SelfInterview> selfInterviews;
 
     private List<Technology> technologies = new ArrayList<>();
+
+    private List<String> positions;
 
     public AccountResponseDto (Account account) {
         this.id = account.getId();

@@ -19,10 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -73,6 +70,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .nickName(appProperties.getTestNickname())
                 .socialLink("https://github.com/mkshin96")
                 .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
+                .career("1년차")
+                .positions(new HashSet<>(Collections.singletonList("BackEnd")))
                 .technologies(savedTechnologyList)
                 .build();
 
@@ -109,6 +108,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("nickName").description("사용자가 사용할 닉네임"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("technologies[*].id").description("사용자의 기술 식별자"),
                                 fieldWithPath("technologies[*].name").description("사용자의 기술 이름")
                         ),
@@ -123,6 +124,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
                                 fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
@@ -244,10 +247,14 @@ class AccountControllerTest extends BaseControllerTest {
         String updatedEmail = "update@email.com";
         String updateNickname = "updateNick";
         String oneLineIntroduce = "안녕하세요. 저는 백엔드 개발자를 지망하고 있습니다.";
+        String career = "신입";
+        Set<String> positions = new HashSet<>(Arrays.asList("BackEnd", "FrontEnd", "Designer"));
 
         newAccount.setEmail(updatedEmail);
         newAccount.setNickName(updateNickname);
         newAccount.setOneLineIntroduce(oneLineIntroduce);
+        newAccount.setCareer(career);
+        newAccount.setPositions(positions);
 
         AccountRequestDto updateAccountDto = modelMapper.map(newAccount, AccountRequestDto.class);
 
@@ -263,6 +270,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").value(updateNickname))
                 .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("career").exists())
+                .andExpect(jsonPath("positions").exists())
                 .andExpect(jsonPath("oneLineIntroduce").value(oneLineIntroduce))
                 .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("_links.self").exists())
@@ -285,7 +294,9 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("nickName").description("사용자가 수정할 닉네임"),
                                 fieldWithPath("oneLineIntroduce").description("사용자가 수정할 한 줄 소개"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
-                                fieldWithPath("technologies").description("사용자의 기술 리스트")
+                                fieldWithPath("technologies").description("사용자의 기술 리스트"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
@@ -295,6 +306,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("email").description("수정된 사용자 이메일"),
                                 fieldWithPath("nickName").description("수정된 사용자 닉네임"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("oneLineIntroduce").description("수정된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
                                 fieldWithPath("userRole").description("사용자 권한"),
@@ -502,6 +515,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("삭제된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
@@ -573,6 +588,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("userRole").exists())
                 .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("career").exists())
+                .andExpect(jsonPath("positions").exists())
                 .andExpect(jsonPath("experiences").exists())
                 .andExpect(jsonPath("licenses").exists())
                 .andExpect(jsonPath("prizes").exists())
@@ -603,6 +620,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
@@ -634,6 +653,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("userRole").exists())
                 .andExpect(jsonPath("technologies").exists())
                 .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("career").exists())
+                .andExpect(jsonPath("positions").exists())
                 .andExpect(jsonPath("experiences").exists())
                 .andExpect(jsonPath("licenses").exists())
                 .andExpect(jsonPath("prizes").exists())
@@ -660,6 +681,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("technologies").description("사용자가 가진 기술스택"),
                                 fieldWithPath("favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("career").description("사용자의 경력"),
+                                fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
                                 fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
@@ -702,6 +725,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].nickName").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].userRole").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].socialLink").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].career").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].positions").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*]._links.self").exists())
                 .andExpect(jsonPath("_links.self").exists())
@@ -728,6 +753,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("_embedded.accountResponseDtoList[*].favoriteCount").description("사용자가 받은 좋아요 수"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").description("사용자의 한 줄 소개"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].image").description("사용자 이미지"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].career").description("사용자의 경력"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].positions").description("사용자의 역할"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].socialLink").description("사용자의 소셜링크"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].userRole").description("사용자 권한"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].createdAt").description("사용자 생성 날짜"),

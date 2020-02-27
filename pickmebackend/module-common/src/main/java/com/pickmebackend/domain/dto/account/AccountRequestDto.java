@@ -7,6 +7,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -29,4 +30,10 @@ public class AccountRequestDto {
 
     @Nullable
     private List<Technology> technologies;
+
+    @Nullable
+    private Set<String> positions;
+
+    @Nullable
+    private String career;
 }

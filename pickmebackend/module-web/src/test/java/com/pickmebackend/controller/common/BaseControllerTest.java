@@ -20,6 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -61,6 +64,8 @@ public class BaseControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .createdAt(LocalDateTime.now())
+                .career("신입")
+                .positions(new HashSet<>(Arrays.asList("BackEnd", "FrontEnd")))
                 .userRole(UserRole.USER)
                 .build();
         return accountRepository.save(account);
@@ -72,6 +77,8 @@ public class BaseControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestAnotherNickname())
                 .createdAt(LocalDateTime.now())
+                .career("5년차 이상")
+                .positions(new HashSet<>(Arrays.asList("Designer")))
                 .userRole(UserRole.USER)
                 .build();
         return accountRepository.save(account);
@@ -84,6 +91,8 @@ public class BaseControllerTest {
                 .nickName(i + appProperties.getTestNickname())
                 .oneLineIntroduce("한 줄 소개")
                 .createdAt(LocalDateTime.now())
+                .career(i + "년차")
+                .positions(new HashSet<>(Collections.singletonList("개발자" + i)))
                 .userRole(UserRole.USER)
                 .build();
         accountRepository.save(account);
