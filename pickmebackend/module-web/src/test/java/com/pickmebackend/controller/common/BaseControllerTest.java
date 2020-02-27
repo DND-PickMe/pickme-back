@@ -150,6 +150,32 @@ public class BaseControllerTest {
         return enterpriseRequestDto;
     }
 
+    protected EnterpriseRequestDto createEnterpriseDtos(int i) {
+        EnterpriseRequestDto enterpriseRequestDto =
+                EnterpriseRequestDto.builder()
+                        .email(i + appProperties.getTestEmail())
+                        .password(i + appProperties.getTestPassword())
+                        .registrationNumber(i + appProperties.getTestRegistrationNumber())
+                        .name(i + appProperties.getTestName())
+                        .address(i + appProperties.getTestAddress())
+                        .ceoName(i + appProperties.getTestCeoName())
+                        .build();
+        Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
+
+        Account account = modelMapper.map(enterpriseRequestDto, Account.class);
+        account.setPassword(passwordEncoder.encode(account.getPassword()));
+        account.setCreatedAt(LocalDateTime.now());
+        account.setUserRole(UserRole.ENTERPRISE);
+        account.setEnterprise(enterprise);
+
+        enterprise.setAccount(account);
+
+        accountRepository.save(account);
+        enterpriseRepository.save(enterprise);
+
+        return enterpriseRequestDto;
+    }
+
     protected String createEnterpriseJwt() {
         EnterpriseRequestDto enterpriseRequestDto = createAnotherEnterpriseDto();
         Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());

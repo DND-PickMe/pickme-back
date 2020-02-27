@@ -9,6 +9,8 @@ import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -26,12 +28,24 @@ public class EnterpriseService {
 
     private final PasswordEncoder passwordEncoder;
 
+    public EnterpriseResponseDto loadProfile(Account account) {
+        Enterprise enterprise = account.getEnterprise();
+        EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(enterprise, EnterpriseResponseDto.class);
+        enterpriseResponseDto.setEmail(account.getEmail());
+
+        return enterpriseResponseDto;
+    }
+
     public EnterpriseResponseDto loadEnterprise(Account account) {
         Enterprise enterprise = account.getEnterprise();
         EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(enterprise, EnterpriseResponseDto.class);
         enterpriseResponseDto.setEmail(account.getEmail());
 
         return enterpriseResponseDto;
+    }
+
+    public Page<Enterprise> loadAllEnterprises(Pageable pageable) {
+        return this.enterpriseRepository.findAllEnterprisesDesc(pageable);
     }
 
     public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {

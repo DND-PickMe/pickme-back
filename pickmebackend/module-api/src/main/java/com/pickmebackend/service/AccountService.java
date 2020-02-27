@@ -38,13 +38,6 @@ public class AccountService{
     }
     private final AccountTechRepository accountTechRepository;
 
-    public List<AccountResponseDto> getAllAccounts(Pageable pageable) {
-        return this.accountRepository.findAllAccountsDesc(pageable)
-                .stream()
-                .map(AccountResponseDto::new)
-                .collect(Collectors.toList());
-    }
-
     public AccountResponseDto loadAccount(Account account) {
         return modelMapper.map(account, AccountResponseDto.class);
     }

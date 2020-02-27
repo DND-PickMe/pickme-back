@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
@@ -44,6 +45,74 @@ class EnterpriseControllerTest extends BaseControllerTest {
     void setUp() {
         enterpriseRepository.deleteAll();
         accountRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("정상적으로 자신의 프로필 조회")
+    void load_profile() throws Exception {
+        EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
+        Account account = accountOptional.get();
+
+        jwt = jwtProvider.generateToken(account);
+
+        mockMvc.perform(get(enterpriseURL + "/profile")
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("registrationNumber").exists())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("address").exists())
+                .andExpect(jsonPath("ceoName").exists())
+                .andExpect(jsonPath("account").exists())
+                .andExpect(jsonPath("account.userRole", is("ENTERPRISE")))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.update-enterprise").exists())
+                .andExpect(jsonPath("_links.delete-enterprise").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("load-enterprise",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("update-enterprise").description("link to update enterprise"),
+                                linkWithRel("delete-enterprise").description("link to delete enterprise"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("기업 식별자"),
+                                fieldWithPath("email").description("기업 담당자 이메일"),
+                                fieldWithPath("registrationNumber").description("사업자 등록 번호"),
+                                fieldWithPath("name").description("기업 명"),
+                                fieldWithPath("address").description("회사 주소"),
+                                fieldWithPath("ceoName").description("ceo 이름"),
+                                fieldWithPath("account.id").description("기업 담당자 식별자"),
+                                fieldWithPath("account.email").ignored(),
+                                fieldWithPath("account.nickName").ignored(),
+                                fieldWithPath("account.favorite").ignored(),
+                                fieldWithPath("account.positions").ignored(),
+                                fieldWithPath("account.userRole").description("기업 담당자 권한"),
+                                fieldWithPath("account.career").ignored(),
+                                fieldWithPath("account.createdAt").description("기업 담당자 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").ignored(),
+                                fieldWithPath("account.image").ignored(),
+                                fieldWithPath("account.socialLink").ignored(),
+                                fieldWithPath("account.enterprise.*").ignored(),
+                                fieldWithPath("account.experiences").ignored(),
+                                fieldWithPath("account.licenses").ignored(),
+                                fieldWithPath("account.prizes").ignored(),
+                                fieldWithPath("account.projects").ignored(),
+                                fieldWithPath("account.selfInterviews").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
     }
 
     @Test
@@ -111,6 +180,74 @@ class EnterpriseControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @DisplayName("정상적으로 다른 기업담당자 불러오기")
+    void load_another_enterprise() throws Exception {
+        EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
+        Account account = accountOptional.get();
+
+        EnterpriseRequestDto enterpriseAnotherRequestDto = createAnotherEnterpriseDto();
+        Optional<Account> accountAnotherOptional = accountRepository.findByEmail(enterpriseAnotherRequestDto.getEmail());
+        Account anotherAccount = accountAnotherOptional.get();
+
+        jwt = jwtProvider.generateToken(anotherAccount);
+
+        this.mockMvc.perform(get(enterpriseURL + "{enterpriseId}", account.getId())
+                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("registrationNumber").exists())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("address").exists())
+                .andExpect(jsonPath("ceoName").exists())
+                .andExpect(jsonPath("account").exists())
+                .andExpect(jsonPath("account.userRole", is("ENTERPRISE")))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("load-enterprise",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("기업 식별자"),
+                                fieldWithPath("email").description("기업 담당자 이메일"),
+                                fieldWithPath("registrationNumber").description("사업자 등록 번호"),
+                                fieldWithPath("name").description("기업 명"),
+                                fieldWithPath("address").description("회사 주소"),
+                                fieldWithPath("ceoName").description("ceo 이름"),
+                                fieldWithPath("account.id").description("기업 담당자 식별자"),
+                                fieldWithPath("account.email").ignored(),
+                                fieldWithPath("account.nickName").ignored(),
+                                fieldWithPath("account.favorite").ignored(),
+                                fieldWithPath("account.positions").ignored(),
+                                fieldWithPath("account.userRole").description("기업 담당자 권한"),
+                                fieldWithPath("account.career").ignored(),
+                                fieldWithPath("account.createdAt").description("기업 담당자 생성 날짜"),
+                                fieldWithPath("account.oneLineIntroduce").ignored(),
+                                fieldWithPath("account.image").ignored(),
+                                fieldWithPath("account.socialLink").ignored(),
+                                fieldWithPath("account.enterprise.*").ignored(),
+                                fieldWithPath("account.experiences").ignored(),
+                                fieldWithPath("account.licenses").ignored(),
+                                fieldWithPath("account.prizes").ignored(),
+                                fieldWithPath("account.projects").ignored(),
+                                fieldWithPath("account.selfInterviews").ignored(),
+                                fieldWithPath("_links.*.*").ignored()
+                        )
+                ))
+        ;
+    }
+
+    @Test
     @DisplayName("저장되어 있지 않은 기업담당자 불러 오기")
     void load_non_enterprise() throws Exception {
         EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
@@ -130,25 +267,70 @@ class EnterpriseControllerTest extends BaseControllerTest {
     }
 
     @Test
-    @DisplayName("불러올 권한이 없는 기업담당자 불러 오기")
-    void load_unAuthorized_enterprise() throws Exception {
-        EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
-        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
-        Account account = accountOptional.get();
+    @DisplayName("정상적으로 모든 기업 담당자 불러오기")
+    void load_all_enterprises() throws Exception    {
+        IntStream.rangeClosed(1, 30).forEach(this::createEnterpriseDtos);
 
-        EnterpriseRequestDto anotherEnterpriseRequestDto = createAnotherEnterpriseDto();
-        Optional<Account> anotherAccountOptional = accountRepository.findByEmail(anotherEnterpriseRequestDto.getEmail());
-        Account anotherAccount = anotherAccountOptional.get();
-
-        jwt = jwtProvider.generateToken(anotherAccount);
-
-        this.mockMvc.perform(get(enterpriseURL + "{enterpriseId}", account.getId())
-                .accept(MediaTypes.HAL_JSON_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
-                .contentType(MediaType.APPLICATION_JSON))
+        this.mockMvc.perform(get(enterpriseURL))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].id").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].email").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].registrationNumber").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].name").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].address").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].ceoName").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].account").exists())
+                .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("load-allEnterprises",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("next").description("link to next page"),
+                                linkWithRel("first").description("link to first page"),
+                                linkWithRel("last").description("link to last page")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].id").description("기업 식별자"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].email").description("기업 담당자 이메일"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].registrationNumber").description("사업자 등록 번호"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].name").description("회사 명"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].address").description("회사 주소"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].ceoName").description("ceo 이름"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.id").description("기업 담당자 식별자"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.email").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.nickName").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.favorite").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.positions").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.userRole").description("기업 담당자 권한"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.career").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.createdAt").description("기업 담당자 생성 날짜"),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.oneLineIntroduce").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.image").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.socialLink").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.enterprise.*").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.experiences").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.licenses").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.prizes").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.projects").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*].account.selfInterviews").ignored(),
+                                fieldWithPath("_embedded.enterpriseResponseDtoList[*]._links.self.href").ignored(),
+                                fieldWithPath("_links.*.*").ignored(),
+                                fieldWithPath("page.size").description("size of page"),
+                                fieldWithPath("page.totalElements").description("total elements of pages"),
+                                fieldWithPath("page.totalPages").description("total pages"),
+                                fieldWithPath("page.number").description("current page number")
+                                )
+                        ))
         ;
     }
 

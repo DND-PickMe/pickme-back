@@ -100,9 +100,9 @@ operation::login-enterprise[snippets='curl-request,http-request,request-headers,
 Account 리소스는 사용자를 만들거나 조회할 때 사용한다.
 
 [[resources-profile-load]]
-=== 자신의 프로필 조회
+=== 구직자 자신의 프로필 조회
 
-`GET` 요청을 사용하여 자신의 프로필을 조회할 수 있다.
+`GET` 요청을 사용하여 구직자 자신의 프로필을 조회할 수 있다.
 
 operation::load-profile[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
@@ -118,7 +118,7 @@ operation::load-account[snippets='curl-request,http-request,request-headers,http
 
 `GET` 요청을 사용하여 모든 사용자를 조회할 수 있다.
 
-operation::load-allAccount[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+operation::load-allAccounts[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
 [[resources-account-create]]
 === 사용자 생성
@@ -146,12 +146,26 @@ operation::delete-account[snippets='curl-request,http-request,request-headers,ht
 
 Enterprise 리소스는 기업 담당자를 만들거나 조회할 때 사용한다.
 
+[[resources-profile-load]]
+=== 기업 담당자 자신의 프로필 조회
+
+`GET` 요청을 사용하여 기업 담당자 자신의 프로필 조회할 수 있다.
+
+operation::load-profile[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
 [[resources-enterprise-load]]
 === 기업 담당자 조회
 
 `GET` 요청을 사용하여 기업 담당자를 조회할 수 있다.
 
 operation::load-enterprise[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+[[resources-allEnterprises-load]]
+=== 모든 기업 담당자 조회
+
+`GET` 요청을 사용하여 모든 기업 담당자를 조회할 수 있다.
+
+operation::load-allEnterprises[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
 [[resources-enterprise-create]]
 === 기업 담당자 생성
