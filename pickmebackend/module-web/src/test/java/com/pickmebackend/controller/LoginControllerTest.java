@@ -52,6 +52,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("jwt").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.load-allAccounts").exists())
+                .andExpect(jsonPath("_links.load-allEnterprises").exists())
                 .andExpect(jsonPath("_links.create-experience").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
                 .andExpect(jsonPath("_links.create-prize").exists())
@@ -62,6 +63,7 @@ class LoginControllerTest extends BaseControllerTest {
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("load-allAccounts").description("link to load all accounts"),
+                                linkWithRel("load-allEnterprises").description("link to load all enterprises"),
                                 linkWithRel("create-experience").description("link to create experience"),
                                 linkWithRel("create-license").description("link to create license"),
                                 linkWithRel("create-prize").description("link to create prize"),
@@ -103,6 +105,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("jwt").exists())
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.load-allAccounts").exists())
+                .andExpect(jsonPath("_links.load-allEnterprises").exists())
                 .andExpect(jsonPath("_links.create-experience").exists())
                 .andExpect(jsonPath("_links.create-license").exists())
                 .andExpect(jsonPath("_links.create-prize").exists())
@@ -113,6 +116,7 @@ class LoginControllerTest extends BaseControllerTest {
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("load-allAccounts").description("link to load all accounts"),
+                                linkWithRel("load-allEnterprises").description("link to load all enterprises"),
                                 linkWithRel("create-experience").description("link to create experience"),
                                 linkWithRel("create-license").description("link to create license"),
                                 linkWithRel("create-prize").description("link to create prize"),
