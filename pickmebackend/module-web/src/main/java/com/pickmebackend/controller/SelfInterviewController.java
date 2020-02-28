@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.selfInterview.SelfInterviewRequestDto;
@@ -30,6 +31,8 @@ public class SelfInterviewController {
 
     private final SelfInterviewRepository selfInterviewRepository;
 
+    private final ErrorsFormatter errorsFormatter;
+
     @PostMapping
     public ResponseEntity<?> saveSelfInterview(@RequestBody SelfInterviewRequestDto selfInterviewRequestDto, @CurrentUser Account currentUser) {
         SelfInterviewResponseDto selfInterviewResponseDto = selfInterviewService.saveSelfInterview(selfInterviewRequestDto, currentUser);
@@ -47,12 +50,12 @@ public class SelfInterviewController {
     ResponseEntity<?> updateSelfInterview(@PathVariable Long selfInterviewId, @RequestBody SelfInterviewRequestDto selfInterviewRequestDto, @CurrentUser Account currentUser) {
         Optional<SelfInterview> selfInterviewOptional = this.selfInterviewRepository.findById(selfInterviewId);
         if (!selfInterviewOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(SELFINTERVIEWNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(SELFINTERVIEWNOTFOUND));
         }
 
         SelfInterview selfInterview = selfInterviewOptional.get();
         if (!selfInterview.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
         SelfInterviewResponseDto modifiedSelfInterviewResponseDto = selfInterviewService.updateSelfInterview(selfInterview, selfInterviewRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(SelfInterviewController.class).slash(modifiedSelfInterviewResponseDto.getId());
@@ -68,12 +71,12 @@ public class SelfInterviewController {
     ResponseEntity<?> deleteSelfInterview(@PathVariable Long selfInterviewId, @CurrentUser Account currentUser) {
         Optional<SelfInterview> selfInterviewOptional = this.selfInterviewRepository.findById(selfInterviewId);
         if (!selfInterviewOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(SELFINTERVIEWNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(SELFINTERVIEWNOTFOUND));
         }
 
         SelfInterview selfInterview = selfInterviewOptional.get();
         if (!selfInterview.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         SelfInterviewResponseDto selfInterviewResponseDto = selfInterviewService.deleteSelfInterview(selfInterview);

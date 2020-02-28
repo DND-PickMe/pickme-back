@@ -109,8 +109,7 @@ class AccountImageControllerTest {
                 .file(invalidFile)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(INVALIDIMAGE)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -125,8 +124,7 @@ class AccountImageControllerTest {
                 .file(image)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(INVALIDIMAGE)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -141,8 +139,7 @@ class AccountImageControllerTest {
                 .file(image)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(INVALIDIMAGE)));
+                .andExpect(status().isBadRequest());
     }
 
     private AccountInitialRequestDto createAccount() {

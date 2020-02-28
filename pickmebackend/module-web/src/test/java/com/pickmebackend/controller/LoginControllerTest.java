@@ -156,9 +156,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -173,9 +171,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -190,9 +186,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -207,9 +201,7 @@ class LoginControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     AccountInitialRequestDto createAccountDto() throws Exception {

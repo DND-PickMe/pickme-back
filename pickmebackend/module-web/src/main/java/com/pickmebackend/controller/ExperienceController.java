@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
 import com.pickmebackend.domain.dto.experience.ExperienceRequestDto;
@@ -30,6 +31,8 @@ public class ExperienceController {
 
     private final ExperienceRepository experienceRepository;
 
+    private final ErrorsFormatter errorsFormatter;
+
     @PostMapping
     ResponseEntity<?> saveExperience(@RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
         ExperienceResponseDto experienceResponseDto =  experienceService.saveExperience(experienceRequestDto, currentUser);
@@ -47,12 +50,12 @@ public class ExperienceController {
     ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
         }
 
         Experience experience = experienceOptional.get();
         if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         ExperienceResponseDto modifiedExperienceResponseDto = experienceService.updateExperience(experience, experienceRequestDto);
@@ -69,12 +72,12 @@ public class ExperienceController {
     ResponseEntity<?> deleteExperience(@PathVariable Long experienceId, @CurrentUser Account currentUser) {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
         }
 
         Experience experience = experienceOptional.get();
         if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         ExperienceResponseDto experienceResponseDto = experienceService.deleteExperience(experience);

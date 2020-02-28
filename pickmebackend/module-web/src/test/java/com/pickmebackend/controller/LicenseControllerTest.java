@@ -250,8 +250,7 @@ class LicenseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(LICENSENOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -275,8 +274,7 @@ class LicenseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -367,8 +365,7 @@ class LicenseControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(licenseUrl + "{licenseId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(LICENSENOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -382,8 +379,7 @@ class LicenseControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(licenseUrl + "{licenseId}", license.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
