@@ -351,6 +351,52 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("technologies").isNotEmpty());
     }
 
+    @Test
+    @DisplayName("정상적으로 유저의 직군 리스트가 수정되는지 테스트")
+    void updateAccount_positions() throws Exception {
+        Set<String> positions = new HashSet<>(Arrays.asList("백엔드", "프론트엔드"));
+        Set<String> updatePositions = new HashSet<>(Arrays.asList("DBA", "UI/UX디자이너"));
+
+        Account first = createAccount_need_index(1);
+        Account second = createAccount_need_index(2);
+
+        Account account1 = accountRepository.save(first);
+        Account account2 = accountRepository.save(second);
+
+        account1.setPositions(updatePositions);
+        account2.setPositions(updatePositions);
+        AccountRequestDto firstMap = modelMapper.map(account1, AccountRequestDto.class);
+        AccountRequestDto secondMap = modelMapper.map(account2, AccountRequestDto.class);
+        jwt = jwtProvider.generateToken(account1);
+
+        mockMvc.perform(put(accountURL + "{accountId}", account1.getId())
+                .header(HttpHeaders.AUTHORIZATION,BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(firstMap)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("positions").exists());
+
+        jwt = jwtProvider.generateToken(account2);
+        mockMvc.perform(put(accountURL + "{accountId}", account2.getId())
+                .header(HttpHeaders.AUTHORIZATION,BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(secondMap)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("positions").exists());
+    }
+
     @ParameterizedTest(name = "{displayName}{index}")
     @DisplayName("유저 수정 시 email, password, nickname 중 하나라도 공백이 들어올 경우 Bad Request 반환")
     @CsvSource({"'', '디엔디'", "'user@email.com', ''"})
