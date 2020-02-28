@@ -18,7 +18,7 @@ public class AccountResponseDto {
 
     private String nickName;
 
-    private Integer favoriteCount;
+    private int favoriteCount;
 
     private String oneLineIntroduce;
 
@@ -44,7 +44,7 @@ public class AccountResponseDto {
 
     private List<Technology> technologies = new ArrayList<>();
 
-    private List<String> positions;
+    private Set<String> positions;
 
     private long hits;
 
@@ -54,7 +54,9 @@ public class AccountResponseDto {
         this.nickName = account.getNickName();
         this.favoriteCount = account.getFavorite().size();
         this.oneLineIntroduce = account.getOneLineIntroduce();
+        this.career = account.getCareer();
         this.image = account.getImage();
+        this.positions = account.getPositions();
         this.userRole = account.getUserRole();
         this.socialLink = account.getSocialLink();
         this.experiences = account.getExperiences();

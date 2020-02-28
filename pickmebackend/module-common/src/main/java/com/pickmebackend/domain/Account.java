@@ -9,6 +9,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +33,7 @@ public class Account {
     private String nickName;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Account> favorite;
+    private List<Account> favorite = new LinkedList<>();
 
     @JsonIgnore
     private long favoriteCount;
