@@ -260,8 +260,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(EXPERIENCENOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -285,8 +284,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -378,8 +376,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(experienceUrl + "{experienceId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(EXPERIENCENOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -393,8 +390,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(experienceUrl + "{experienceId}", experience.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

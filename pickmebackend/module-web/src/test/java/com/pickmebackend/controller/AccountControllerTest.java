@@ -159,9 +159,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(DUPLICATEDUSER)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -183,11 +181,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists());
+                .andExpect(status().isBadRequest());
     }
 
     @RepeatedTest(value = 3, name = "{displayName} {currentRepetition}")
@@ -213,11 +207,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -415,11 +405,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateAccountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists());
+                .andExpect(status().isBadRequest());
     }
 
     @RepeatedTest(value = 2, name = "{displayName} {currentRepetition}")
@@ -443,11 +429,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateAccountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -467,8 +449,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateAccountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(USERNOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -489,8 +470,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateAccountDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -575,8 +555,7 @@ class AccountControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(accountURL + "{accountId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -589,8 +568,7 @@ class AccountControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(accountURL + "{accountId}", newAccount.getId())
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -806,9 +784,7 @@ class AccountControllerTest extends BaseControllerTest {
         mockMvc.perform(get(accountURL + "{accountId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").exists())
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -925,8 +901,7 @@ class AccountControllerTest extends BaseControllerTest {
         mockMvc.perform(post(accountURL + "{accountId}/favorite", -1)
                 .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

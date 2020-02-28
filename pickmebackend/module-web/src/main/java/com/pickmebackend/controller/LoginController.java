@@ -1,5 +1,6 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.login.JwtResponseDto;
@@ -35,13 +36,15 @@ public class LoginController {
 
     private final ModelMapper modelMapper;
 
+    private final ErrorsFormatter errorsFormatter;
+
     @PostMapping
     ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(!authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword()))  {
-            return ResponseEntity.badRequest().body(new ErrorMessage(USERNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USERNOTFOUND));
         }
 
         Account account = modelMapper.map(loginRequestDto, Account.class);

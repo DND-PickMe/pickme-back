@@ -1,5 +1,6 @@
 package com.pickmebackend.service;
 
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.error.ErrorMessage;
@@ -42,7 +43,10 @@ public class AccountImageService {
 
     private final AccountRepository accountRepository;
 
-    public AccountImageService(AccountImageProperties accountImageProperties, JwtProvider jwtProvider, AccountRepository accountRepository) {
+    private final ErrorsFormatter errorsFormatter;
+
+    public AccountImageService(AccountImageProperties accountImageProperties, JwtProvider jwtProvider, AccountRepository accountRepository,
+                               ErrorsFormatter errorsFormatter) {
         this.rootLocation = Paths.get(accountImageProperties.getLocation()).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.rootLocation);
@@ -51,6 +55,7 @@ public class AccountImageService {
         }
         this.jwtProvider = jwtProvider;
         this.accountRepository = accountRepository;
+        this.errorsFormatter = errorsFormatter;
     }
 
     public ResponseEntity<?> saveImage(MultipartFile image, HttpServletRequest request) {
@@ -58,14 +63,14 @@ public class AccountImageService {
         String extension = FilenameUtils.getExtension(imageName);
         try {
             if (image.isEmpty()) {
-                return new ResponseEntity<>(new ErrorMessage(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
             }
             if (imageName.contains("..")) {
-                return new ResponseEntity<>(new ErrorMessage(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
             }
 
             if (!"jpg".equals(extension) && !"jpeg".equals(extension) && !"png".equals(extension)) {
-                return new ResponseEntity<>(new ErrorMessage(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
             }
 
             try (InputStream inputStream = image.getInputStream()) {
@@ -78,7 +83,7 @@ public class AccountImageService {
         String email = jwtProvider.getUsernameFromToken(request.getHeader(HttpHeaders.AUTHORIZATION).substring(7));
         Optional<Account> accountOptional = accountRepository.findByEmail(email);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         String newImagePath = UriComponentsBuilder
@@ -100,7 +105,7 @@ public class AccountImageService {
                 try {
                     contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
                 } catch (IOException e) {
-                    return new ResponseEntity<>(new ErrorMessage(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
                 }
                 if (contentType == null) {
                     contentType = "application/octet-stream";
@@ -111,10 +116,10 @@ public class AccountImageService {
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {
-                return new ResponseEntity<>(CANNOTREADABLEIMAGE, HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(CANNOTREADABLEIMAGE), HttpStatus.BAD_REQUEST);
             }
         } catch (MalformedURLException e) {
-            return new ResponseEntity<>(INVALIDIMAGE, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
         }
     }
 

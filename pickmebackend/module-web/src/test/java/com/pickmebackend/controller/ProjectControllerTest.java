@@ -270,8 +270,7 @@ class ProjectControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(PROJECTNOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -293,8 +292,7 @@ class ProjectControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -386,8 +384,7 @@ class ProjectControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(projectUrl + "{projectId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(PROJECTNOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -401,8 +398,7 @@ class ProjectControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(projectUrl + "{projectId}", project.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

@@ -214,8 +214,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(SELFINTERVIEWNOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -236,8 +235,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -324,8 +322,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(SELFINTERVIEWNOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -339,8 +336,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

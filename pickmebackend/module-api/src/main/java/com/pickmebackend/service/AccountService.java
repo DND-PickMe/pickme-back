@@ -1,5 +1,6 @@
 package com.pickmebackend.service;
 
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
 import com.pickmebackend.domain.Technology;
@@ -39,10 +40,13 @@ public class AccountService{
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AccountTechRepository accountTechRepository;
+
+    private final ErrorsFormatter errorsFormatter;
+
     public AccountResponseDto loadProfile(Account account) {
         return new AccountResponseDto(account);
     }
-    private final AccountTechRepository accountTechRepository;
 
     public AccountResponseDto loadAccount(Long accountId, Account account, HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
@@ -67,9 +71,9 @@ public class AccountService{
 
     public Page<Account> loadAllAccounts(Pageable pageable, String orderBy) {
         if ("favorite".equals(orderBy)) {
-            return this.accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
+            return accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
         } else if ("hits".equals(orderBy)) {
-            return this.accountRepository.findAllAccountsDescAndOrderByHits(pageable);
+            return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
         }
         return this.accountRepository.findAllAccountsDesc(pageable);
     }
@@ -113,10 +117,11 @@ public class AccountService{
         }
         if (accountDto.getTechnologies() != null) {
             accountDto.getTechnologies()
-                    .forEach(tech -> accountTechRepository.save(AccountTech.builder()
-                                .account(account)
-                                .technology(tech)
-                                .build()));
+                    .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(
+                                                                        AccountTech.builder()
+                                                                                .account(account)
+                                                                                .technology(tech)
+                                                                                .build())));
         }
     }
 
@@ -134,7 +139,7 @@ public class AccountService{
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
@@ -146,7 +151,7 @@ public class AccountService{
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.OK);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.OK);
         }
         Account account = accountOptional.get();
         List<AccountListResponseDto> accountList = account.getFavorite().stream()
