@@ -10,4 +10,5 @@ public interface EnterpriseRepository extends JpaRepository<Enterprise, Long> {
 
     @Query("SELECT ent FROM Enterprise ent ORDER BY ent.name")
     Page<Enterprise> findAllEnterprisesDesc(Pageable pageable);
+    Page<Enterprise> findAllByNameContainingOrderByName(String name, Pageable pageable);
 }

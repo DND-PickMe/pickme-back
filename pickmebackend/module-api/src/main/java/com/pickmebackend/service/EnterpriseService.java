@@ -48,6 +48,10 @@ public class EnterpriseService {
         return this.enterpriseRepository.findAllEnterprisesDesc(pageable);
     }
 
+    public Page<Enterprise> filterEnterprise(String name, Pageable pageable) {
+        return this.enterpriseRepository.findAllByNameContainingOrderByName(name, pageable);
+    }
+
     public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
         Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(enterpriseRequestDto.getPassword()));

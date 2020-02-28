@@ -167,6 +167,15 @@ operation::load-enterprise[snippets='curl-request,http-request,request-headers,h
 
 operation::load-allEnterprises[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
+[[resources-filteredEnterprises-load]]
+=== 필터링 된 기업 담당자 조회
+
+`GET` 요청을 사용하여 필터링 된 기업 담당자를 조회할 수 있다.
+
+operation::load-filtered-enterprises[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+operation::load-filtered-enterprises-none[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
 [[resources-enterprise-create]]
 === 기업 담당자 생성
 
