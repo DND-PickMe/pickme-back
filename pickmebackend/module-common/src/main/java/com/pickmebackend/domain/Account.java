@@ -59,6 +59,9 @@ public class Account {
     @Column
     private String socialLink;
 
+    @Column
+    private long hits;
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "enterprise_id")
     private Enterprise enterprise;

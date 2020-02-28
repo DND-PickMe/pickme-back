@@ -15,7 +15,7 @@ public class SkillController {
 
     private final SkillService skillService;
 
-    @GetMapping("/technology")
+    @GetMapping("/technologies")
     ResponseEntity<?> getTechnology() {
         return skillService.getTechnology();
     }

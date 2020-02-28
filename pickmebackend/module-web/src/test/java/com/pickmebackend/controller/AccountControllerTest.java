@@ -121,6 +121,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("technologies").description("사용자의 기술"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
@@ -291,6 +292,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("oneLineIntroduce").description("수정된 사용자의 한 줄 소개"),
                                 fieldWithPath("image").description("사용자의 프로필 이미지"),
                                 fieldWithPath("userRole").description("사용자 권한"),
+                                fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
@@ -308,7 +310,7 @@ class AccountControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("정상적으로 유저의 기술 리스트가 수정되는지 테스트")
     void updateAccount_technology() throws Exception {
-        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().name("Java").build(), Technology.builder().name("Python").build(), Technology.builder().name("C").build(), Technology.builder().name("C#").build()));
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().id(1L).name("Java").build(), Technology.builder().id(2L).name("Python").build(), Technology.builder().id(3L).name("C").build(), Technology.builder().id(4L).name("C#").build()));
         Account account = Account.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
@@ -318,11 +320,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .build();
         Account account1 = accountRepository.save(account);
         jwt = jwtProvider.generateToken(account1);
-        Set<AccountTech> set = new HashSet<>();
-        set.add(AccountTech.builder().account(account1).technology(technologyList.get(0)).build());
-        set.add(AccountTech.builder().account(account1).technology(technologyList.get(1)).build());
-        account.setAccountTechSet(set);
-        Account savedAccount = accountRepository.save(account);
+        Account savedAccount = accountRepository.save(account1);
         AccountRequestDto map = modelMapper.map(savedAccount, AccountRequestDto.class);
         map.setTechnologies(Arrays.asList(technologyList.get(2), technologyList.get(3)));
 
@@ -337,7 +335,20 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName").exists())
                 .andExpect(jsonPath("createdAt").exists())
-                .andExpect(jsonPath("technologies").exists());
+                .andExpect(jsonPath("technologies").isNotEmpty());
+
+        mockMvc.perform(get(accountURL + "profile")
+                .header(HttpHeaders.AUTHORIZATION,BEARER + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(map)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName").exists())
+                .andExpect(jsonPath("createdAt").exists())
+                .andExpect(jsonPath("technologies").isNotEmpty());
     }
 
     @ParameterizedTest(name = "{displayName}{index}")
@@ -503,6 +514,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
                                 fieldWithPath("socialLink").description("사용자의 소셜 링크"),
                                 fieldWithPath("technologies").description("사용자의 기술 리스트"),
+                                fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
@@ -601,6 +613,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("positions").description("사용자의 역할"),
                                 fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
@@ -664,6 +677,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("userRole").description("사용자 권한"),
                                 fieldWithPath("createdAt").description("사용자 생성 날짜"),
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
+                                fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
@@ -728,6 +742,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("experiences").description("사용자의 경력 사항"),
                                 fieldWithPath("licenses").description("사용자의 자격증"),
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
+                                fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
                                 fieldWithPath("_links.*.*").ignored()
@@ -797,9 +812,11 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("_embedded.accountResponseDtoList[*].socialLink").description("사용자의 소셜링크"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].userRole").description("사용자 권한"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].hits").description("조회 수"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
+
                                 fieldWithPath("_embedded.accountResponseDtoList[*].technologies").description("사용자의 기술스택"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
@@ -1001,6 +1018,94 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[1].favoriteCount", is(2)))
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[2].favoriteCount", is(1)))
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[3].favoriteCount", is(0)));
+    }
+
+    @Test
+    @DisplayName("같은 유저가 다른 유저를 여러번 조회해도 다른 유저의 조회 수는 1인지 테스트")
+    void getAnotherAccount_hits() throws Exception {
+        Account newAccount = createAccount();
+        Account anotherAccount = createAnotherAccount();
+        Account thirdAccount = accountRepository.save(
+                        Account.builder()
+                        .email("test10@email.com")
+                        .password(appProperties.getTestPassword())
+                        .nickName(appProperties.getTestNickname())
+                        .createdAt(LocalDateTime.now())
+                        .career("신입")
+                        .positions(new HashSet<>(Arrays.asList("BackEnd", "FrontEnd")))
+                        .userRole(UserRole.USER)
+                        .build());
+        jwt = BEARER + jwtProvider.generateToken(anotherAccount);
+
+        //유저1을 한번 조회했을 경우
+        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(cookie().exists("cookie" + newAccount.getId()));
+
+        //유저1을 두번 조회했을 경우
+        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(cookie().exists("cookie" + newAccount.getId()));
+
+        //유저3을 한번 조회했을 경우
+        mockMvc.perform(get(accountURL + "{accountId}", thirdAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(thirdAccount.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(thirdAccount.getNickName())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(cookie().exists("cookie" + thirdAccount.getId()));
+
+        //유저3을 두번 조회했을 경우
+        mockMvc.perform(get(accountURL + "{accountId}", thirdAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(thirdAccount.getEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(thirdAccount.getNickName())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(cookie().exists("cookie" + thirdAccount.getId()));
+
+        //유저1을 다시 조회했을 경우
+        mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email", is(appProperties.getTestEmail())))
+                .andExpect(jsonPath("password").doesNotExist())
+                .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
+                .andExpect(jsonPath("userRole").exists())
+                .andExpect(jsonPath("technologies").exists())
+                .andExpect(jsonPath("hits", is(1)))
+                .andExpect(cookie().exists("cookie" + newAccount.getId()));
     }
 
     protected Account createAccount_need_index(int index) {

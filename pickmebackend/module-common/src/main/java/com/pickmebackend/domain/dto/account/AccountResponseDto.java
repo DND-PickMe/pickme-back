@@ -46,6 +46,8 @@ public class AccountResponseDto {
 
     private List<String> positions;
 
+    private long hits;
+
     public AccountResponseDto (Account account) {
         this.id = account.getId();
         this.email = account.getEmail();
@@ -54,6 +56,7 @@ public class AccountResponseDto {
         this.oneLineIntroduce = account.getOneLineIntroduce();
         this.image = account.getImage();
         this.userRole = account.getUserRole();
+        this.socialLink = account.getSocialLink();
         this.experiences = account.getExperiences();
         this.licenses = account.getLicenses();
         this.prizes = account.getPrizes();
@@ -61,9 +64,9 @@ public class AccountResponseDto {
         this.selfInterviews = account.getSelfInterviews();
         this.createdAt = account.getCreatedAt();
         this.userRole = account.getUserRole();
-    }
-
-    public void toTech(Account account) {
-        this.technologies = account.getAccountTechSet().stream().map(AccountTech::getTechnology).collect(Collectors.toList());
+        this.hits = account.getHits();
+        this.technologies = account.getAccountTechSet().stream()
+                .map(AccountTech::getTechnology)
+                .collect(Collectors.toList());
     }
 }
