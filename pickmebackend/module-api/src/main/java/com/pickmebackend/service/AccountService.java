@@ -19,6 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,17 +40,36 @@ public class AccountService{
     private final PasswordEncoder passwordEncoder;
 
     public AccountResponseDto loadProfile(Account account) {
-        return modelMapper.map(account, AccountResponseDto.class);
+        return new AccountResponseDto(account);
     }
     private final AccountTechRepository accountTechRepository;
 
-    public AccountResponseDto loadAccount(Account account) {
-        return modelMapper.map(account, AccountResponseDto.class);
+    public AccountResponseDto loadAccount(Long accountId, Account account, HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        Cookie checkCookie = null;
+
+        if (cookies != null && cookies.length > 0) {
+            for (Cookie newCookie : cookies) {
+                if (newCookie.getName().equals("cookie" + accountId)) {
+                    checkCookie = newCookie;
+                }
+            }
+        }
+
+        if (checkCookie == null) {
+            Cookie cookie = new Cookie("cookie" + accountId, "|" + accountId + "|");
+            response.addCookie(cookie);
+            account.setHits(account.getHits() + 1L);
+        }
+
+        return new AccountResponseDto(account);
     }
 
     public Page<Account> loadAllAccounts(Pageable pageable, String orderBy) {
         if ("favorite".equals(orderBy)) {
-            return this.accountRepository.findAllAccountsDescAndOrderBy(pageable);
+            return this.accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
+        } else if ("hits".equals(orderBy)) {
+            return this.accountRepository.findAllAccountsDescAndOrderByHits(pageable);
         }
         return this.accountRepository.findAllAccountsDesc(pageable);
     }
@@ -56,9 +80,7 @@ public class AccountService{
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         account.setValue();
         Account savedAccount = this.accountRepository.save(account);
-        AccountResponseDto accountResponseDto = modelMapper.map(savedAccount, AccountResponseDto.class);
-        accountResponseDto.toTech(savedAccount);
-        return accountResponseDto;
+        return new AccountResponseDto(savedAccount);
     }
 
     public AccountResponseDto updateAccount(Account account, AccountRequestDto accountDto) {
@@ -69,16 +91,16 @@ public class AccountService{
         }
         if (accountDto.getTechnologies() != null) {
             accountDto.getTechnologies()
-                    .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(AccountTech.builder()
-                            .account(account)
-                            .technology(tech)
-                            .build())));
+                    .forEach(tech -> accountTechRepository.save(AccountTech.builder()
+                                .account(account)
+                                .technology(tech)
+                                .build()));
         }
+        List<AccountTech> allByAccount_id = accountTechRepository.findAllByAccount_Id(account.getId());
+        account.setAccountTechSet(new HashSet<>(allByAccount_id));
         Account modifiedAccount = this.accountRepository.save(account);
 
-        AccountResponseDto accountResponseDto = modelMapper.map(modifiedAccount, AccountResponseDto.class);
-        accountResponseDto.toTech(modifiedAccount);
-        return accountResponseDto;
+        return new AccountResponseDto(modifiedAccount);
     }
 
     public AccountResponseDto deleteAccount(Account account) {

@@ -18,7 +18,7 @@ public class AccountResponseDto {
 
     private String nickName;
 
-    private Integer favoriteCount;
+    private int favoriteCount;
 
     private String oneLineIntroduce;
 
@@ -44,7 +44,9 @@ public class AccountResponseDto {
 
     private List<Technology> technologies = new ArrayList<>();
 
-    private List<String> positions;
+    private Set<String> positions;
+
+    private long hits;
 
     public AccountResponseDto (Account account) {
         this.id = account.getId();
@@ -52,8 +54,11 @@ public class AccountResponseDto {
         this.nickName = account.getNickName();
         this.favoriteCount = account.getFavorite().size();
         this.oneLineIntroduce = account.getOneLineIntroduce();
+        this.career = account.getCareer();
         this.image = account.getImage();
+        this.positions = account.getPositions();
         this.userRole = account.getUserRole();
+        this.socialLink = account.getSocialLink();
         this.experiences = account.getExperiences();
         this.licenses = account.getLicenses();
         this.prizes = account.getPrizes();
@@ -61,9 +66,9 @@ public class AccountResponseDto {
         this.selfInterviews = account.getSelfInterviews();
         this.createdAt = account.getCreatedAt();
         this.userRole = account.getUserRole();
-    }
-
-    public void toTech(Account account) {
-        this.technologies = account.getAccountTechSet().stream().map(AccountTech::getTechnology).collect(Collectors.toList());
+        this.hits = account.getHits();
+        this.technologies = account.getAccountTechSet().stream()
+                .map(AccountTech::getTechnology)
+                .collect(Collectors.toList());
     }
 }
