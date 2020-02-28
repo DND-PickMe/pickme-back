@@ -6,12 +6,10 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedResourcesAssembler;
@@ -28,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 

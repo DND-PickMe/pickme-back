@@ -19,6 +19,8 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+
+import javax.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -1074,7 +1076,8 @@ class AccountControllerTest extends BaseControllerTest {
 
         //유저1을 두번 조회했을 경우
         mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
-                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .cookie(new Cookie("cookie" + newAccount.getId(), "|" + newAccount.getId() + "|")))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -1083,8 +1086,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
                 .andExpect(jsonPath("userRole").exists())
                 .andExpect(jsonPath("technologies").exists())
-                .andExpect(jsonPath("hits", is(1)))
-                .andExpect(cookie().exists("cookie" + newAccount.getId()));
+                .andExpect(jsonPath("hits", is(1)));
 
         //유저3을 한번 조회했을 경우
         mockMvc.perform(get(accountURL + "{accountId}", thirdAccount.getId())
@@ -1102,7 +1104,8 @@ class AccountControllerTest extends BaseControllerTest {
 
         //유저3을 두번 조회했을 경우
         mockMvc.perform(get(accountURL + "{accountId}", thirdAccount.getId())
-                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .cookie(new Cookie("cookie" + thirdAccount.getId(), "|" + thirdAccount.getId() + "|")))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -1111,12 +1114,12 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName", is(thirdAccount.getNickName())))
                 .andExpect(jsonPath("userRole").exists())
                 .andExpect(jsonPath("technologies").exists())
-                .andExpect(jsonPath("hits", is(1)))
-                .andExpect(cookie().exists("cookie" + thirdAccount.getId()));
+                .andExpect(jsonPath("hits", is(1)));
 
         //유저1을 다시 조회했을 경우
         mockMvc.perform(get(accountURL + "{accountId}", newAccount.getId())
-                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .header(HttpHeaders.AUTHORIZATION, jwt)
+                .cookie(new Cookie("cookie" + newAccount.getId(), "|" + newAccount.getId() + "|")))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -1125,8 +1128,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
                 .andExpect(jsonPath("userRole").exists())
                 .andExpect(jsonPath("technologies").exists())
-                .andExpect(jsonPath("hits", is(1)))
-                .andExpect(cookie().exists("cookie" + newAccount.getId()));
+                .andExpect(jsonPath("hits", is(1)));
     }
 
     protected Account createAccount_need_index(int index) {

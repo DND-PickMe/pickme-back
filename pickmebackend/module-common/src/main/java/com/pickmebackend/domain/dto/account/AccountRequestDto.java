@@ -16,10 +16,10 @@ import java.util.Set;
 @NoArgsConstructor @AllArgsConstructor @Builder
 public class AccountRequestDto {
 
-    @NotBlank
+    @Email(message = "이메일 형식이 아닙니다.") @NotBlank(message = "이메일은 반드시 입력되어야 합니다.")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "이름은 반드시 입력되어야 합니다.")
     private String nickName;
 
     @Nullable

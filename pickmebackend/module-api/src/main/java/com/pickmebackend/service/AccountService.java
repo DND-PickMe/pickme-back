@@ -48,6 +48,7 @@ public class AccountService{
         return new AccountResponseDto(account);
     }
 
+    @Transactional
     public AccountResponseDto loadAccount(Long accountId, Account account, HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         Cookie checkCookie = null;
@@ -64,6 +65,7 @@ public class AccountService{
             Cookie cookie = new Cookie("cookie" + accountId, "|" + accountId + "|");
             response.addCookie(cookie);
             account.setHits(account.getHits() + 1L);
+            accountRepository.save(account);
         }
 
         return new AccountResponseDto(account);
