@@ -120,6 +120,21 @@ operation::load-account[snippets='curl-request,http-request,request-headers,http
 
 operation::load-allAccounts[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
+[[resources-filteredAccounts-load]]
+=== 필터링 된 구직자 조회
+
+`GET` 요청을 사용하여 필터링 된 사용자를 조회할 수 있다.
+
+정상적으로 필터링
+operation::load-filtered-accounts[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+필터링 할 값이 없을 시
+operation::load-filtered-accounts-none-value[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+필터링 된 결과가 없을 시
+operation::load-filtered-accounts-none[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
+
 [[resources-account-create]]
 === 사용자 생성
 

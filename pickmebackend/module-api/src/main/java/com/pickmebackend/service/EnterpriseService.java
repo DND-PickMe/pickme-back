@@ -5,7 +5,7 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

@@ -3,11 +3,7 @@ package com.pickmebackend.domain.dto.account;
 import com.pickmebackend.domain.Technology;
 import lombok.*;
 import org.springframework.lang.Nullable;
-
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

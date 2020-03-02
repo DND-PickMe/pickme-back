@@ -5,7 +5,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.exception.AccountImageException;
 import com.pickmebackend.properties.AccountImageProperties;
-import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.account.AccountRepository;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

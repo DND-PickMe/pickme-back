@@ -1,7 +1,7 @@
 package com.pickmebackend.impl;
 
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

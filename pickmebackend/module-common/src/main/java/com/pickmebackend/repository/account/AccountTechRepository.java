@@ -1,4 +1,4 @@
-package com.pickmebackend.repository;
+package com.pickmebackend.repository.account;
 
 import com.pickmebackend.domain.AccountTech;
 import org.springframework.data.jpa.repository.JpaRepository;

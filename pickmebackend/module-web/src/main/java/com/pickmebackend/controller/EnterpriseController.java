@@ -6,7 +6,7 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.repository.AccountRepository;
+import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.EnterpriseResource;
 import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;

@@ -2,14 +2,10 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
-import com.pickmebackend.domain.Technology;
-import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
-import com.pickmebackend.domain.dto.account.AccountListResponseDto;
-import com.pickmebackend.domain.dto.account.AccountRequestDto;
-import com.pickmebackend.domain.dto.account.AccountResponseDto;
+import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.repository.AccountRepository;
-import com.pickmebackend.repository.AccountTechRepository;
+import com.pickmebackend.repository.account.AccountRepository;
+import com.pickmebackend.repository.account.AccountTechRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -19,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -72,6 +67,10 @@ public class AccountService{
             return this.accountRepository.findAllAccountsDescAndOrderByHits(pageable);
         }
         return this.accountRepository.findAllAccountsDesc(pageable);
+    }
+
+    public Page<Account> filterAccount(AccountFilteringRequestDto requestDto, Pageable pageable) {
+        return this.accountRepository.filterAccount(requestDto, pageable);
     }
 
     @Transactional
