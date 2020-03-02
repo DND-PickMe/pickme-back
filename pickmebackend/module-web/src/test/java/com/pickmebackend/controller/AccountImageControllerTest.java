@@ -21,8 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static com.pickmebackend.error.ErrorMessageConstant.INVALIDIMAGE;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -107,8 +105,7 @@ class AccountImageControllerTest {
                 .file(invalidFile)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(INVALIDIMAGE)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -123,8 +120,7 @@ class AccountImageControllerTest {
                 .file(image)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(INVALIDIMAGE)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -139,8 +135,7 @@ class AccountImageControllerTest {
                 .file(image)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(INVALIDIMAGE)));
+                .andExpect(status().isBadRequest());
     }
 
     private AccountInitialRequestDto createAccount() {

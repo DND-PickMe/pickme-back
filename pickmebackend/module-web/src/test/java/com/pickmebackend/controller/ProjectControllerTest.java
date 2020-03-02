@@ -14,8 +14,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.time.LocalDate;
-import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
@@ -270,8 +268,7 @@ class ProjectControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(PROJECTNOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -293,8 +290,7 @@ class ProjectControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(projectRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -386,8 +382,7 @@ class ProjectControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(projectUrl + "{projectId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(PROJECTNOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -401,8 +396,7 @@ class ProjectControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(projectUrl + "{projectId}", project.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

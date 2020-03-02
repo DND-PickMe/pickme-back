@@ -1,9 +1,9 @@
 package com.pickmebackend.service;
 
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
 import com.pickmebackend.domain.dto.account.*;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.account.AccountTechRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -34,11 +36,15 @@ public class AccountService{
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AccountTechRepository accountTechRepository;
+
+    private final ErrorsFormatter errorsFormatter;
+
     public AccountResponseDto loadProfile(Account account) {
         return new AccountResponseDto(account);
     }
-    private final AccountTechRepository accountTechRepository;
 
+    @Transactional
     public AccountResponseDto loadAccount(Long accountId, Account account, HttpServletRequest request, HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         Cookie checkCookie = null;
@@ -55,6 +61,7 @@ public class AccountService{
             Cookie cookie = new Cookie("cookie" + accountId, "|" + accountId + "|");
             response.addCookie(cookie);
             account.setHits(account.getHits() + 1L);
+            accountRepository.save(account);
         }
 
         return new AccountResponseDto(account);
@@ -62,9 +69,9 @@ public class AccountService{
 
     public Page<Account> loadAllAccounts(Pageable pageable, String orderBy) {
         if ("favorite".equals(orderBy)) {
-            return this.accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
+            return accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
         } else if ("hits".equals(orderBy)) {
-            return this.accountRepository.findAllAccountsDescAndOrderByHits(pageable);
+            return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
         }
         return this.accountRepository.findAllAccountsDesc(pageable);
     }
@@ -112,10 +119,11 @@ public class AccountService{
         }
         if (accountDto.getTechnologies() != null) {
             accountDto.getTechnologies()
-                    .forEach(tech -> accountTechRepository.save(AccountTech.builder()
-                                .account(account)
-                                .technology(tech)
-                                .build()));
+                    .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(
+                                                                        AccountTech.builder()
+                                                                                .account(account)
+                                                                                .technology(tech)
+                                                                                .build())));
         }
     }
 
@@ -133,7 +141,7 @@ public class AccountService{
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
@@ -145,7 +153,7 @@ public class AccountService{
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.OK);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.OK);
         }
         Account account = accountOptional.get();
         List<AccountListResponseDto> accountList = account.getFavorite().stream()

@@ -13,17 +13,13 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.time.LocalDate;
-import static com.pickmebackend.error.ErrorMessageConstant.LICENSENOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -250,8 +246,7 @@ class LicenseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(LICENSENOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -275,8 +270,7 @@ class LicenseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(licenseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -367,8 +361,7 @@ class LicenseControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(licenseUrl + "{licenseId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(LICENSENOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -382,8 +375,7 @@ class LicenseControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(licenseUrl + "{licenseId}", license.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

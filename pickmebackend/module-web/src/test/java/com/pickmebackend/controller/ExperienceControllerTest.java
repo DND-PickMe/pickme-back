@@ -13,16 +13,12 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.time.LocalDate;
-import static com.pickmebackend.error.ErrorMessageConstant.EXPERIENCENOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -260,8 +256,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(EXPERIENCENOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -285,8 +280,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(experienceRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -378,8 +372,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(experienceUrl + "{experienceId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(EXPERIENCENOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -393,8 +386,7 @@ class ExperienceControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(experienceUrl + "{experienceId}", experience.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

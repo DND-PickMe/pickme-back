@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import static com.pickmebackend.error.ErrorMessageConstant.SELFINTERVIEWNOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
@@ -214,8 +212,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(SELFINTERVIEWNOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -236,8 +233,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(selfInterviewRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -324,8 +320,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(SELFINTERVIEWNOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -339,8 +334,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

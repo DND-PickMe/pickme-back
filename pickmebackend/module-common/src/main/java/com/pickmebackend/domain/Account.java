@@ -46,7 +46,7 @@ public class Account {
     private UserRole userRole;
 
     @Column
-    private String career;
+    private String career = "ALL";
 
     @Column
     private LocalDateTime createdAt;

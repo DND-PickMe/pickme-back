@@ -20,17 +20,14 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -264,9 +261,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -558,9 +553,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(DUPLICATEDUSER)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest
@@ -581,12 +574,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists())
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest
@@ -607,12 +595,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists())
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -744,9 +727,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -775,9 +756,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -829,12 +808,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists())
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest
@@ -860,12 +834,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(enterpriseRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("[*].defaultMessage").exists())
-                .andExpect(jsonPath("[*].code").exists())
-                .andExpect(jsonPath("[*].objectName").exists())
-                .andExpect(jsonPath("[*].field").exists())
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -925,9 +894,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
         this.mockMvc.perform(delete(enterpriseURL + "{enterpriseId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(USERNOTFOUND)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -946,9 +913,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
         this.mockMvc.perform(delete(enterpriseURL + "{enterpriseId}", account.getId())
                 .header(HttpHeaders.AUTHORIZATION, BEARER + jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)))
-        ;
+                .andExpect(status().isBadRequest());
     }
 
     @Test

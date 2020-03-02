@@ -14,17 +14,12 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import java.time.LocalDate;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
-import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -251,8 +246,7 @@ class PrizeControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(PRIZENOTFOUND)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -273,8 +267,7 @@ class PrizeControllerTest extends BaseControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(prizeRequestDto)))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", is(UNAUTHORIZEDUSER)));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -364,8 +357,7 @@ class PrizeControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(prizeUrl + "{prizeId}", -1)
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(PRIZENOTFOUND));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -379,8 +371,7 @@ class PrizeControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(prizeUrl + "{prizeId}", prize.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message").value(UNAUTHORIZEDUSER));
+                .andExpect(status().isBadRequest());
     }
 
     @Test

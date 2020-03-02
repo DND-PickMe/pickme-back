@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.prize.PrizeRequestDto;
@@ -30,6 +31,8 @@ public class PrizeController {
 
     private final PrizeRepository prizeRepository;
 
+    private final ErrorsFormatter errorsFormatter;
+
     @PostMapping
     ResponseEntity<?> savePrize(@RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
         PrizeResponseDto prizeResponseDto = prizeService.savePrize(prizeRequestDto, currentUser);
@@ -47,12 +50,12 @@ public class PrizeController {
     ResponseEntity<?> updatePrize(@PathVariable Long prizeId, @RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
         Optional<Prize> prizeOptional = this.prizeRepository.findById(prizeId);
         if (!prizeOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(PRIZENOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZENOTFOUND));
         }
 
         Prize prize = prizeOptional.get();
         if (!prize.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         PrizeResponseDto modifiedPrizeResponseDto = prizeService.updatePrize(prize, prizeRequestDto);
@@ -69,12 +72,12 @@ public class PrizeController {
     ResponseEntity<?> deletePrize(@PathVariable Long prizeId, @CurrentUser Account currentUser) {
         Optional<Prize> prizeOptional = this.prizeRepository.findById(prizeId);
         if (!prizeOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(PRIZENOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZENOTFOUND));
         }
 
         Prize prize = prizeOptional.get();
         if (!prize.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         PrizeResponseDto prizeResponseDto = prizeService.deletePrize(prize);

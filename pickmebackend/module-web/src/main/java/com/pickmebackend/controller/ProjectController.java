@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.project.ProjectRequestDto;
@@ -30,6 +31,8 @@ public class ProjectController {
 
     private final ProjectRepository projectRepository;
 
+    private final ErrorsFormatter errorsFormatter;
+
     @PostMapping
     ResponseEntity<?> saveProject(@RequestBody ProjectRequestDto projectRequestDto, @CurrentUser Account currentUser) {
         ProjectResponseDto projectResponseDto = projectService.saveProject(projectRequestDto, currentUser);
@@ -47,12 +50,12 @@ public class ProjectController {
     ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto projectRequestDto, @CurrentUser Account currentUser) {
         Optional<Project> projectOptional = this.projectRepository.findById(projectId);
         if (!projectOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PROJECTNOTFOUND));
         }
 
         Project project = projectOptional.get();
         if (!project.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
         ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(project, projectRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ProjectController.class).slash(modifiedProjectResponseDto.getId());
@@ -68,12 +71,12 @@ public class ProjectController {
     ResponseEntity<?> deleteProject(@PathVariable Long projectId, @CurrentUser Account currentUser) {
         Optional<Project> projectOptional = this.projectRepository.findById(projectId);
         if (!projectOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(new ErrorMessage(PROJECTNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PROJECTNOTFOUND));
         }
 
         Project project = projectOptional.get();
         if (!project.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         ProjectResponseDto projectResponseDto = projectService.deleteProject(project);

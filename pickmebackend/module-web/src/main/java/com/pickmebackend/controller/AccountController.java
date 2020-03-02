@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountFilteringRequestDto;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
@@ -38,14 +39,16 @@ public class AccountController {
 
     private final AccountRepository accountRepository;
 
+    private final ErrorsFormatter errorsFormatter;
+
     @GetMapping("/profile")
     ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
         if (currentUser == null) {
-            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         AccountResponseDto accountResponseDto = accountService.loadProfile(account);
@@ -62,11 +65,11 @@ public class AccountController {
     @GetMapping("/{accountId}")
     ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser, HttpServletRequest request, HttpServletResponse response) {
         if (currentUser == null) {
-            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         AccountResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response);
@@ -125,10 +128,10 @@ public class AccountController {
     @PostMapping
     ResponseEntity<?> saveAccount(@Valid @RequestBody AccountInitialRequestDto accountDto, Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(accountService.isDuplicatedAccount(accountDto))  {
-            return ResponseEntity.badRequest().body(new ErrorMessage(DUPLICATEDUSER));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
         }
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
@@ -147,15 +150,15 @@ public class AccountController {
     @PutMapping("/{accountId}")
     ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequestDto accountDto, Errors errors, @CurrentUser Account currentUser) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
 
         if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
         AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.get(), accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
@@ -170,11 +173,11 @@ public class AccountController {
     ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
         }
 
         if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(new ErrorMessage(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
         }
 
         AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
