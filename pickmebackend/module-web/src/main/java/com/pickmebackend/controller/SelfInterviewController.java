@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.selfInterview.SelfInterviewRequestDto;
 import com.pickmebackend.domain.dto.selfInterview.SelfInterviewResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.SelfInterviewRepository;
 import com.pickmebackend.resource.SelfInterviewResource;
 import com.pickmebackend.service.SelfInterviewService;
@@ -17,7 +16,9 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.SELFINTERVIEWNOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;

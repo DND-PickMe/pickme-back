@@ -75,7 +75,7 @@ class AccountImageControllerTest {
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(appProperties.getTestNickname())))
                 .andExpect(jsonPath("oneLineIntroduce", is(oneLineIntroduce)))
-                .andExpect(jsonPath("image", is("https://pickme-back.ga/api/images/default_user.png")));
+                .andExpect(jsonPath("image", is("https://pickme-back.ga:8083/api/images/default_user.png")));
     }
 
     @Test

@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.project.ProjectRequestDto;
 import com.pickmebackend.domain.dto.project.ProjectResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.ProjectRepository;
 import com.pickmebackend.resource.ProjectResource;
 import com.pickmebackend.service.ProjectService;
@@ -17,7 +16,9 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.PROJECTNOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;

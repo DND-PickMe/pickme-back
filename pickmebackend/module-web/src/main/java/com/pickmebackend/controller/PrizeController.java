@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.prize.PrizeRequestDto;
 import com.pickmebackend.domain.dto.prize.PrizeResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.PrizeRepository;
 import com.pickmebackend.resource.PrizeResource;
 import com.pickmebackend.service.PrizeService;
@@ -17,7 +16,9 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;

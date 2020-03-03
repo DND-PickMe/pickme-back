@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -139,7 +139,7 @@ public class AccountService{
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
@@ -151,7 +151,7 @@ public class AccountService{
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.OK);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.OK);
         }
         Account account = accountOptional.get();
         List<AccountListResponseDto> accountList = account.getFavorite().stream()

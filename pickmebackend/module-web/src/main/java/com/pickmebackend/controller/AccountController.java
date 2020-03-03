@@ -7,7 +7,6 @@ import com.pickmebackend.domain.dto.account.AccountFilteringRequestDto;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
@@ -23,10 +22,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -44,11 +45,11 @@ public class AccountController {
     @GetMapping("/profile")
     ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         AccountResponseDto accountResponseDto = accountService.loadProfile(account);
@@ -65,11 +66,11 @@ public class AccountController {
     @GetMapping("/{accountId}")
     ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser, HttpServletRequest request, HttpServletResponse response) {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         AccountResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response);
@@ -99,11 +100,11 @@ public class AccountController {
                                            PagedResourcesAssembler<Account> assembler,
                                            @CurrentUser Account currentUser)    {
         if (currentUser == null) {
-            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(USER_NOT_FOUND, HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         AccountFilteringRequestDto accountFilteringRequestDto = AccountFilteringRequestDto.builder()
                 .nickName(nickName)
@@ -154,7 +155,7 @@ public class AccountController {
         }
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
 
         if (!accountId.equals(currentUser.getId())) {
@@ -173,7 +174,7 @@ public class AccountController {
     ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
 
         if (!accountId.equals(currentUser.getId())) {

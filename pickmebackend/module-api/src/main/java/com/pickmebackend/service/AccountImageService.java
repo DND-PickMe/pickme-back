@@ -7,6 +7,7 @@ import com.pickmebackend.exception.AccountImageException;
 import com.pickmebackend.properties.AccountImageProperties;
 import com.pickmebackend.repository.account.AccountRepository;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -84,7 +85,7 @@ public class AccountImageService {
         String email = jwtProvider.getUsernameFromToken(request.getHeader(HttpHeaders.AUTHORIZATION).substring(7));
         Optional<Account> accountOptional = accountRepository.findByEmail(email);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         String newImagePath = UriComponentsBuilder

@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
 import com.pickmebackend.domain.dto.license.LicenseRequestDto;
 import com.pickmebackend.domain.dto.license.LicenseResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.LicenseRepository;
 import com.pickmebackend.resource.LicenseResource;
 import com.pickmebackend.service.LicenseService;
@@ -17,7 +16,9 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.LICENSENOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
