@@ -88,7 +88,7 @@ public class AccountImageService {
         }
         Account account = accountOptional.get();
         String newImagePath = UriComponentsBuilder
-                .fromUriString("https://pickme-back.ga")
+                .fromUriString("https://pickme-back.ga:8083")
                 .path("/api/images/")
                 .path(imageName)
                 .toUriString();

@@ -105,6 +105,6 @@ public class Account {
     private String defaultImage() {
         final String USER_DEFAULT_IMG = "default_user.png";
         final String requestURI = "/api/images/";
-        return UriComponentsBuilder.fromUriString("https://pickme-back.ga").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
+        return UriComponentsBuilder.fromUriString("https://pickme-back.ga:8083").path(requestURI).path(USER_DEFAULT_IMG).toUriString();
     }
 }
