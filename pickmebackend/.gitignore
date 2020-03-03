@@ -32,5 +32,3 @@ out/
 
 ### VS Code ###
 .vscode/
-module-api/src/main/generated/
-module-web/src/main/generated/

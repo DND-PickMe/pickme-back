@@ -128,10 +128,8 @@ public class AccountService{
     }
 
     public AccountResponseDto deleteAccount(Account account) {
-        AccountResponseDto accountResponseDto = modelMapper.map(account, AccountResponseDto.class);
         accountRepository.delete(account);
-
-        return accountResponseDto;
+        return modelMapper.map(account, AccountResponseDto.class);
     }
 
     public boolean isDuplicatedAccount(AccountInitialRequestDto accountDto) {
