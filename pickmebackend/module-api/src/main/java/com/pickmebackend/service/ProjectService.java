@@ -35,9 +35,8 @@ public class ProjectService {
     }
 
     public ProjectResponseDto deleteProject(Project project) {
-        ProjectResponseDto projectResponseDto = modelMapper.map(project, ProjectResponseDto.class);
         this.projectRepository.delete(project);
-
-        return projectResponseDto;
+        project.getAccount().getProjects().remove(project);
+        return modelMapper.map(project, ProjectResponseDto.class);
     }
 }

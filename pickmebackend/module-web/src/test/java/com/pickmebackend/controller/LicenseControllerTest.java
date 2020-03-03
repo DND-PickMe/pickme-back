@@ -341,7 +341,7 @@ class LicenseControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.image").description("삭제된 자격증 등록자의 프로필 이미지"),
                                 fieldWithPath("account.enterprise").description("삭제된 자격증 등록자의 기업 정보"),
                                 fieldWithPath("account.experiences").description("삭제된 자격증 등록자의 경력 사항"),
-                                fieldWithPath("account.licenses[*].*").ignored(),
+                                fieldWithPath("account.licenses").ignored(),
                                 fieldWithPath("account.prizes").description("삭제된 자격증 등록자의 수상 내역"),
                                 fieldWithPath("account.projects").description("삭제된 자격증 등록자의 프로젝트"),
                                 fieldWithPath("account.selfInterviews").description("삭제된 자격증 등록자의 셀프 인터뷰"),

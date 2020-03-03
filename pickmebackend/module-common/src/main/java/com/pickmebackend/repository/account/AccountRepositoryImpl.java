@@ -11,12 +11,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
+
 import static com.pickmebackend.domain.QAccount.account;
 
 @Repository
 public class AccountRepositoryImpl extends QuerydslRepositorySupport implements AccountRepositoryCustom {
 
-    private JPAQueryFactory jpaQueryFactory;
+    private final JPAQueryFactory jpaQueryFactory;
 
     public AccountRepositoryImpl(JPAQueryFactory jpaQueryFactory) {
         super(Account.class);
