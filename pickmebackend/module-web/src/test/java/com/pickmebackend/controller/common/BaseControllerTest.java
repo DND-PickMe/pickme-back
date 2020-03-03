@@ -4,11 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
+import com.pickmebackend.domain.Technology;
+import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
+import com.pickmebackend.repository.TechnologyRepository;
+import com.pickmebackend.repository.account.AccountRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +20,18 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -56,6 +63,9 @@ public class BaseControllerTest {
     @Autowired
     protected EnterpriseRepository enterpriseRepository;
 
+    @Autowired
+    protected TechnologyRepository technologyRepository;
+
     protected String jwt;
 
     protected Account createAccount() {
@@ -76,9 +86,10 @@ public class BaseControllerTest {
                 .email(appProperties.getTestAnotherEmail())
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestAnotherNickname())
+                .oneLineIntroduce("hello")
                 .createdAt(LocalDateTime.now())
                 .career("5년차 이상")
-                .positions(new HashSet<>(Arrays.asList("Designer")))
+                .positions(new HashSet<>(Collections.singleton("Designer")))
                 .userRole(UserRole.USER)
                 .build();
         return accountRepository.save(account);
@@ -89,13 +100,38 @@ public class BaseControllerTest {
                 .email(i + appProperties.getTestEmail())
                 .password(i + appProperties.getTestPassword())
                 .nickName(i + appProperties.getTestNickname())
-                .oneLineIntroduce("한 줄 소개")
+                .oneLineIntroduce(i + "한 줄 소개")
                 .createdAt(LocalDateTime.now())
                 .career(i + "년차")
-                .positions(new HashSet<>(Collections.singletonList("개발자" + i)))
+                .positions(new HashSet<>(Collections.singleton("개발자" + i)))
                 .userRole(UserRole.USER)
                 .build();
         accountRepository.save(account);
+    }
+
+    protected void createAccountsWithTech(int i, List<Technology> technologyList) throws Exception {
+        Account account = Account.builder()
+                .email(i + appProperties.getTestEmail())
+                .password(i + appProperties.getTestPassword())
+                .nickName(i + appProperties.getTestNickname())
+                .oneLineIntroduce(i + "한 줄 소개")
+                .createdAt(LocalDateTime.now())
+                .career(i + "년차")
+                .positions(new HashSet<>(Collections.singleton("개발자")))
+                .userRole(UserRole.USER)
+                .build();
+        Account savedAccount = accountRepository.save(account);
+        AccountRequestDto map = modelMapper.map(savedAccount, AccountRequestDto.class);
+        map.setTechnologies(Collections.singletonList(technologyList.get(i % 3)));
+
+        jwt = jwtProvider.generateToken(savedAccount);
+
+        mockMvc.perform(put("/api/accounts/" + "{accountId}", savedAccount.getId())
+                .header(HttpHeaders.AUTHORIZATION,"Bearer " + jwt)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(map)))
+                .andDo(print())
+                .andExpect(status().isOk());
     }
 
     protected EnterpriseRequestDto createEnterpriseDto() {

@@ -1,13 +1,12 @@
 package com.pickmebackend.service;
 
-import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.repository.AccountRepository;
 import com.pickmebackend.repository.EnterpriseRepository;
+import com.pickmebackend.repository.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -47,6 +46,10 @@ public class EnterpriseService {
 
     public Page<Enterprise> loadAllEnterprises(Pageable pageable) {
         return this.enterpriseRepository.findAllEnterprisesDesc(pageable);
+    }
+
+    public Page<Enterprise> filterEnterprise(String name, Pageable pageable) {
+        return this.enterpriseRepository.findAllByNameContainingOrderByName(name, pageable);
     }
 
     public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {

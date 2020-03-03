@@ -2,7 +2,6 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
-import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.login.LoginRequestDto;
@@ -14,8 +13,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;

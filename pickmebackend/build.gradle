@@ -1,13 +1,16 @@
 buildscript {
     ext {
         springBootVersion = '2.2.2.RELEASE'
+        querydslPluginVersion = '1.0.10'
     }
     repositories {
         mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" } // plugin 저장소
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
         classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
+        classpath("gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}")
     }
 }
 
@@ -16,6 +19,8 @@ subprojects {
     apply plugin: 'eclipse'
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
+    apply plugin: "com.ewerk.gradle.plugins.querydsl"
+
 
     group = 'com.pickmebackend'
     version = '1.0.0-SNAPSHOT-' + new Date().format("yyyy-MM-dd_HH-mm-ss")
@@ -32,6 +37,9 @@ subprojects {
     }
 
     dependencies {
+        compile("com.querydsl:querydsl-jpa") // querydsl
+        compile("com.querydsl:querydsl-apt") // querydsl
+        
         // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
         compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
         // https://mvnrepository.com/artifact/org.modelmapper/modelmapper
@@ -46,6 +54,30 @@ subprojects {
         }
         // https://mvnrepository.com/artifact/com.h2database/h2
         compile 'com.h2database:h2'
+    }
+
+    def querydslSrcDir = 'src/main/generated'
+
+    querydsl {
+        library = "com.querydsl:querydsl-apt"
+        jpa = true
+        querydslSourcesDir = querydslSrcDir
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java', querydslSrcDir]
+            }
+        }
+    }
+
+    compileQuerydsl{
+        options.annotationProcessorPath = configurations.querydsl
+    }
+
+    configurations {
+        querydsl.extendsFrom compileClasspath
     }
 
 }

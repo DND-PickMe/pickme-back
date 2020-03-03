@@ -2,14 +2,13 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.AccountTech;
 import com.pickmebackend.domain.Technology;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.repository.AccountTechRepository;
 import com.pickmebackend.repository.TechnologyRepository;
+import com.pickmebackend.repository.account.AccountTechRepository;
 import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,12 +18,13 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
-
 import javax.servlet.http.Cookie;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -840,11 +840,211 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
-
                                 fieldWithPath("_embedded.accountResponseDtoList[*].technologies").description("사용자의 기술스택"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*]._links.self.href").ignored(),
+                                fieldWithPath("_links.*.*").ignored(),
+                                fieldWithPath("page.size").description("size of page"),
+                                fieldWithPath("page.totalElements").description("total elements of pages"),
+                                fieldWithPath("page.totalPages").description("total pages"),
+                                fieldWithPath("page.number").description("current page number")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @DisplayName("정상적으로 필터링 된 모든 유저 조회")
+    void load_filtered_all_accounts() throws Exception  {
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().id(1L).name("Java").build(), Technology.builder().id(2L).name("Python").build(), Technology.builder().id(3L).name("C").build(), Technology.builder().id(4L).name("C#").build()));
+        IntStream.rangeClosed(1, 30).forEach(i -> {
+            try {
+                createAccountsWithTech(i, technologyList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        this.mockMvc.perform(get(accountURL + "filter")
+                .header(HttpHeaders.AUTHORIZATION, createAccountJwt())
+                .queryParam("nickName", "1" + appProperties.getTestNickname())
+                .queryParam("oneLineIntroduce", "1")
+                .queryParam("career", "1년차")
+                .queryParam("positions", "개발자")
+                .queryParam("technology", "Python"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].email").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].password").doesNotExist())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].nickName").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].userRole").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].socialLink").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].career").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].positions").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("load-filtered-accounts",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
+                                fieldWithPath("_embedded.accountResponseDtoList[*].id").description("사용자 식별자"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].email").description("사용자 이메일"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].nickName").description("사용자 이름"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].image").description("사용자 이미지"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].career").description("사용자의 경력"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].positions").description("사용자의 역할"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].socialLink").description("사용자의 소셜링크"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].userRole").description("사용자 권한"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].hits").description("조회 수"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies[*].id").description("사용자의 기술스택 식별자"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies[*].name").description("사용자의 기술스택 이름"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*]._links.self.href").ignored(),
+                                fieldWithPath("_links.*.*").ignored(),
+                                fieldWithPath("page.size").description("size of page"),
+                                fieldWithPath("page.totalElements").description("total elements of pages"),
+                                fieldWithPath("page.totalPages").description("total pages"),
+                                fieldWithPath("page.number").description("current page number")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @DisplayName("필터링 조건에 어떠한 값도 넣지 않을 시")
+    void load_accounts_with_any_filter() throws Exception  {
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().id(1L).name("Java").build(), Technology.builder().id(2L).name("Python").build(), Technology.builder().id(3L).name("C").build(), Technology.builder().id(4L).name("C#").build()));
+        IntStream.rangeClosed(1, 30).forEach(i -> {
+            try {
+                createAccountsWithTech(i, technologyList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        this.mockMvc.perform(get(accountURL + "filter")
+                .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
+                .andDo(print())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].email").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].password").doesNotExist())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].nickName").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].userRole").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].socialLink").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].career").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].positions").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").exists())
+                .andExpect(jsonPath("_embedded.accountResponseDtoList[*]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("load-filtered-accounts-none-value",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile"),
+                                linkWithRel("next").description("link to next page"),
+                                linkWithRel("first").description("link to first page"),
+                                linkWithRel("last").description("link to last page")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        relaxedResponseFields(
+                                fieldWithPath("_embedded.accountResponseDtoList[*].id").description("사용자 식별자"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].email").description("사용자 이메일"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].nickName").description("사용자 이름"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].favoriteCount").description("사용자가 받은 좋아요 수"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].oneLineIntroduce").description("사용자의 한 줄 소개"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].image").description("사용자 이미지"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].career").description("사용자의 경력"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].positions").description("사용자의 역할"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].socialLink").description("사용자의 소셜링크"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].userRole").description("사용자 권한"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].createdAt").description("사용자 생성 날짜"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].hits").description("조회 수"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies[*].id").description("사용자의 기술스택 식별자"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies[*].name").description("사용자의 기술스택 이름"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
+                                fieldWithPath("_embedded.accountResponseDtoList[*]._links.self.href").ignored(),
+                                fieldWithPath("_links.*.*").ignored(),
+                                fieldWithPath("page.size").description("size of page"),
+                                fieldWithPath("page.totalElements").description("total elements of pages"),
+                                fieldWithPath("page.totalPages").description("total pages"),
+                                fieldWithPath("page.number").description("current page number")
+                        )
+                ))
+        ;
+    }
+
+    @Test
+    @DisplayName("필터링 조건에 해당하는 구직자가 없을 시")
+    void load_filtered_accounts_empty() throws Exception  {
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().id(1L).name("Java").build(), Technology.builder().id(2L).name("Python").build(), Technology.builder().id(3L).name("C").build(), Technology.builder().id(4L).name("C#").build()));
+        IntStream.rangeClosed(1, 30).forEach(i -> {
+            try {
+                createAccountsWithTech(i, technologyList);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        this.mockMvc.perform(get(accountURL + "filter")
+                .header(HttpHeaders.AUTHORIZATION, createAccountJwt())
+                .queryParam("nickName", "kiseok")
+                .queryParam("oneLineIntroduce", "I'm kiseok")
+                .queryParam("career", "신입")
+                .queryParam("positions", "구직자")
+                .queryParam("technology", "vim"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andExpect(jsonPath("page.size").exists())
+                .andExpect(jsonPath("page.totalElements").exists())
+                .andExpect(jsonPath("page.totalPages").exists())
+                .andExpect(jsonPath("page.number").exists())
+                .andDo(document("load-filtered-accounts-none",
+                        links(
+                                linkWithRel("self").description("link to self"),
+                                linkWithRel("profile").description("link to profile")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
+                        ),
+                        responseFields(
                                 fieldWithPath("_links.*.*").ignored(),
                                 fieldWithPath("page.size").description("size of page"),
                                 fieldWithPath("page.totalElements").description("total elements of pages"),

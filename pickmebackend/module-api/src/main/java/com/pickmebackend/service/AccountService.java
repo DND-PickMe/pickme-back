@@ -3,14 +3,9 @@ package com.pickmebackend.service;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
-import com.pickmebackend.domain.Technology;
-import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
-import com.pickmebackend.domain.dto.account.AccountListResponseDto;
-import com.pickmebackend.domain.dto.account.AccountRequestDto;
-import com.pickmebackend.domain.dto.account.AccountResponseDto;
-import com.pickmebackend.error.ErrorMessage;
-import com.pickmebackend.repository.AccountRepository;
-import com.pickmebackend.repository.AccountTechRepository;
+import com.pickmebackend.domain.dto.account.*;
+import com.pickmebackend.repository.account.AccountRepository;
+import com.pickmebackend.repository.account.AccountTechRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -28,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
 
 @Service
@@ -78,6 +74,10 @@ public class AccountService{
             return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
         }
         return this.accountRepository.findAllAccountsDesc(pageable);
+    }
+
+    public Page<Account> filterAccount(AccountFilteringRequestDto requestDto, Pageable pageable) {
+        return this.accountRepository.filterAccount(requestDto, pageable);
     }
 
     @Transactional

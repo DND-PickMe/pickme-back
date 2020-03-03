@@ -5,6 +5,8 @@ build/
 !**/src/main/**
 !**/src/test/**
 
+**/src/main/generated/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -30,3 +32,5 @@ out/
 
 ### VS Code ###
 .vscode/
+module-api/src/main/generated/
+module-web/src/main/generated/

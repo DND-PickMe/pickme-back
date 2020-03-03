@@ -2,7 +2,6 @@ package com.pickmebackend.common;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
