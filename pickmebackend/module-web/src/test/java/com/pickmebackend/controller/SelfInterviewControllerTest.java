@@ -303,7 +303,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.licenses").description("삭제된 셀프 인터뷰 등록자의 자격증"),
                                 fieldWithPath("account.prizes").description("삭제된 셀프 인터뷰 등록자의 수상 내역"),
                                 fieldWithPath("account.projects").description("삭제된 셀프 인터뷰 등록자의 프로젝트"),
-                                fieldWithPath("account.selfInterviews[*].*").ignored(),
+                                fieldWithPath("account.selfInterviews").ignored(),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))

@@ -21,23 +21,18 @@ public class ExperienceService {
         Experience experience = modelMapper.map(experienceRequestDto, Experience.class);
         experience.mapAccount(currentUser);
         Experience savedExperience = this.experienceRepository.save(experience);
-        ExperienceResponseDto experienceResponseDto = modelMapper.map(savedExperience, ExperienceResponseDto.class);
-
-        return experienceResponseDto;
+        return modelMapper.map(savedExperience, ExperienceResponseDto.class);
     }
 
     public ExperienceResponseDto updateExperience(Experience experience, ExperienceRequestDto experienceRequestDto) {
         modelMapper.map(experienceRequestDto, experience);
         Experience modifiedExperience = this.experienceRepository.save(experience);
-        ExperienceResponseDto experienceResponseDto = modelMapper.map(modifiedExperience, ExperienceResponseDto.class);
-
-        return experienceResponseDto;
+        return modelMapper.map(modifiedExperience, ExperienceResponseDto.class);
     }
 
     public ExperienceResponseDto deleteExperience(Experience experience) {
-        ExperienceResponseDto experienceResponseDto = modelMapper.map(experience, ExperienceResponseDto.class);
         this.experienceRepository.delete(experience);
-
-        return experienceResponseDto;
+        experience.getAccount().getExperiences().remove(experience);
+        return modelMapper.map(experience, ExperienceResponseDto.class);
     }
 }

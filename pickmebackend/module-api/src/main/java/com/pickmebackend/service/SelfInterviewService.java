@@ -35,9 +35,8 @@ public class SelfInterviewService {
     }
 
     public SelfInterviewResponseDto deleteSelfInterview(SelfInterview selfInterview) {
-        SelfInterviewResponseDto selfInterviewResponseDto = modelMapper.map(selfInterview, SelfInterviewResponseDto.class);
         this.selfInterviewRepository.delete(selfInterview);
-
-        return selfInterviewResponseDto;
+        selfInterview.getAccount().getSelfInterviews().remove(selfInterview);
+        return modelMapper.map(selfInterview, SelfInterviewResponseDto.class);
     }
 }

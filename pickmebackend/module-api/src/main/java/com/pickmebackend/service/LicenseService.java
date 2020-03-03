@@ -35,9 +35,8 @@ public class LicenseService {
     }
 
     public LicenseResponseDto deleteLicense(License license) {
-        LicenseResponseDto licenseResponseDto = modelMapper.map(license, LicenseResponseDto.class);
         this.licenseRepository.delete(license);
-
-        return licenseResponseDto;
+        license.getAccount().getLicenses().remove(license);
+        return modelMapper.map(license, LicenseResponseDto.class);
     }
 }

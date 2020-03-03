@@ -337,7 +337,7 @@ class PrizeControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.enterprise").description("삭제된 수상 내역 등록자의 기업 정보"),
                                 fieldWithPath("account.experiences").description("삭제된 수상 내역 등록자의 경력 사항"),
                                 fieldWithPath("account.licenses").description("삭제된 수상 내역 등록자의 자격증"),
-                                fieldWithPath("account.prizes[*].*").ignored(),
+                                fieldWithPath("account.prizes").ignored(),
                                 fieldWithPath("account.projects").description("삭제된 수상 내역 등록자의 수상 내역"),
                                 fieldWithPath("account.selfInterviews").description("삭제된 수상 내역 등록자의 셀프 인터뷰"),
                                 fieldWithPath("_links.*.*").ignored()

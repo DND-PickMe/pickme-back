@@ -35,9 +35,8 @@ public class PrizeService {
     }
 
     public PrizeResponseDto deletePrize(Prize prize) {
-        PrizeResponseDto prizeResponseDto = modelMapper.map(prize, PrizeResponseDto.class);
         this.prizeRepository.delete(prize);
-
-        return prizeResponseDto;
+        prize.getAccount().getPrizes().remove(prize);
+        return modelMapper.map(prize, PrizeResponseDto.class);
     }
 }

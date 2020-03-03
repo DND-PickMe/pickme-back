@@ -364,7 +364,7 @@ class ProjectControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.experiences").description("삭제된 프로젝트 등록자의 경력 사항"),
                                 fieldWithPath("account.licenses").description("삭제된 프로젝트 등록자의 자격증"),
                                 fieldWithPath("account.prizes").description("삭제된 프로젝트 등록자의 수상 내역"),
-                                fieldWithPath("account.projects[*].*").ignored(),
+                                fieldWithPath("account.projects").ignored(),
                                 fieldWithPath("account.selfInterviews").description("삭제된 프로젝트 등록자의 셀프 인터뷰"),
                                 fieldWithPath("_links.*.*").ignored()
                         )

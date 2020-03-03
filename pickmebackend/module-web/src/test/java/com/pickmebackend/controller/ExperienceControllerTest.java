@@ -351,7 +351,7 @@ class ExperienceControllerTest extends BaseControllerTest {
                                 fieldWithPath("account.oneLineIntroduce").description("삭제된 경력 내역 등록자의 한 줄 소개"),
                                 fieldWithPath("account.image").description("삭제된 경력 내역 등록자의 프로필 이미지"),
                                 fieldWithPath("account.enterprise").description("삭제된 경력 내역 등록자의 기업 정보"),
-                                fieldWithPath("account.experiences[*].*").ignored(),
+                                fieldWithPath("account.experiences").ignored(),
                                 fieldWithPath("account.licenses").description("삭제된 경력 내역 등록자의 자격증"),
                                 fieldWithPath("account.prizes").description("삭제된 경력 내역 등록자의 수상 내역"),
                                 fieldWithPath("account.projects").description("삭제된 경력 내역 등록자의 프로젝트"),
