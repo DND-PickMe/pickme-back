@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +45,7 @@ public class AccountService{
     }
 
     @Transactional
-    public AccountResponseDto loadAccount(Long accountId, Account account, HttpServletRequest request, HttpServletResponse response) {
+    public AccountFavoriteFlagResponseDto loadAccount(Long accountId, Account account, HttpServletRequest request, HttpServletResponse response, Account currentUser) {
         Cookie[] cookies = request.getCookies();
         Cookie checkCookie = null;
 
@@ -64,7 +64,7 @@ public class AccountService{
             accountRepository.save(account);
         }
 
-        return new AccountResponseDto(account);
+        return new AccountFavoriteFlagResponseDto(account, currentUser);
     }
 
     public Page<Account> loadAccountsWithFilter(AccountFilteringRequestDto requestDto, Pageable pageable) {
@@ -135,19 +135,19 @@ public class AccountService{
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
         Account savedAccount = accountRepository.save(favoritedAccount);
 
-        return new ResponseEntity<>(new AccountResponseDto(savedAccount), HttpStatus.OK);
+        return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(savedAccount, currentUser), HttpStatus.OK);
     }
 
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.OK);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.OK);
         }
         Account account = accountOptional.get();
         List<AccountListResponseDto> accountList = account.getFavorite().stream()

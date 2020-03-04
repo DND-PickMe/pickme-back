@@ -708,6 +708,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("prizes").description("사용자의 수상 내역"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("favoriteFlag").description("사용자가 좋아요를 눌렀는지"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
@@ -771,6 +772,7 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("hits").description("조회 수"),
                                 fieldWithPath("projects").description("사용자의 프로젝트"),
                                 fieldWithPath("selfInterviews").description("사용자의 셀프 인터뷰"),
+                                fieldWithPath("favoriteFlag").description("사용자가 좋아요를 눌렀는지"),
                                 fieldWithPath("_links.*.*").ignored()
                         )
                 ))
@@ -1089,7 +1091,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("email", is(account.getEmail())))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(account.getNickName())))
-                .andExpect(jsonPath("favoriteCount", is(1)));
+                .andExpect(jsonPath("favoriteCount", is(1)))
+                .andExpect(jsonPath("favoriteFlag", is(true)));
 
         mockMvc.perform(post(accountURL + "/{accountId}/favorite", account.getId())
                 .header(HttpHeaders.AUTHORIZATION, anotherAccountJwt))
@@ -1099,7 +1102,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("email", is(account.getEmail())))
                 .andExpect(jsonPath("password").doesNotExist())
                 .andExpect(jsonPath("nickName", is(account.getNickName())))
-                .andExpect(jsonPath("favoriteCount", is(0)));
+                .andExpect(jsonPath("favoriteCount", is(0)))
+                .andExpect(jsonPath("favoriteFlag", is(false)));
     }
 
     @Test

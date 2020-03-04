@@ -22,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -45,11 +44,11 @@ public class EnterpriseController {
     @GetMapping("/profile")
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadProfile(account);
@@ -65,10 +64,10 @@ public class EnterpriseController {
     @GetMapping("/{enterpriseId}")
     public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USERNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         Account account = accountOptional.get();
@@ -113,7 +112,7 @@ public class EnterpriseController {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USERNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         if (!enterpriseId.equals(currentUser.getId())) {
@@ -131,7 +130,7 @@ public class EnterpriseController {
     @DeleteMapping("/{enterpriseId}")
     public ResponseEntity<?> deleteEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USERNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
         }
         if (!enterpriseId.equals(currentUser.getId())) {
             return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);

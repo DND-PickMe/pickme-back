@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
 import com.pickmebackend.domain.dto.license.LicenseRequestDto;
 import com.pickmebackend.domain.dto.license.LicenseResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.LicenseRepository;
 import com.pickmebackend.resource.LicenseResource;
 import com.pickmebackend.service.LicenseService;

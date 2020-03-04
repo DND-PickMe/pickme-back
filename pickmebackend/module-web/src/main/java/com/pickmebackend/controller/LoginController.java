@@ -5,7 +5,6 @@ import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.login.JwtResponseDto;
 import com.pickmebackend.domain.dto.login.LoginRequestDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.resource.LoginResource;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
-import static com.pickmebackend.error.ErrorMessageConstant.USERNOTFOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -44,7 +43,7 @@ public class LoginController {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(!authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USERNOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
         }
 
         Account account = modelMapper.map(loginRequestDto, Account.class);

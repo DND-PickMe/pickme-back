@@ -34,7 +34,7 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
                         eqNickName(requestDto.getNickName()),
                         eqOneLineIntroduce(requestDto.getOneLineIntroduce()),
                         eqCareer(requestDto.getCareer()),
-                        eqPositions(requestDto.getPositions()),
+                        eqPosition(requestDto.getPosition()),
                         eqTech(requestDto.getTechnology())
                 )
                 .orderBy(eqOrderBy(requestDto.getOrderBy()))
@@ -67,10 +67,10 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
         return account.career.eq(career);
     }
 
-    private BooleanExpression eqPositions(String positions) {
-        if(StringUtils.isEmpty(positions))
+    private BooleanExpression eqPosition(String position) {
+        if(StringUtils.isEmpty(position))
             return null;
-        return account.positions.contains(positions);
+        return account.positions.contains(position);
     }
 
     private BooleanExpression eqTech(String technology) {

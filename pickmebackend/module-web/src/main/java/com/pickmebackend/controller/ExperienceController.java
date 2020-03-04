@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
 import com.pickmebackend.domain.dto.experience.ExperienceRequestDto;
 import com.pickmebackend.domain.dto.experience.ExperienceResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.ExperienceRepository;
 import com.pickmebackend.resource.ExperienceResource;
 import com.pickmebackend.service.ExperienceService;

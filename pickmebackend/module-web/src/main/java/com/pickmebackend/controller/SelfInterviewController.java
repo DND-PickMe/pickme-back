@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.selfInterview.SelfInterviewRequestDto;
 import com.pickmebackend.domain.dto.selfInterview.SelfInterviewResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.SelfInterviewRepository;
 import com.pickmebackend.resource.SelfInterviewResource;
 import com.pickmebackend.service.SelfInterviewService;

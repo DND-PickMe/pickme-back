@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Prize;
 import com.pickmebackend.domain.dto.prize.PrizeRequestDto;
 import com.pickmebackend.domain.dto.prize.PrizeResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.PrizeRepository;
 import com.pickmebackend.resource.PrizeResource;
 import com.pickmebackend.service.PrizeService;

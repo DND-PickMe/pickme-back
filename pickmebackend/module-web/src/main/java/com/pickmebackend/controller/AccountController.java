@@ -3,11 +3,9 @@ package com.pickmebackend.controller;
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.account.AccountFilteringRequestDto;
-import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
-import com.pickmebackend.domain.dto.account.AccountRequestDto;
-import com.pickmebackend.domain.dto.account.AccountResponseDto;
+import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.repository.account.AccountRepository;
+import com.pickmebackend.resource.AccountFavoriteFlagResource;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +20,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -45,11 +41,11 @@ public class AccountController {
     @GetMapping("/profile")
     ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         AccountResponseDto accountResponseDto = accountService.loadProfile(account);
@@ -66,15 +62,15 @@ public class AccountController {
     @GetMapping("/{accountId}")
     ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser, HttpServletRequest request, HttpServletResponse response) {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
-        AccountResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response);
-        AccountResource accountResource = new AccountResource(accountResponseDto);
+        AccountFavoriteFlagResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response, currentUser);
+        AccountFavoriteFlagResource accountResource = new AccountFavoriteFlagResource(accountResponseDto);
         accountResource.add(new Link("/docs/index.html#resources-account-load").withRel("profile"));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
@@ -82,19 +78,19 @@ public class AccountController {
 
     @GetMapping
     ResponseEntity<?> loadAccountsWithFilter(@RequestParam(required = false) String nickName,
-                                   @RequestParam(required = false) String oneLineIntroduce,
-                                   @RequestParam(required = false) String career,
-                                   @RequestParam(required = false) String positions,
-                                   @RequestParam(required = false) String technology,
-                                   @RequestParam(required = false) String orderBy,
-                                   Pageable pageable,
-                                   PagedResourcesAssembler<Account> assembler)    {
+                                             @RequestParam(required = false) String oneLineIntroduce,
+                                             @RequestParam(required = false) String career,
+                                             @RequestParam(required = false) String positions,
+                                             @RequestParam(required = false) String technology,
+                                             @RequestParam(required = false) String orderBy,
+                                             Pageable pageable,
+                                             PagedResourcesAssembler<Account> assembler)    {
 
         AccountFilteringRequestDto accountFilteringRequestDto = AccountFilteringRequestDto.builder()
                 .nickName(nickName)
                 .oneLineIntroduce(oneLineIntroduce)
                 .career(career)
-                .positions(positions)
+                .position(positions)
                 .technology(technology)
                 .orderBy(orderBy)
                 .build();
@@ -140,7 +136,7 @@ public class AccountController {
         }
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
 
         if (!accountId.equals(currentUser.getId())) {
@@ -159,7 +155,7 @@ public class AccountController {
     ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USERNOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
 
         if (!accountId.equals(currentUser.getId())) {

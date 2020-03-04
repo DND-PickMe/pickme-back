@@ -6,7 +6,6 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.project.ProjectRequestDto;
 import com.pickmebackend.domain.dto.project.ProjectResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.ProjectRepository;
 import com.pickmebackend.resource.ProjectResource;
 import com.pickmebackend.service.ProjectService;
