@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
@@ -68,11 +66,6 @@ public class AccountService{
     }
 
     public Page<Account> loadAccountsWithFilter(AccountFilteringRequestDto requestDto, Pageable pageable) {
-//        if ("favorite".equals(requestDto.getOrderBy())) {
-//            return accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
-//        } else if ("hits".equals(requestDto.getOrderBy())) {
-//            return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
-//        }
         return this.accountRepository.filterAccount(requestDto, pageable);
     }
 

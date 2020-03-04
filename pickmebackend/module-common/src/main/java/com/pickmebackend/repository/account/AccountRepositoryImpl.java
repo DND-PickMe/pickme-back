@@ -80,8 +80,6 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
     }
 
     private OrderSpecifier<?> eqOrderBy(String orderBy) {
-//        if (StringUtils.isEmpty(orderBy))
-//            return account.createdAt.desc();
          if("favorite".equals(orderBy))
             return account.favoriteCount.desc();
         else if("hits".equals(orderBy))
