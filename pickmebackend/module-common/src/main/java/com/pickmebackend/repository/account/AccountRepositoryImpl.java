@@ -2,6 +2,7 @@ package com.pickmebackend.repository.account;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountFilteringRequestDto;
+import com.pickmebackend.domain.enums.UserRole;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;

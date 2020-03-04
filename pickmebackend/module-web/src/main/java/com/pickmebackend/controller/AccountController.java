@@ -3,11 +3,9 @@ package com.pickmebackend.controller;
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.dto.account.AccountFilteringRequestDto;
-import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
-import com.pickmebackend.domain.dto.account.AccountRequestDto;
-import com.pickmebackend.domain.dto.account.AccountResponseDto;
+import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.repository.account.AccountRepository;
+import com.pickmebackend.resource.AccountFavoriteFlagResource;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
@@ -73,8 +71,8 @@ public class AccountController {
             return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
-        AccountResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response);
-        AccountResource accountResource = new AccountResource(accountResponseDto);
+        AccountFavoriteFlagResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response, currentUser);
+        AccountFavoriteFlagResource accountResource = new AccountFavoriteFlagResource(accountResponseDto);
         accountResource.add(new Link("/docs/index.html#resources-account-load").withRel("profile"));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
@@ -82,7 +80,7 @@ public class AccountController {
 
     @GetMapping
     ResponseEntity<?> loadAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler,
-                                      @RequestParam(value = "orderBy", required = false) String orderBy)  {
+                                      @RequestParam(value = "orderBy", required = false) String orderBy, @CurrentUser Account currentUser)  {
         Page<Account> all = accountService.loadAllAccounts(pageable, orderBy);
         PagedModel<AccountResource> accountResources = assembler.toModel(all, e -> new AccountResource(new AccountResponseDto(e)));
         accountResources.add(new Link("/docs/index.html#resources-allAccounts-load").withRel("profile"));

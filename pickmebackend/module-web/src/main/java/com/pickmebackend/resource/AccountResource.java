@@ -1,10 +1,13 @@
 package com.pickmebackend.resource;
 
 import com.pickmebackend.controller.AccountController;
+import com.pickmebackend.domain.dto.account.AccountFavoriteFlagResponseDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
 import lombok.NoArgsConstructor;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Links;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @NoArgsConstructor
