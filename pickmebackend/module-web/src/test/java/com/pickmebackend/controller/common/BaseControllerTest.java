@@ -117,6 +117,8 @@ public class BaseControllerTest {
                 .oneLineIntroduce(i + "한 줄 소개")
                 .createdAt(LocalDateTime.now())
                 .career(i + "년차")
+                .favoriteCount(i)
+                .hits(40 - i)
                 .positions(new HashSet<>(Collections.singleton("개발자")))
                 .userRole(UserRole.USER)
                 .build();
@@ -189,7 +191,7 @@ public class BaseControllerTest {
     protected EnterpriseRequestDto createEnterpriseDtos(int i) {
         EnterpriseRequestDto enterpriseRequestDto =
                 EnterpriseRequestDto.builder()
-                        .email(i + appProperties.getTestEmail())
+                        .email(i + "ENT" + appProperties.getTestEmail())
                         .password(i + appProperties.getTestPassword())
                         .registrationNumber(i + appProperties.getTestRegistrationNumber())
                         .name(i + appProperties.getTestName())

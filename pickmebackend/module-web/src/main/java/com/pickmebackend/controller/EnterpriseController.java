@@ -22,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -80,19 +79,12 @@ public class EnterpriseController {
     }
 
     @GetMapping
-    ResponseEntity<?> loadAllEnterprises(Pageable pageable, PagedResourcesAssembler<Enterprise> assembler)  {
-        Page<Enterprise> all = enterpriseService.loadAllEnterprises(pageable);
-        PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(pageable, assembler, all);
-        enterpriseResources.add(new Link("/docs/index.html#resources-allEnterprises-load").withRel("profile"));
-
-        return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
-    }
-
-    @GetMapping("/filter")
-    ResponseEntity<?> loadFilteredEnterprises(@RequestParam String name, Pageable pageable, PagedResourcesAssembler<Enterprise> assembler)    {
-        Page<Enterprise> filteredEnterprises = enterpriseService.filterEnterprise(name, pageable);
+    ResponseEntity<?> loadEnterprisesWithFilter(@RequestParam(required = false) String name,
+                                              Pageable pageable,
+                                              PagedResourcesAssembler<Enterprise> assembler)    {
+        Page<Enterprise> filteredEnterprises = enterpriseService.loadEnterprisesWithFilter(name, pageable);
         PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(pageable, assembler, filteredEnterprises);
-        enterpriseResources.add(new Link("/docs/index.html#resources-filteredEnterprises-load").withRel("profile"));
+        enterpriseResources.add(new Link("/docs/index.html#resources-enterprises-load").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
     }

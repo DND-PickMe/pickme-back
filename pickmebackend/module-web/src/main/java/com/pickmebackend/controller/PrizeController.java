@@ -16,9 +16,7 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
 import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
