@@ -113,15 +113,12 @@ operation::load-profile[snippets='curl-request,http-request,request-headers,http
 
 operation::load-account[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
-[[resources-allAccounts-load]]
-=== 모든 사용자 조회
+[[resources-accounts-load]]
+=== 사용자들 조회
 
 `GET` 요청을 사용하여 모든 사용자를 조회할 수 있다.
 
 operation::load-allAccounts[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
-
-[[resources-filteredAccounts-load]]
-=== 필터링 된 구직자 조회
 
 `GET` 요청을 사용하여 필터링 된 사용자를 조회할 수 있다.
 
@@ -175,20 +172,19 @@ operation::load-profile[snippets='curl-request,http-request,request-headers,http
 
 operation::load-enterprise[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
-[[resources-allEnterprises-load]]
-=== 모든 기업 담당자 조회
+[[resources-enterprises-load]]
+=== 기업 담당자들 조회
 
 `GET` 요청을 사용하여 모든 기업 담당자를 조회할 수 있다.
 
 operation::load-allEnterprises[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
-[[resources-filteredEnterprises-load]]
-=== 필터링 된 기업 담당자 조회
-
 `GET` 요청을 사용하여 필터링 된 기업 담당자를 조회할 수 있다.
 
+정상적으로 필터링
 operation::load-filtered-enterprises[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
+필터링 된 결과가 없을 시
 operation::load-filtered-enterprises-none[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
 [[resources-enterprise-create]]

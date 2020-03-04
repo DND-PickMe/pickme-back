@@ -67,16 +67,12 @@ public class AccountService{
         return new AccountResponseDto(account);
     }
 
-    public Page<Account> loadAllAccounts(Pageable pageable, String orderBy) {
-        if ("favorite".equals(orderBy)) {
-            return accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
-        } else if ("hits".equals(orderBy)) {
-            return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
-        }
-        return this.accountRepository.findAllAccountsDesc(pageable);
-    }
-
-    public Page<Account> filterAccount(AccountFilteringRequestDto requestDto, Pageable pageable) {
+    public Page<Account> loadAccountsWithFilter(AccountFilteringRequestDto requestDto, Pageable pageable) {
+//        if ("favorite".equals(requestDto.getOrderBy())) {
+//            return accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
+//        } else if ("hits".equals(requestDto.getOrderBy())) {
+//            return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
+//        }
         return this.accountRepository.filterAccount(requestDto, pageable);
     }
 
@@ -120,10 +116,10 @@ public class AccountService{
         if (accountDto.getTechnologies() != null) {
             accountDto.getTechnologies()
                     .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(
-                                                                        AccountTech.builder()
-                                                                                .account(account)
-                                                                                .technology(tech)
-                                                                                .build())));
+                            AccountTech.builder()
+                                    .account(account)
+                                    .technology(tech)
+                                    .build())));
         }
     }
 

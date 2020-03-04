@@ -7,7 +7,6 @@ import com.pickmebackend.domain.dto.account.AccountFilteringRequestDto;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountResource;
 import com.pickmebackend.service.AccountService;
@@ -23,10 +22,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -80,42 +81,27 @@ public class AccountController {
     }
 
     @GetMapping
-    ResponseEntity<?> loadAllAccounts(Pageable pageable, PagedResourcesAssembler<Account> assembler,
-                                      @RequestParam(value = "orderBy", required = false) String orderBy)  {
-        Page<Account> all = accountService.loadAllAccounts(pageable, orderBy);
-        PagedModel<AccountResource> accountResources = assembler.toModel(all, e -> new AccountResource(new AccountResponseDto(e)));
-        accountResources.add(new Link("/docs/index.html#resources-allAccounts-load").withRel("profile"));
+    ResponseEntity<?> loadAccountsWithFilter(@RequestParam(required = false) String nickName,
+                                   @RequestParam(required = false) String oneLineIntroduce,
+                                   @RequestParam(required = false) String career,
+                                   @RequestParam(required = false) String positions,
+                                   @RequestParam(required = false) String technology,
+                                   @RequestParam(required = false) String orderBy,
+                                   Pageable pageable,
+                                   PagedResourcesAssembler<Account> assembler)    {
 
-        return new ResponseEntity<>(accountResources, HttpStatus.OK);
-    }
-
-    @GetMapping("/filter")
-    ResponseEntity<?> loadFilteredAccounts(@RequestParam(required = false) String nickName,
-                                           @RequestParam(required = false) String oneLineIntroduce,
-                                           @RequestParam(required = false) String career,
-                                           @RequestParam(required = false) String positions,
-                                           @RequestParam(required = false) String technology,
-                                           Pageable pageable,
-                                           PagedResourcesAssembler<Account> assembler,
-                                           @CurrentUser Account currentUser)    {
-        if (currentUser == null) {
-            return new ResponseEntity<>(USERNOTFOUND, HttpStatus.BAD_REQUEST);
-        }
-        Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage(USERNOTFOUND), HttpStatus.BAD_REQUEST);
-        }
         AccountFilteringRequestDto accountFilteringRequestDto = AccountFilteringRequestDto.builder()
                 .nickName(nickName)
                 .oneLineIntroduce(oneLineIntroduce)
                 .career(career)
                 .positions(positions)
                 .technology(technology)
+                .orderBy(orderBy)
                 .build();
 
-        Page<Account> filteredAccount = accountService.filterAccount(accountFilteringRequestDto, pageable);
+        Page<Account> filteredAccount = accountService.loadAccountsWithFilter(accountFilteringRequestDto, pageable);
         PagedModel<AccountResource> accountResources = assembler.toModel(filteredAccount, e -> new AccountResource(new AccountResponseDto(e)));
-        accountResources.add(new Link("/docs/index.html#resources-filteredAccounts-load").withRel("profile"));
+        accountResources.add(new Link("/docs/index.html#resources-accounts-load").withRel("profile"));
 
         return new ResponseEntity<>(accountResources, HttpStatus.OK);
     }

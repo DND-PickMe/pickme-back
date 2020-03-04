@@ -338,7 +338,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
     void load_filtered_enterprises_is_empty() throws Exception   {
         IntStream.rangeClosed(1, 30).forEach(this::createEnterpriseDtos);
 
-        this.mockMvc.perform(get(enterpriseURL + "filter")
+        this.mockMvc.perform(get(enterpriseURL)
                 .queryParam("name", "ㅇ"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -372,7 +372,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
     void load_filtered_enterprises() throws Exception   {
         IntStream.rangeClosed(1, 30).forEach(this::createEnterpriseDtos);
 
-        this.mockMvc.perform(get(enterpriseURL + "filter")
+        this.mockMvc.perform(get(enterpriseURL)
                 .queryParam("name", "1"))
                 .andDo(print())
                 .andExpect(status().isOk())

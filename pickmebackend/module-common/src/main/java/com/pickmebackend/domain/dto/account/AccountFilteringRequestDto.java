@@ -23,4 +23,7 @@ public class AccountFilteringRequestDto {
     @Nullable
     private String technology;
 
+    @Nullable
+    private String orderBy;
+
 }
