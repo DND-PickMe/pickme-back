@@ -614,7 +614,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.update-account").exists())
                 .andExpect(jsonPath("_links.delete-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("load-profile",
+                .andDo(document("load-account-profile",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("profile").description("link to profile"),
@@ -794,9 +794,18 @@ class AccountControllerTest extends BaseControllerTest {
     @Test
     @DisplayName("정상적으로 모든 유저 조회")
     void getAllAccounts() throws Exception  {
-        IntStream.rangeClosed(1, 30).forEach(this::createAccounts);
+        List<Technology> technologyList = technologyRepository.saveAll(Arrays.asList(Technology.builder().id(1L).name("Java").build(), Technology.builder().id(2L).name("Python").build(), Technology.builder().id(3L).name("C").build(), Technology.builder().id(4L).name("C#").build()));
+        IntStream.rangeClosed(1, 30).forEach(i -> {
+            try {
+                createAccountsWithTech(i, technologyList);
+                createEnterpriseDtos(i);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
-        this.mockMvc.perform(get(accountURL))
+        this.mockMvc.perform(get(accountURL)
+                .queryParam("orderBy", "favorite"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
@@ -842,7 +851,8 @@ class AccountControllerTest extends BaseControllerTest {
                                 fieldWithPath("_embedded.accountResponseDtoList[*].experiences").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].licenses").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].prizes").ignored(),
-                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies").description("사용자의 기술스택"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies[*].id").description("사용자의 기술스택 식별자"),
+                                fieldWithPath("_embedded.accountResponseDtoList[*].technologies[*].name").description("사용자의 기술스택 이름"),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].projects").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*].selfInterviews").ignored(),
                                 fieldWithPath("_embedded.accountResponseDtoList[*]._links.self.href").ignored(),
@@ -863,18 +873,19 @@ class AccountControllerTest extends BaseControllerTest {
         IntStream.rangeClosed(1, 30).forEach(i -> {
             try {
                 createAccountsWithTech(i, technologyList);
+                createEnterpriseDtos(i);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
-        this.mockMvc.perform(get(accountURL + "filter")
-                .header(HttpHeaders.AUTHORIZATION, createAccountJwt())
-                .queryParam("nickName", "1" + appProperties.getTestNickname())
+        this.mockMvc.perform(get(accountURL)
+                .queryParam("nickName", "1")
                 .queryParam("oneLineIntroduce", "1")
                 .queryParam("career", "1년차")
                 .queryParam("positions", "개발자")
-                .queryParam("technology", "Python"))
+                .queryParam("technology", "Python")
+                .queryParam("orderBy", "hits"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
@@ -897,9 +908,6 @@ class AccountControllerTest extends BaseControllerTest {
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("profile").description("link to profile")
-                        ),
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")
@@ -942,13 +950,13 @@ class AccountControllerTest extends BaseControllerTest {
         IntStream.rangeClosed(1, 30).forEach(i -> {
             try {
                 createAccountsWithTech(i, technologyList);
+                createEnterpriseDtos(i);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
-        this.mockMvc.perform(get(accountURL + "filter")
-                .header(HttpHeaders.AUTHORIZATION, createAccountJwt()))
+        this.mockMvc.perform(get(accountURL))
                 .andDo(print())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].id").exists())
                 .andExpect(jsonPath("_embedded.accountResponseDtoList[*].email").exists())
@@ -1015,13 +1023,13 @@ class AccountControllerTest extends BaseControllerTest {
         IntStream.rangeClosed(1, 30).forEach(i -> {
             try {
                 createAccountsWithTech(i, technologyList);
+                createEnterpriseDtos(i);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
-        this.mockMvc.perform(get(accountURL + "filter")
-                .header(HttpHeaders.AUTHORIZATION, createAccountJwt())
+        this.mockMvc.perform(get(accountURL)
                 .queryParam("nickName", "kiseok")
                 .queryParam("oneLineIntroduce", "I'm kiseok")
                 .queryParam("career", "신입")
@@ -1039,9 +1047,6 @@ class AccountControllerTest extends BaseControllerTest {
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("profile").description("link to profile")
-                        ),
-                        requestHeaders(
-                                headerWithName(HttpHeaders.AUTHORIZATION).description("Authorization Header")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type Header")

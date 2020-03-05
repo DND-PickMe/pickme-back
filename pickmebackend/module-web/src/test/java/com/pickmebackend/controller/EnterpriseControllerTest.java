@@ -74,7 +74,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.update-enterprise").exists())
                 .andExpect(jsonPath("_links.delete-enterprise").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("load-enterprise",
+                .andDo(document("load-enterprise-profile",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("update-enterprise").description("link to update enterprise"),
@@ -366,7 +366,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
     void load_filtered_enterprises_is_empty() throws Exception   {
         IntStream.rangeClosed(1, 30).forEach(this::createEnterpriseDtos);
 
-        this.mockMvc.perform(get(enterpriseURL + "filter")
+        this.mockMvc.perform(get(enterpriseURL)
                 .queryParam("name", "ㅇ"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -400,8 +400,9 @@ class EnterpriseControllerTest extends BaseControllerTest {
     void load_filtered_enterprises() throws Exception   {
         IntStream.rangeClosed(1, 30).forEach(this::createEnterpriseDtos);
 
-        this.mockMvc.perform(get(enterpriseURL + "filter")
-                .queryParam("name", "1"))
+        this.mockMvc.perform(get(enterpriseURL)
+                .queryParam("name", "1")
+                .queryParam("address", "2"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("_embedded.enterpriseResponseDtoList[*].id").exists())

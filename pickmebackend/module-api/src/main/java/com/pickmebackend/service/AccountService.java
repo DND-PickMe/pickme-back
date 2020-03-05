@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
@@ -67,16 +65,7 @@ public class AccountService{
         return new AccountFavoriteFlagResponseDto(account, currentUser);
     }
 
-    public Page<Account> loadAllAccounts(Pageable pageable, String orderBy) {
-        if ("favorite".equals(orderBy)) {
-            return accountRepository.findAllAccountsDescAndOrderByFavorite(pageable);
-        } else if ("hits".equals(orderBy)) {
-            return accountRepository.findAllAccountsDescAndOrderByHits(pageable);
-        }
-        return this.accountRepository.findAllAccountsDesc(pageable);
-    }
-
-    public Page<Account> filterAccount(AccountFilteringRequestDto requestDto, Pageable pageable) {
+    public Page<Account> loadAccountsWithFilter(AccountFilteringRequestDto requestDto, Pageable pageable) {
         return this.accountRepository.filterAccount(requestDto, pageable);
     }
 
@@ -120,10 +109,10 @@ public class AccountService{
         if (accountDto.getTechnologies() != null) {
             accountDto.getTechnologies()
                     .forEach(tech -> account.getAccountTechSet().add(accountTechRepository.save(
-                                                                        AccountTech.builder()
-                                                                                .account(account)
-                                                                                .technology(tech)
-                                                                                .build())));
+                            AccountTech.builder()
+                                    .account(account)
+                                    .technology(tech)
+                                    .build())));
         }
     }
 

@@ -4,6 +4,7 @@ import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseSuggestionRequestDto;
@@ -23,11 +24,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+<<<<<<< HEAD
 
 import javax.mail.MessagingException;
+=======
+>>>>>>> master
 import javax.validation.Valid;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -79,19 +82,20 @@ public class EnterpriseController {
     }
 
     @GetMapping
-    ResponseEntity<?> loadAllEnterprises(Pageable pageable, PagedResourcesAssembler<Enterprise> assembler)  {
-        Page<Enterprise> all = enterpriseService.loadAllEnterprises(pageable);
-        PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(pageable, assembler, all);
-        enterpriseResources.add(new Link("/docs/index.html#resources-allEnterprises-load").withRel("profile"));
+    ResponseEntity<?> loadEnterprisesWithFilter(@RequestParam(required = false) String name,
+                                              @RequestParam(required = false) String address,
+                                              Pageable pageable,
+                                              PagedResourcesAssembler<Enterprise> assembler)    {
 
-        return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
-    }
+        EnterpriseFilterRequestDto enterpriseFilterRequestDto = EnterpriseFilterRequestDto
+                .builder()
+                .name(name)
+                .address(address)
+                .build();
 
-    @GetMapping("/filter")
-    ResponseEntity<?> loadFilteredEnterprises(@RequestParam String name, Pageable pageable, PagedResourcesAssembler<Enterprise> assembler)    {
-        Page<Enterprise> filteredEnterprises = enterpriseService.filterEnterprise(name, pageable);
-        PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(pageable, assembler, filteredEnterprises);
-        enterpriseResources.add(new Link("/docs/index.html#resources-filteredEnterprises-load").withRel("profile"));
+        Page<Enterprise> filteredEnterprises = enterpriseService.loadEnterprisesWithFilter(enterpriseFilterRequestDto, pageable);
+        PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(assembler, filteredEnterprises);
+        enterpriseResources.add(new Link("/docs/index.html#resources-enterprises-load").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
     }
@@ -151,6 +155,7 @@ public class EnterpriseController {
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
 
+<<<<<<< HEAD
     @GetMapping("/suggestion")
     public ResponseEntity<?> sendSuggestion(@RequestParam(value = "accountId") Long accountId, @CurrentUser Account currentUser) throws MessagingException {
         if(currentUser == null) {
@@ -160,6 +165,9 @@ public class EnterpriseController {
     }
 
     private PagedModel<EnterpriseResource> getEnterpriseResources(Pageable pageable, PagedResourcesAssembler<Enterprise> assembler, Page<Enterprise> filteredEnterprises) {
+=======
+    private PagedModel<EnterpriseResource> getEnterpriseResources(PagedResourcesAssembler<Enterprise> assembler, Page<Enterprise> filteredEnterprises) {
+>>>>>>> master
         return assembler
                 .toModel(filteredEnterprises, e -> {
                     EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(e, EnterpriseResponseDto.class);
@@ -167,5 +175,4 @@ public class EnterpriseController {
                     return new EnterpriseResource(enterpriseResponseDto);
                 });
     }
-
 }

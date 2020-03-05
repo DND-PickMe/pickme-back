@@ -18,9 +18,12 @@ public class AccountFilteringRequestDto {
     private String career;
 
     @Nullable
-    private String positions;
+    private String position;
 
     @Nullable
     private String technology;
+
+    @Nullable
+    private String orderBy;
 
 }

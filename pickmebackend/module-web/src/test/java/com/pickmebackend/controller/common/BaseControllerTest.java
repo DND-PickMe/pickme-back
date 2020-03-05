@@ -9,10 +9,9 @@ import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
-import com.pickmebackend.repository.EnterpriseRepository;
 import com.pickmebackend.repository.TechnologyRepository;
 import com.pickmebackend.repository.account.AccountRepository;
-import lombok.extern.slf4j.Slf4j;
+import com.pickmebackend.repository.enterprise.EnterpriseRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Slf4j
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -117,6 +115,8 @@ public class BaseControllerTest {
                 .oneLineIntroduce(i + "한 줄 소개")
                 .createdAt(LocalDateTime.now())
                 .career(i + "년차")
+                .favoriteCount(i)
+                .hits(40 - i)
                 .positions(new HashSet<>(Collections.singleton("개발자")))
                 .userRole(UserRole.USER)
                 .build();
@@ -189,7 +189,7 @@ public class BaseControllerTest {
     protected EnterpriseRequestDto createEnterpriseDtos(int i) {
         EnterpriseRequestDto enterpriseRequestDto =
                 EnterpriseRequestDto.builder()
-                        .email(i + appProperties.getTestEmail())
+                        .email(i + "ENT" + appProperties.getTestEmail())
                         .password(i + appProperties.getTestPassword())
                         .registrationNumber(i + appProperties.getTestRegistrationNumber())
                         .name(i + appProperties.getTestName())

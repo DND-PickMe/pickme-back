@@ -3,13 +3,12 @@ package com.pickmebackend.service;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
-import com.pickmebackend.domain.dto.enterprise.EnterpriseSuggestionRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.error.ErrorMessageConstant;
-import com.pickmebackend.repository.EnterpriseRepository;
 import com.pickmebackend.repository.account.AccountRepository;
+import com.pickmebackend.repository.enterprise.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -28,7 +27,7 @@ import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -64,12 +63,8 @@ public class EnterpriseService {
         return enterpriseResponseDto;
     }
 
-    public Page<Enterprise> loadAllEnterprises(Pageable pageable) {
-        return this.enterpriseRepository.findAllEnterprisesDesc(pageable);
-    }
-
-    public Page<Enterprise> filterEnterprise(String name, Pageable pageable) {
-        return this.enterpriseRepository.findAllByNameContainingOrderByName(name, pageable);
+    public Page<Enterprise> loadEnterprisesWithFilter(EnterpriseFilterRequestDto enterpriseFilterRequestDto, Pageable pageable) {
+        return this.enterpriseRepository.filterEnterprise(enterpriseFilterRequestDto, pageable);
     }
 
     public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
@@ -152,5 +147,4 @@ public class EnterpriseService {
         context.setVariable("enterprise", enterprise);
         return templateEngine.process("html/email.html", context);
     }
-
 }
