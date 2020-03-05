@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: real-db
+    include: real-db, mail
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,6 +30,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
 
 app-property:
   test-email: user@email.com

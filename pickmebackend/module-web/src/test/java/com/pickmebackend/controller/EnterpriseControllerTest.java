@@ -17,6 +17,11 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -111,6 +116,29 @@ class EnterpriseControllerTest extends BaseControllerTest {
                         )
                 ))
         ;
+    }
+
+    @Test
+    @DisplayName("정상적으로 다른 회사의 프로필 조회")
+    void load_profile_other_enterprise() throws Exception {
+        EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
+        Account account = accountOptional.get();
+
+        List<Enterprise> all = enterpriseRepository.findAll();
+        jwt = jwtProvider.generateToken(account);
+
+        mockMvc.perform(get(enterpriseURL + "/{enterpriseId}", all.get(0).getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("email").exists())
+                .andExpect(jsonPath("registrationNumber").exists())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("address").exists())
+                .andExpect(jsonPath("ceoName").exists())
+                .andExpect(jsonPath("account").exists())
+                .andExpect(jsonPath("account.userRole", is("ENTERPRISE")));
     }
 
     @Test
@@ -933,8 +961,30 @@ class EnterpriseControllerTest extends BaseControllerTest {
         ;
     }
 
+    @Test
+    @DisplayName("정상적으로 이메일이 가는지 테스트")
+    void email_test() throws Exception {
+        EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
+        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
+        Account company = accountOptional.get();
+        Account worker = Account.builder()
+                .email("tlsanrhs96@gmail.com")
+                .password(appProperties.getTestPassword())
+                .nickName(appProperties.getTestNickname())
+                .createdAt(LocalDateTime.now())
+                .career("신입")
+                .positions(new HashSet<>(Arrays.asList("BackEnd", "FrontEnd")))
+                .userRole(UserRole.USER)
+                .build();
+        Account savedWorker = accountRepository.save(worker);
+        jwt = BEARER + jwtProvider.generateToken(company);
 
-
+        this.mockMvc.perform(get(enterpriseURL + "/suggestion")
+                .queryParam("accountId", String.valueOf(savedWorker.getId()))
+                .header(HttpHeaders.AUTHORIZATION, jwt))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
     private static Stream<Arguments> streamForEmptyStringCheck() {
         return Stream.of(
                 Arguments.of("", "password", "registraionNumber", "name", "address", "ceoName"),

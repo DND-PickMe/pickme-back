@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    include: mail
   servlet:
     multipart:
       file-size-threshold: 1MB
