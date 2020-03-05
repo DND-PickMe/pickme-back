@@ -614,7 +614,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andExpect(jsonPath("_links.update-account").exists())
                 .andExpect(jsonPath("_links.delete-account").exists())
                 .andExpect(jsonPath("_links.profile").exists())
-                .andDo(document("load-profile",
+                .andDo(document("load-account-profile",
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("profile").description("link to profile"),

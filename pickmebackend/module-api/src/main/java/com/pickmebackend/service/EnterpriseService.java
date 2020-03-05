@@ -2,19 +2,18 @@ package com.pickmebackend.service;
 
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.repository.EnterpriseRepository;
 import com.pickmebackend.repository.account.AccountRepository;
+import com.pickmebackend.repository.enterprise.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -46,12 +45,8 @@ public class EnterpriseService {
         return enterpriseResponseDto;
     }
 
-    public Page<Enterprise> loadEnterprisesWithFilter(String name, Pageable pageable) {
-        if(StringUtils.isEmpty(name))
-            return this.enterpriseRepository.findAllEnterprisesDesc(pageable);
-
-        return this.enterpriseRepository.findAllByNameContainingOrderByName(name, pageable);
-
+    public Page<Enterprise> loadEnterprisesWithFilter(EnterpriseFilterRequestDto enterpriseFilterRequestDto, Pageable pageable) {
+        return this.enterpriseRepository.filterEnterprise(enterpriseFilterRequestDto, pageable);
     }
 
     public EnterpriseResponseDto saveEnterprise(EnterpriseRequestDto enterpriseRequestDto) {
@@ -108,4 +103,5 @@ public class EnterpriseService {
     public boolean isNonEnterprise(Long enterpriseId) {
         return !this.accountRepository.findById(enterpriseId).isPresent();
     }
+
 }

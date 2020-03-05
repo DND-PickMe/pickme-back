@@ -80,7 +80,7 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
     }
 
     private OrderSpecifier<?> eqOrderBy(String orderBy) {
-         if("favorite".equals(orderBy))
+        if("favorite".equals(orderBy))
             return account.favoriteCount.desc();
         else if("hits".equals(orderBy))
             return account.hits.desc();
