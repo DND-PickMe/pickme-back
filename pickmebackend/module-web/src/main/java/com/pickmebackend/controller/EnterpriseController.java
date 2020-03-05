@@ -4,6 +4,7 @@ import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.repository.account.AccountRepository;
@@ -24,7 +25,6 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -80,10 +80,18 @@ public class EnterpriseController {
 
     @GetMapping
     ResponseEntity<?> loadEnterprisesWithFilter(@RequestParam(required = false) String name,
+                                              @RequestParam(required = false) String address,
                                               Pageable pageable,
                                               PagedResourcesAssembler<Enterprise> assembler)    {
-        Page<Enterprise> filteredEnterprises = enterpriseService.loadEnterprisesWithFilter(name, pageable);
-        PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(pageable, assembler, filteredEnterprises);
+
+        EnterpriseFilterRequestDto enterpriseFilterRequestDto = EnterpriseFilterRequestDto
+                .builder()
+                .name(name)
+                .address(address)
+                .build();
+
+        Page<Enterprise> filteredEnterprises = enterpriseService.loadEnterprisesWithFilter(enterpriseFilterRequestDto, pageable);
+        PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(assembler, filteredEnterprises);
         enterpriseResources.add(new Link("/docs/index.html#resources-enterprises-load").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
@@ -144,7 +152,7 @@ public class EnterpriseController {
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
 
-    private PagedModel<EnterpriseResource> getEnterpriseResources(Pageable pageable, PagedResourcesAssembler<Enterprise> assembler, Page<Enterprise> filteredEnterprises) {
+    private PagedModel<EnterpriseResource> getEnterpriseResources(PagedResourcesAssembler<Enterprise> assembler, Page<Enterprise> filteredEnterprises) {
         return assembler
                 .toModel(filteredEnterprises, e -> {
                     EnterpriseResponseDto enterpriseResponseDto = modelMapper.map(e, EnterpriseResponseDto.class);
@@ -152,5 +160,4 @@ public class EnterpriseController {
                     return new EnterpriseResource(enterpriseResponseDto);
                 });
     }
-
 }

@@ -104,7 +104,7 @@ Account 리소스는 사용자를 만들거나 조회할 때 사용한다.
 
 `GET` 요청을 사용하여 구직자 자신의 프로필을 조회할 수 있다.
 
-operation::load-profile[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+operation::load-account-profile[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
 [[resources-account-load]]
 === 사용자 조회
@@ -163,7 +163,7 @@ Enterprise 리소스는 기업 담당자를 만들거나 조회할 때 사용한
 
 `GET` 요청을 사용하여 기업 담당자 자신의 프로필 조회할 수 있다.
 
-operation::load-profile[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+operation::load-enterprise-profile[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
 
 [[resources-enterprise-load]]
 === 기업 담당자 조회
@@ -171,6 +171,7 @@ operation::load-profile[snippets='curl-request,http-request,request-headers,http
 `GET` 요청을 사용하여 기업 담당자를 조회할 수 있다.
 
 operation::load-enterprise[snippets='curl-request,http-request,request-headers,http-response,response-headers,response-fields,links']
+
 
 [[resources-enterprises-load]]
 === 기업 담당자들 조회
