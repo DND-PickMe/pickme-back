@@ -21,10 +21,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -125,10 +125,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
         Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
         Account account = accountOptional.get();
 
-        List<Enterprise> all = enterpriseRepository.findAll();
-        jwt = jwtProvider.generateToken(account);
-
-        mockMvc.perform(get(enterpriseURL + "/{enterpriseId}", all.get(0).getId()))
+        mockMvc.perform(get(enterpriseURL + "/{enterpriseId}", account.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("id").exists())
@@ -968,7 +965,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
         Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
         Account company = accountOptional.get();
         Account worker = Account.builder()
-                .email("tlsanrhs96@gmail.com")
+                .email("rltjr219@gmail.com")
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .createdAt(LocalDateTime.now())

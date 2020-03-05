@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
+import com.pickmebackend.domain.dto.enterprise.SuggestionDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.enterprise.EnterpriseRepository;
@@ -130,21 +131,21 @@ public class EnterpriseService {
 
         Enterprise enterprise = currentUser.getEnterprise();
         Account worker = workerOptional.get();
-        String content = this.build(enterprise);
+        String content = this.build(enterprise, worker);
 
         MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
             mimeMessageHelper.setTo(worker.getEmail());
-            mimeMessageHelper.setSubject("[PickMe] 채용 제안 메일이 도착했습니다!");
+            mimeMessageHelper.setSubject("[PickMe] " + enterprise.getName() + "에서 채용 제안 메일이 도착했습니다!");
             mimeMessageHelper.setText(content, true);
         };
         this.javaMailSender.send(mimeMessagePreparator);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private String build(Enterprise enterprise) {
+    private String build(Enterprise enterprise, Account currentUser) {
         Context context = new Context();
-        context.setVariable("enterprise", enterprise);
+        context.setVariable("enterprise", new SuggestionDto(enterprise, currentUser));
         return templateEngine.process("html/email.html", context);
     }
 }
