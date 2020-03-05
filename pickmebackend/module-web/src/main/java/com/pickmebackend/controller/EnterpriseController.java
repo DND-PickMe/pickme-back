@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseSuggestionRequestDto;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.EnterpriseResource;
 import com.pickmebackend.service.EnterpriseService;
@@ -23,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -63,10 +65,7 @@ public class EnterpriseController {
     }
 
     @GetMapping("/{enterpriseId}")
-    public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
-        if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId) {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
             return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
         }
@@ -150,6 +149,14 @@ public class EnterpriseController {
         enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-delete").withRel("profile"));
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
+    }
+
+    @GetMapping("/suggestion")
+    public ResponseEntity<?> sendSuggestion(@RequestParam(value = "accountId") Long accountId, @CurrentUser Account currentUser) throws MessagingException {
+        if(currentUser == null) {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+        }
+        return enterpriseService.sendSuggestion(accountId, currentUser);
     }
 
     private PagedModel<EnterpriseResource> getEnterpriseResources(Pageable pageable, PagedResourcesAssembler<Enterprise> assembler, Page<Enterprise> filteredEnterprises) {

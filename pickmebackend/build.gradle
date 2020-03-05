@@ -39,7 +39,10 @@ subprojects {
     dependencies {
         compile("com.querydsl:querydsl-jpa") // querydsl
         compile("com.querydsl:querydsl-apt") // querydsl
-        
+
+        compile("org.springframework.boot:spring-boot-starter-mail")
+        compile ("org.springframework.boot:spring-boot-starter-thymeleaf")
+
         // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
         compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
         // https://mvnrepository.com/artifact/org.modelmapper/modelmapper

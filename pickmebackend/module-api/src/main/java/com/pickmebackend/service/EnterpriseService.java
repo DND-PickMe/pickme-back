@@ -1,20 +1,34 @@
 package com.pickmebackend.service;
 
+import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
+import com.pickmebackend.domain.dto.enterprise.EnterpriseSuggestionRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.error.ErrorMessageConstant;
 import com.pickmebackend.repository.EnterpriseRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
+
+import static com.pickmebackend.error.ErrorMessageConstant.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +41,12 @@ public class EnterpriseService {
     private final ModelMapper modelMapper;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final JavaMailSender javaMailSender;
+
+    private final TemplateEngine templateEngine;
+
+    private final ErrorsFormatter errorsFormatter;
 
     public EnterpriseResponseDto loadProfile(Account account) {
         Enterprise enterprise = account.getEnterprise();
@@ -106,4 +126,31 @@ public class EnterpriseService {
     public boolean isNonEnterprise(Long enterpriseId) {
         return !this.accountRepository.findById(enterpriseId).isPresent();
     }
+
+    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) throws MessagingException {
+        Optional<Account> workerOptional = accountRepository.findById(accountId);
+        if (!workerOptional.isPresent()) {
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+        }
+
+        Enterprise enterprise = currentUser.getEnterprise();
+        Account worker = workerOptional.get();
+        String content = this.build(enterprise);
+
+        MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+            mimeMessageHelper.setTo(worker.getEmail());
+            mimeMessageHelper.setSubject("[PickMe] 채용 제안 메일이 도착했습니다!");
+            mimeMessageHelper.setText(content, true);
+        };
+        this.javaMailSender.send(mimeMessagePreparator);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private String build(Enterprise enterprise) {
+        Context context = new Context();
+        context.setVariable("enterprise", enterprise);
+        return templateEngine.process("html/email.html", context);
+    }
+
 }
