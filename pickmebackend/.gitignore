@@ -34,8 +34,3 @@ out/
 
 ### VS Code ###
 .vscode/
-module-api/src/main/resources/templates/html/code.html
-module-common/src/main/java/com/pickmebackend/domain/VerificationCode.java
-module-common/src/main/java/com/pickmebackend/domain/dto/verificationCode/
-module-common/src/main/java/com/pickmebackend/repository/VerificationCodeRepository.java
-pickme-images/
