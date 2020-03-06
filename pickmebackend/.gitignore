@@ -8,6 +8,8 @@ build/
 **/src/main/generated/
 
 application-mail.yml
+final_ppt.md
+PickMe_PPT.pptx
 ### STS ###
 .apt_generated
 .classpath
