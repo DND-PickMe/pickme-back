@@ -121,7 +121,8 @@ public class AccountService{
             return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
         }
         VerificationCode verificationCode = optionalVerificationCode.get();
-        if(!verifyCodeRequestDto.getCode().equals(verificationCode.getCode())) {
+        if(!verifyCodeRequestDto.getCode().trim().equals(verificationCode.getCode())) {
+            verificationCodeRepository.delete(verificationCode);
             return new ResponseEntity<>(errorsFormatter.formatAnError(UNVERIFIED_USER), HttpStatus.BAD_REQUEST);
         }
         verificationCode.setVerified(true);

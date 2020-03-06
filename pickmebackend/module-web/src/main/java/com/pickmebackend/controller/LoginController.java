@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
-import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
+import static com.pickmebackend.error.ErrorMessageConstant.INVALID_LOGIN;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -43,7 +43,7 @@ public class LoginController {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(!authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(INVALID_LOGIN));
         }
 
         Account account = modelMapper.map(loginRequestDto, Account.class);

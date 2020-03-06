@@ -12,4 +12,5 @@ public class ErrorMessageConstant {
     public static final String INVALIDIMAGE = "적합한 이미지가 아닙니다.";
     public static final String CANNOTREADABLEIMAGE = "이지지를 읽을 수 없습니다.";
     public static final String UNVERIFIED_USER = "이메일 인증이 되지 않은 사용자입니다.";
+    public static final String INVALID_LOGIN = "이메일과 비밀번호를 다시 한 번 확인해주세요!";
 }
