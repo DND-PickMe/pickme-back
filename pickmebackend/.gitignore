@@ -7,7 +7,8 @@ build/
 
 **/src/main/generated/
 
-.yml
+application.yml
+application-mail.yml
 
 ### STS ###
 .apt_generated
@@ -34,3 +35,5 @@ out/
 
 ### VS Code ###
 .vscode/
+module-api/src/main/resources/application-mail.yml
+module-web/src/main/resources/application-mail.yml
