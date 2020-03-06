@@ -7,9 +7,13 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.Technology;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
+import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
+import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
+import com.pickmebackend.domain.dto.verificationCode.VerifyCodeResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.TechnologyRepository;
+import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.enterprise.EnterpriseRepository;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +28,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDateTime;
 import java.util.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,6 +70,9 @@ public class BaseControllerTest {
 
     @Autowired
     protected TechnologyRepository technologyRepository;
+
+    @Autowired
+    protected VerificationCodeRepository verificationCodeRepository;
 
     protected String jwt;
 
@@ -137,7 +147,7 @@ public class BaseControllerTest {
     protected EnterpriseRequestDto createEnterpriseDto() {
         EnterpriseRequestDto enterpriseRequestDto =
                 EnterpriseRequestDto.builder()
-                .email(appProperties.getTestEmail())
+                .email("ENT" + appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())
                 .registrationNumber(appProperties.getTestRegistrationNumber())
                 .name(appProperties.getTestName())
@@ -223,5 +233,37 @@ public class BaseControllerTest {
     protected String createAccountJwt() {
         Account newAccount = createAnotherAccount();
         return "Bearer " + jwtProvider.generateToken(newAccount);
+    }
+
+    protected void verifyEmail(String email) throws Exception {
+        SendCodeRequestDto sendCodeRequestDto = SendCodeRequestDto.builder()
+                .email(email)
+                .build();
+
+        ResultActions resultActions = this.mockMvc.perform(post("/api/accounts/sendCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sendCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
+        VerifyCodeRequestDto verifyCodeRequestDto = objectMapper.readValue(contentAsString, VerifyCodeRequestDto.class);
+
+        assertThat(verifyCodeRequestDto.getEmail()).isEqualTo(appProperties.getTestEmail());
+        assertThat(verifyCodeRequestDto.getCode()).isNotBlank();
+
+        ResultActions resultActions2 = this.mockMvc.perform(put("/api/accounts/matchCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        String contentAsString2 = resultActions2.andReturn().getResponse().getContentAsString();
+        VerifyCodeResponseDto verifyCodeResponseDto = objectMapper.readValue(contentAsString2, VerifyCodeResponseDto.class);
+
+        assertThat(verifyCodeResponseDto.getEmail()).isEqualTo(appProperties.getTestEmail());
+        assertThat(verifyCodeResponseDto.getCode()).isEqualTo(verifyCodeRequestDto.getCode());
+        assertThat(verifyCodeResponseDto.isVerified()).isTrue();
+
     }
 }

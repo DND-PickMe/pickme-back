@@ -33,6 +33,7 @@ class LoginControllerTest extends BaseControllerTest {
     void setUp() {
         accountRepository.deleteAll();
         enterpriseRepository.deleteAll();
+        verificationCodeRepository.deleteAll();
     }
 
     @Test
@@ -207,6 +208,8 @@ class LoginControllerTest extends BaseControllerTest {
                 .password(appProperties.getTestPassword())
                 .nickName(appProperties.getTestNickname())
                 .build();
+
+        verifyEmail(accountDto.getEmail());
 
         saveAccount(accountDto);
 
