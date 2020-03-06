@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
@@ -125,6 +127,7 @@ public class AccountService{
         return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
     }
 
+    @Transactional
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
@@ -132,9 +135,8 @@ public class AccountService{
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
-        Account savedAccount = accountRepository.save(favoritedAccount);
 
-        return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(savedAccount, currentUser), HttpStatus.OK);
+        return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(favoritedAccount, currentUser), HttpStatus.OK);
     }
 
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
