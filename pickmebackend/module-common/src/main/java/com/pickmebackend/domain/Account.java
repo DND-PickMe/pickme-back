@@ -33,7 +33,7 @@ public class Account {
     private String nickName;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Account> favorite = new LinkedList<>();
+    private Set<Account> favorite = new HashSet<>();
 
     @JsonIgnore
     private long favoriteCount;
@@ -89,10 +89,10 @@ public class Account {
     public void addFavorite(Account currentUser) {
         if (this.getFavorite().contains(currentUser)) {
             this.getFavorite().remove(currentUser);
-            this.favoriteCount--;
+            this.favoriteCount = this.getFavorite().size();
         } else {
             this.getFavorite().add(currentUser);
-            this.favoriteCount++;
+            this.favoriteCount = this.getFavorite().size();
         }
     }
 
