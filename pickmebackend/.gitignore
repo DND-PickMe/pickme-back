@@ -35,5 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
-module-api/src/main/resources/application-mail.yml
-module-web/src/main/resources/application-mail.yml
