@@ -4,6 +4,8 @@ import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.*;
+import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
+import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountFavoriteFlagResource;
 import com.pickmebackend.resource.AccountResource;
@@ -107,13 +109,24 @@ public class AccountController {
         return accountService.getFavoriteUsers(accountId);
     }
 
+    @PostMapping("/sendCode")
+    ResponseEntity<?> sendVerificationCode(@RequestBody SendCodeRequestDto sendCodeRequestDto, Errors errors) {
+        if(errors.hasErrors())  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
+        }
+        if(accountService.isDuplicatedAccount(sendCodeRequestDto.getEmail()))  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
+        }
+        return accountService.sendVerificationCode(sendCodeRequestDto.getEmail());
+    }
+
     @PostMapping
     ResponseEntity<?> saveAccount(@Valid @RequestBody AccountInitialRequestDto accountDto, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
-        if(accountService.isDuplicatedAccount(accountDto))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
+        if(accountService.isVerifiedAccount(accountDto))  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(UNVERIFIED_USER));
         }
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
@@ -127,6 +140,17 @@ public class AccountController {
     @PostMapping("/{accountId}/favorite")
     ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) {
         return accountService.favorite(accountId, currentUser);
+    }
+
+    @PutMapping("/matchCode")
+    ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequestDto verifyCodeRequestDto, Errors errors)    {
+        if(errors.hasErrors())  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
+        }
+        if(accountService.isDuplicatedAccount(verifyCodeRequestDto.getEmail()))  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
+        }
+        return accountService.verifyCode(verifyCodeRequestDto);
     }
 
     @PutMapping("/{accountId}")

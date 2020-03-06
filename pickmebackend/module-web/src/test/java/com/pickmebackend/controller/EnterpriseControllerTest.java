@@ -8,7 +8,6 @@ import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.resource.EnterpriseResource;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,6 +47,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
     void setUp() {
         enterpriseRepository.deleteAll();
         accountRepository.deleteAll();
+        verificationCodeRepository.deleteAll();
     }
 
     @Test
@@ -974,6 +974,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
                 .positions(new HashSet<>(Arrays.asList("BackEnd", "FrontEnd")))
                 .userRole(UserRole.USER)
                 .build();
+        verifyEmail(worker.getEmail());
         Account savedWorker = accountRepository.save(worker);
         jwt = BEARER + jwtProvider.generateToken(company);
 
