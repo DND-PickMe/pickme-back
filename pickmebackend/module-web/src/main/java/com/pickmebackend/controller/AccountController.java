@@ -3,6 +3,7 @@ package com.pickmebackend.controller;
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.VerificationCode;
 import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
@@ -23,10 +24,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
+
 import static com.pickmebackend.error.ErrorMessageConstant.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -128,11 +131,11 @@ public class AccountController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
-        if(accountService.isVerifiedAccount(accountDto))  {
-            this.verificationCodeRepository.deleteByEmail(accountDto.getEmail());
+        Optional<VerificationCode> verificationCodeOptional = this.verificationCodeRepository.findByEmail(accountDto.getEmail());
+        if (verificationCodeOptional.isPresent())   {
             return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(UNVERIFIED_USER));
         }
-        this.verificationCodeRepository.deleteByEmail(accountDto.getEmail());
+
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
@@ -151,9 +154,6 @@ public class AccountController {
     ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequestDto verifyCodeRequestDto, Errors errors)    {
         if(errors.hasErrors())  {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
-        if(accountService.isDuplicatedAccount(verifyCodeRequestDto.getEmail()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
         }
         return accountService.verifyCode(verifyCodeRequestDto);
     }
