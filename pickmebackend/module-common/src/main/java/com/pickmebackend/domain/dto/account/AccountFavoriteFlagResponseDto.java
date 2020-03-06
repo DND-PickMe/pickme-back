@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -71,9 +72,14 @@ public class AccountFavoriteFlagResponseDto {
         this.createdAt = account.getCreatedAt();
         this.userRole = account.getUserRole();
         this.hits = account.getHits();
-        this.technologies = account.getAccountTechSet().stream()
+        this.technologies = listSort(account.getAccountTechSet().stream()
                 .map(AccountTech::getTechnology)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
         this.favoriteFlag = account.getFavorite().contains(currentUser);
+    }
+
+    private List<Technology> listSort(List<Technology> collect) {
+        collect.sort(Comparator.comparingInt(a -> a.getId().intValue()));
+        return collect;
     }
 }

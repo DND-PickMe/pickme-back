@@ -185,6 +185,7 @@ public class AccountService{
         return accountRepository.findByEmail(email).isPresent();
     }
 
+    @Transactional
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
@@ -192,9 +193,8 @@ public class AccountService{
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
-        Account savedAccount = accountRepository.save(favoritedAccount);
 
-        return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(savedAccount, currentUser), HttpStatus.OK);
+        return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(favoritedAccount, currentUser), HttpStatus.OK);
     }
 
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {

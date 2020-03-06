@@ -8,10 +8,7 @@ import lombok.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder @ToString
@@ -33,7 +30,7 @@ public class Account {
     private String nickName;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    private List<Account> favorite = new LinkedList<>();
+    private Set<Account> favorite = new HashSet<>();
 
     @JsonIgnore
     private long favoriteCount;
@@ -89,10 +86,10 @@ public class Account {
     public void addFavorite(Account currentUser) {
         if (this.getFavorite().contains(currentUser)) {
             this.getFavorite().remove(currentUser);
-            this.favoriteCount--;
+            this.favoriteCount = this.getFavorite().size();
         } else {
             this.getFavorite().add(currentUser);
-            this.favoriteCount++;
+            this.favoriteCount = this.getFavorite().size();
         }
     }
 
