@@ -135,6 +135,9 @@ public class AccountController {
         if (verificationCodeOptional.isPresent())   {
             return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(UNVERIFIED_USER));
         }
+        if(accountService.isDuplicatedAccount(accountDto.getEmail()))  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
+        }
 
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
