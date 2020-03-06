@@ -2,6 +2,7 @@ package com.pickmebackend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pickmebackend.config.jwt.JwtProvider;
+import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
@@ -10,16 +11,10 @@ import com.pickmebackend.repository.account.AccountRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -28,10 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-class AccountImageControllerTest {
+class AccountImageControllerTest extends BaseControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -40,16 +32,10 @@ class AccountImageControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ModelMapper modelMapper;
-
-    @Autowired
     private AppProperties appProperties;
 
     @Autowired
     private AccountRepository accountRepository;
-
-    @LocalServerPort
-    private int port;
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -63,7 +49,9 @@ class AccountImageControllerTest {
     @DisplayName("유저 생성 시 디폴트 이미지 주입 받는지 확인")
     void createUser_default_image() throws Exception {
         String oneLineIntroduce = "테스트 코드 작성을 중요시 합니다!";
-        AccountInitialRequestDto accountDto = createAccount();
+        AccountInitialRequestDto accountDto = createInitialAccount();
+
+        verifyEmail(accountDto.getEmail());
 
         mockMvc.perform(post("/api/accounts")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -138,7 +126,7 @@ class AccountImageControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    private AccountInitialRequestDto createAccount() {
+    private AccountInitialRequestDto createInitialAccount() {
         return AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())
                 .password(appProperties.getTestPassword())

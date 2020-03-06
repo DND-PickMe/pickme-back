@@ -6,7 +6,7 @@ spring:
       max-request-size: 100MB
       enabled: true
 app-property:
-  test-email: user@email.com
+  test-email: rltjr219@gmail.com
   test-password: password
   test-nickname: DNDpickme
   test-another-email : another@email.com

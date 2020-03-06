@@ -23,11 +23,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-
 import javax.mail.MessagingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
-
 import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service

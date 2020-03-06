@@ -3,9 +3,12 @@ package com.pickmebackend.controller;
 import com.pickmebackend.controller.common.BaseControllerTest;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Technology;
+import com.pickmebackend.domain.VerificationCode;
 import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.account.AccountResponseDto;
+import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
+import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.repository.TechnologyRepository;
 import com.pickmebackend.repository.account.AccountTechRepository;
@@ -54,6 +57,117 @@ class AccountControllerTest extends BaseControllerTest {
         accountTechRepository.deleteAll();
         accountRepository.deleteAll();
         enterpriseRepository.deleteAll();
+        verificationCodeRepository.deleteAll();
+    }
+
+    @Test
+    @DisplayName("정상적으로 이메일에 인증코드 전송")
+    void send_code() throws Exception   {
+        SendCodeRequestDto sendCodeRequestDto = SendCodeRequestDto
+                .builder()
+                .email(appProperties.getTestEmail())
+                .build();
+
+        this.mockMvc.perform(post(accountURL + "sendCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(sendCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("email").value(appProperties.getTestEmail()))
+        ;
+    }
+
+    @Test
+    @DisplayName("이메일이 null일 때 인증코드 전송 시 Bad Request")
+    void send_code_null() throws Exception   {
+        VerifyCodeRequestDto verifyCodeRequestDto = VerifyCodeRequestDto.builder().build();
+
+        this.mockMvc.perform(post(accountURL + "sendCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @DisplayName("정상적으로 인증코드 검증 성공")
+    void match_code() throws Exception  {
+        VerificationCode verificationCode = VerificationCode.builder()
+                .email(appProperties.getTestEmail())
+                .code("111111")
+                .build();
+
+        VerificationCode savedVerificationCode = this.verificationCodeRepository.save(verificationCode);
+        VerifyCodeRequestDto verifyCodeRequestDto = modelMapper.map(savedVerificationCode, VerifyCodeRequestDto.class);
+
+        this.mockMvc.perform(put(accountURL + "matchCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("email").value(appProperties.getTestEmail()))
+                .andExpect(jsonPath("code").value("111111"))
+        ;
+    }
+
+    @Test
+    @DisplayName("인증코드 검증 실패 시 Bad Request")
+    void match_code_failed() throws Exception  {
+        VerificationCode verificationCode = VerificationCode.builder()
+                .email(appProperties.getTestEmail())
+                .code("111111")
+                .build();
+
+        VerificationCode savedVerificationCode = this.verificationCodeRepository.save(verificationCode);
+        VerifyCodeRequestDto verifyCodeRequestDto = modelMapper.map(savedVerificationCode, VerifyCodeRequestDto.class);
+        verifyCodeRequestDto.setCode("222222");
+
+        this.mockMvc.perform(put(accountURL + "matchCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @DisplayName("인증코드 검증 시 Email과 Code가 null일 때 Bad Request")
+    void match_code_failed_by_null() throws Exception  {
+        VerificationCode verificationCode = VerificationCode.builder()
+                .email(appProperties.getTestEmail())
+                .code("111111")
+                .build();
+
+        this.verificationCodeRepository.save(verificationCode);
+        VerifyCodeRequestDto verifyCodeRequestDto = VerifyCodeRequestDto.builder().build();
+
+        this.mockMvc.perform(put(accountURL + "matchCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @DisplayName("인증코드 검증 시 Email이 틀렸을 때 Bad Request")
+    void match_code_failed_by_email() throws Exception  {
+        VerificationCode verificationCode = VerificationCode.builder()
+                .email(appProperties.getTestEmail())
+                .code("111111")
+                .build();
+
+        VerificationCode savedVerificationCode = this.verificationCodeRepository.save(verificationCode);
+        VerifyCodeRequestDto verifyCodeRequestDto = modelMapper.map(savedVerificationCode, VerifyCodeRequestDto.class);
+        verifyCodeRequestDto.setEmail("rltjr219@naver.com");
+
+        this.mockMvc.perform(put(accountURL + "matchCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
     }
 
     @Test
@@ -69,6 +183,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .nickName(appProperties.getTestNickname())
                 .oneLineIntroduce("안녕하세요. 저는 취미도 개발, 특기도 개발인 학생 개발자 양기석입니다.")
                 .build();
+
+        verifyEmail(appProperties.getTestEmail());
 
         ResultActions actions = mockMvc.perform(post(accountURL)
                 .accept(MediaTypes.HAL_JSON)
@@ -149,6 +265,8 @@ class AccountControllerTest extends BaseControllerTest {
                 .nickName(appProperties.getTestNickname())
                 .build();
 
+        verifyEmail(accountDto.getEmail());
+
         this.mockMvc.perform(post(accountURL)
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -156,7 +274,7 @@ class AccountControllerTest extends BaseControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        this.mockMvc.perform(post(accountURL)
+        this.mockMvc.perform(post(accountURL + "sendCode")
                 .accept(MediaTypes.HAL_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(accountDto)))

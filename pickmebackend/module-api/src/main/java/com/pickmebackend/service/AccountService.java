@@ -3,7 +3,12 @@ package com.pickmebackend.service;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.AccountTech;
+import com.pickmebackend.domain.VerificationCode;
 import com.pickmebackend.domain.dto.account.*;
+import com.pickmebackend.domain.dto.verificationCode.SendCodeResponseDto;
+import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
+import com.pickmebackend.domain.dto.verificationCode.VerifyCodeResponseDto;
+import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.account.AccountTechRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,16 +17,23 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
+import static com.pickmebackend.error.ErrorMessageConstant.UNVERIFIED_USER;
 import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
 
 @Service
@@ -37,6 +49,12 @@ public class AccountService{
     private final AccountTechRepository accountTechRepository;
 
     private final ErrorsFormatter errorsFormatter;
+
+    private final JavaMailSender javaMailSender;
+
+    private final TemplateEngine templateEngine;
+
+    private final VerificationCodeRepository verificationCodeRepository;
 
     public AccountResponseDto loadProfile(Account account) {
         return new AccountResponseDto(account);
@@ -67,6 +85,48 @@ public class AccountService{
 
     public Page<Account> loadAccountsWithFilter(AccountFilteringRequestDto requestDto, Pageable pageable) {
         return this.accountRepository.filterAccount(requestDto, pageable);
+    }
+
+    public ResponseEntity<?> sendVerificationCode(String email) {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+        for(int i = 0; i < 6; i++)  {
+            code.append(random.nextInt(10));
+        }
+        String content = this.build(code.toString());
+
+        MimeMessagePreparator mimeMessagePreparator = mimeMessage -> {
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject("[PickMe] 인증 번호가 도착했습니다!");
+            mimeMessageHelper.setText(content, true);
+        };
+        this.javaMailSender.send(mimeMessagePreparator);
+
+        SendCodeResponseDto sendCodeResponseDto = SendCodeResponseDto.builder()
+                .email(email)
+                .code(code.toString())
+                .build();
+
+        VerificationCode verificationCode = modelMapper.map(sendCodeResponseDto, VerificationCode.class);
+        this.verificationCodeRepository.save(verificationCode);
+
+        return new ResponseEntity<>(sendCodeResponseDto, HttpStatus.CREATED);
+    }
+
+    @Transactional
+    public ResponseEntity<?> verifyCode(VerifyCodeRequestDto verifyCodeRequestDto) {
+        Optional<VerificationCode> optionalVerificationCode = this.verificationCodeRepository.findByEmail(verifyCodeRequestDto.getEmail());
+        if(!optionalVerificationCode.isPresent())   {
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+        }
+        VerificationCode verificationCode = optionalVerificationCode.get();
+        if(!verifyCodeRequestDto.getCode().equals(verificationCode.getCode())) {
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNVERIFIED_USER), HttpStatus.BAD_REQUEST);
+        }
+        verificationCode.setVerified(true);
+
+        return new ResponseEntity<>(modelMapper.map(verificationCode, VerifyCodeResponseDto.class), HttpStatus.OK);
     }
 
     @Transactional
@@ -121,8 +181,8 @@ public class AccountService{
         return modelMapper.map(account, AccountResponseDto.class);
     }
 
-    public boolean isDuplicatedAccount(AccountInitialRequestDto accountDto) {
-        return accountRepository.findByEmail(accountDto.getEmail()).isPresent();
+    public boolean isDuplicatedAccount(String email) {
+        return accountRepository.findByEmail(email).isPresent();
     }
 
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
@@ -147,5 +207,17 @@ public class AccountService{
                 .map(AccountListResponseDto::new)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(accountList, HttpStatus.OK);
+    }
+
+    private String build(String code) {
+        Context context = new Context();
+        context.setVariable("code", code);
+        return templateEngine.process("html/code.html", context);
+    }
+
+    public boolean isVerifiedAccount(AccountInitialRequestDto accountDto) {
+        Optional<VerificationCode> verificationCodeOptional = this.verificationCodeRepository.findByEmail(accountDto.getEmail());
+        VerificationCode verificationCode = verificationCodeOptional.get();
+        return !verificationCode.isVerified();
     }
 }
