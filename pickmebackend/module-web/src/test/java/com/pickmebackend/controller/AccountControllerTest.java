@@ -62,6 +62,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("정상적으로 이메일에 인증코드 전송")
+    @Disabled
     void send_code() throws Exception   {
         SendCodeRequestDto sendCodeRequestDto = SendCodeRequestDto
                 .builder()
@@ -172,6 +173,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("정상적으로 유저를 생성")
+    @Disabled
     void saveAccount() throws Exception {
         assert appProperties.getTestEmail() != null;
         assert appProperties.getTestPassword() != null;
@@ -258,6 +260,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("회원 가입시 중복된 email 존재할 경우 Bad Request 반환")
+    @Disabled
     void check_duplicated_Account() throws Exception {
         AccountInitialRequestDto accountDto = AccountInitialRequestDto.builder()
                 .email(appProperties.getTestEmail())

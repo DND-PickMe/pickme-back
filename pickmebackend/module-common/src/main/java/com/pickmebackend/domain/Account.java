@@ -6,9 +6,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter @Setter @EqualsAndHashCode(of = "id")
 @NoArgsConstructor @AllArgsConstructor @Builder @ToString
@@ -36,7 +38,7 @@ public class Account {
     private long favoriteCount;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> positions;
+    private Set<String> positions = new HashSet<>();
 
     @Column
     @Enumerated(EnumType.STRING)

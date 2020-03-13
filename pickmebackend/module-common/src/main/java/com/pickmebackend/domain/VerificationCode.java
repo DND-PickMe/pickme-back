@@ -1,6 +1,7 @@
 package com.pickmebackend.domain;
 
 import lombok.*;
+
 import javax.persistence.*;
 
 @Entity @EqualsAndHashCode(of = "id")
@@ -20,5 +21,4 @@ public class VerificationCode {
 
     @Column
     private boolean isVerified = false;
-
 }

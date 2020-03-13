@@ -8,6 +8,7 @@ import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.resource.EnterpriseResource;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -963,6 +964,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("정상적으로 이메일이 가는지 테스트")
+    @Disabled
     void email_test() throws Exception {
         EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
         Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());

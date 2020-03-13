@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import javax.validation.Valid;
-import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
+
+import static com.pickmebackend.error.ErrorMessage.USER_NOT_FOUND;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -38,12 +40,12 @@ public class LoginController {
     private final ErrorsFormatter errorsFormatter;
 
     @PostMapping
-    ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(!authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
         }
 
         Account account = modelMapper.map(loginRequestDto, Account.class);

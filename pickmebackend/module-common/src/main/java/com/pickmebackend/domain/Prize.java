@@ -1,6 +1,7 @@
 package com.pickmebackend.domain;
 
 import lombok.*;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 

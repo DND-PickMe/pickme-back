@@ -3,11 +3,12 @@ package com.pickmebackend.service;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.exception.AccountImageException;
 import com.pickmebackend.properties.AccountImageProperties;
 import com.pickmebackend.repository.account.AccountRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -30,13 +31,14 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+import static com.pickmebackend.error.ErrorMessage.*;
 
 /**
  * Reference
  * https://github.com/spring-guides/gs-uploading-files
  */
 @Service
+@Slf4j
 public class AccountImageService {
 
     private final Path rootLocation;
@@ -53,7 +55,7 @@ public class AccountImageService {
         try {
             Files.createDirectories(this.rootLocation);
         }catch(Exception e) {
-            System.out.println(e.getMessage());
+            log.warn(e.getMessage());
         }
         this.jwtProvider = jwtProvider;
         this.accountRepository = accountRepository;
@@ -65,14 +67,14 @@ public class AccountImageService {
         String extension = FilenameUtils.getExtension(imageName);
         try {
             if (image.isEmpty()) {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
             }
             if (imageName.contains("..")) {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
             }
 
             if (!"jpg".equals(extension) && !"jpeg".equals(extension) && !"png".equals(extension)) {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
             }
 
             try (InputStream inputStream = image.getInputStream()) {
@@ -85,7 +87,7 @@ public class AccountImageService {
         String email = jwtProvider.getUsernameFromToken(request.getHeader(HttpHeaders.AUTHORIZATION).substring(7));
         Optional<Account> accountOptional = accountRepository.findByEmail(email);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         String newImagePath = UriComponentsBuilder
@@ -107,7 +109,7 @@ public class AccountImageService {
                 try {
                     contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
                 } catch (IOException e) {
-                    return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+                    return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
                 }
                 if (contentType == null) {
                     contentType = "application/octet-stream";
@@ -118,10 +120,10 @@ public class AccountImageService {
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(CANNOTREADABLEIMAGE), HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(errorsFormatter.formatAnError(CANNOT_READABLE_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
             }
         } catch (MalformedURLException e) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(INVALIDIMAGE), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
         }
     }
 

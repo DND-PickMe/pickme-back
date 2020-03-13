@@ -9,6 +9,7 @@ import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.properties.AppProperties;
 import com.pickmebackend.repository.account.AccountRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,7 @@ class AccountImageControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("유저 생성 시 디폴트 이미지 주입 받는지 확인")
+    @Disabled
     void createUser_default_image() throws Exception {
         String oneLineIntroduce = "테스트 코드 작성을 중요시 합니다!";
         AccountInitialRequestDto accountDto = createInitialAccount();

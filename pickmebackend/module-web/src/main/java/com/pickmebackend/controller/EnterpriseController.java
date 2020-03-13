@@ -7,6 +7,7 @@ import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
+import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.EnterpriseResource;
 import com.pickmebackend.service.EnterpriseService;
@@ -23,10 +24,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import javax.mail.MessagingException;
+
 import javax.validation.Valid;
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.*;
+
+import static com.pickmebackend.error.ErrorMessage.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RequiredArgsConstructor
@@ -45,11 +47,11 @@ public class EnterpriseController {
     @GetMapping("/profile")
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
         if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         Account account = accountOptional.get();
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadProfile(account);
@@ -65,9 +67,12 @@ public class EnterpriseController {
     @GetMapping("/{enterpriseId}")
     public ResponseEntity<?> loadEnterprise(@PathVariable Long enterpriseId) {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+        }
         Account account = accountOptional.get();
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadEnterprise(account);
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
@@ -77,7 +82,7 @@ public class EnterpriseController {
     }
 
     @GetMapping
-    ResponseEntity<?> loadEnterprisesWithFilter(@RequestParam(required = false) String name,
+    public ResponseEntity<?> loadEnterprisesWithFilter(@RequestParam(required = false) String name,
                                               @RequestParam(required = false) String address,
                                               Pageable pageable,
                                               PagedResourcesAssembler<Enterprise> assembler)    {
@@ -101,7 +106,7 @@ public class EnterpriseController {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(enterpriseService.isDuplicatedEnterprise(enterpriseRequestDto)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATEDUSER));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
         }
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.saveEnterprise(enterpriseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
@@ -118,11 +123,14 @@ public class EnterpriseController {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(ErrorMessage.USER_NOT_FOUND.getValue()));
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(ErrorMessage.UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+        }
+        if (!accountOptional.isPresent()) {
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.updateEnterprise(accountOptional.get(), enterpriseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
@@ -136,12 +144,15 @@ public class EnterpriseController {
     @DeleteMapping("/{enterpriseId}")
     public ResponseEntity<?> deleteEnterprise(@PathVariable Long enterpriseId, @CurrentUser Account currentUser)    {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
         }
         if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
         Optional<Account> optionalAccount = this.accountRepository.findById(enterpriseId);
+        if (!optionalAccount.isPresent()) {
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+        }
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.deleteEnterprise(optionalAccount.get());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
@@ -151,9 +162,9 @@ public class EnterpriseController {
     }
 
     @GetMapping("/suggestion")
-    public ResponseEntity<?> sendSuggestion(@RequestParam(value = "accountId") Long accountId, @CurrentUser Account currentUser) throws MessagingException {
+    public ResponseEntity<?> sendSuggestion(@RequestParam(value = "accountId") Long accountId, @CurrentUser Account currentUser) {
         if(currentUser == null) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
         }
         return enterpriseService.sendSuggestion(accountId, currentUser);
     }

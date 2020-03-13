@@ -16,9 +16,11 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.PRIZENOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
+
+import static com.pickmebackend.error.ErrorMessage.PRIZE_NOT_FOUND;
+import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -33,7 +35,7 @@ public class PrizeController {
     private final ErrorsFormatter errorsFormatter;
 
     @PostMapping
-    ResponseEntity<?> savePrize(@RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> savePrize(@RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
         PrizeResponseDto prizeResponseDto = prizeService.savePrize(prizeRequestDto, currentUser);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(PrizeController.class).slash(prizeResponseDto.getId());
@@ -46,15 +48,15 @@ public class PrizeController {
     }
 
     @PutMapping("/{prizeId}")
-    ResponseEntity<?> updatePrize(@PathVariable Long prizeId, @RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> updatePrize(@PathVariable Long prizeId, @RequestBody PrizeRequestDto prizeRequestDto, @CurrentUser Account currentUser) {
         Optional<Prize> prizeOptional = this.prizeRepository.findById(prizeId);
         if (!prizeOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZENOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZE_NOT_FOUND.getValue()));
         }
 
         Prize prize = prizeOptional.get();
         if (!prize.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         PrizeResponseDto modifiedPrizeResponseDto = prizeService.updatePrize(prize, prizeRequestDto);
@@ -68,15 +70,15 @@ public class PrizeController {
     }
 
     @DeleteMapping("/{prizeId}")
-    ResponseEntity<?> deletePrize(@PathVariable Long prizeId, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> deletePrize(@PathVariable Long prizeId, @CurrentUser Account currentUser) {
         Optional<Prize> prizeOptional = this.prizeRepository.findById(prizeId);
         if (!prizeOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZENOTFOUND));
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZE_NOT_FOUND.getValue()));
         }
 
         Prize prize = prizeOptional.get();
         if (!prize.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         PrizeResponseDto prizeResponseDto = prizeService.deletePrize(prize);

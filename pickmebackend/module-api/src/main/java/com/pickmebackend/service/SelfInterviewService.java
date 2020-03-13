@@ -21,17 +21,13 @@ public class SelfInterviewService {
         SelfInterview selfInterview = modelMapper.map(selfInterviewRequestDto, SelfInterview.class);
         selfInterview.mapAccount(account);
         SelfInterview savedSelfInterview = this.selfInterviewRepository.save(selfInterview);
-        SelfInterviewResponseDto selfInterviewResponseDto = modelMapper.map(savedSelfInterview, SelfInterviewResponseDto.class);
-
-        return selfInterviewResponseDto;
+        return modelMapper.map(savedSelfInterview, SelfInterviewResponseDto.class);
     }
 
     public SelfInterviewResponseDto updateSelfInterview(SelfInterview selfInterview, SelfInterviewRequestDto selfInterviewRequestDto) {
         modelMapper.map(selfInterviewRequestDto, selfInterview);
         SelfInterview modifiedSelfInterview = this.selfInterviewRepository.save(selfInterview);
-        SelfInterviewResponseDto selfInterviewResponseDto = modelMapper.map(modifiedSelfInterview, SelfInterviewResponseDto.class);
-
-        return selfInterviewResponseDto;
+        return modelMapper.map(modifiedSelfInterview, SelfInterviewResponseDto.class);
     }
 
     public SelfInterviewResponseDto deleteSelfInterview(SelfInterview selfInterview) {

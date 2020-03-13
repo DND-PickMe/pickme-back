@@ -8,6 +8,7 @@ import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.dto.enterprise.SuggestionDto;
 import com.pickmebackend.domain.enums.UserRole;
+import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.enterprise.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import javax.mail.MessagingException;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
+
+import static com.pickmebackend.error.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -121,10 +123,10 @@ public class EnterpriseService {
         return !this.accountRepository.findById(enterpriseId).isPresent();
     }
 
-    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) throws MessagingException {
+    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) {
         Optional<Account> workerOptional = accountRepository.findById(accountId);
         if (!workerOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         Enterprise enterprise = currentUser.getEnterprise();

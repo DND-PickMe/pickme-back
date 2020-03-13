@@ -16,9 +16,11 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.EXPERIENCENOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
+
+import static com.pickmebackend.error.ErrorMessage.EXPERIENCE_NOT_FOUND;
+import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -33,7 +35,7 @@ public class ExperienceController {
     private final ErrorsFormatter errorsFormatter;
 
     @PostMapping
-    ResponseEntity<?> saveExperience(@RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> saveExperience(@RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
         ExperienceResponseDto experienceResponseDto =  experienceService.saveExperience(experienceRequestDto, currentUser);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ExperienceController.class).slash(experienceResponseDto.getId());
@@ -46,15 +48,15 @@ public class ExperienceController {
     }
 
     @PutMapping(value = "/{experienceId}")
-    ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> updateExperience(@PathVariable Long experienceId, @RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         Experience experience = experienceOptional.get();
         if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         ExperienceResponseDto modifiedExperienceResponseDto = experienceService.updateExperience(experience, experienceRequestDto);
@@ -68,15 +70,15 @@ public class ExperienceController {
     }
 
     @DeleteMapping(value = "/{experienceId}")
-    ResponseEntity<?> deleteExperience(@PathVariable Long experienceId, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> deleteExperience(@PathVariable Long experienceId, @CurrentUser Account currentUser) {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCENOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         Experience experience = experienceOptional.get();
         if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         ExperienceResponseDto experienceResponseDto = experienceService.deleteExperience(experience);

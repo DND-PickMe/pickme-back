@@ -16,9 +16,11 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.LICENSENOTFOUND;
-import static com.pickmebackend.error.ErrorMessageConstant.UNAUTHORIZEDUSER;
+
+import static com.pickmebackend.error.ErrorMessage.LICENSE_NOT_FOUND;
+import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -33,7 +35,7 @@ public class LicenseController {
     private final ErrorsFormatter errorsFormatter;
 
     @PostMapping
-    ResponseEntity<?> saveLicense(@RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> saveLicense(@RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
         LicenseResponseDto licenseResponseDto = licenseService.saveLicense(licenseRequestDto, currentUser);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(licenseResponseDto.getId());
@@ -46,15 +48,15 @@ public class LicenseController {
     }
 
     @PutMapping("/{licenseId}")
-    ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
         Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
         if (!licenseOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(LICENSENOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(LICENSE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         License license = licenseOptional.get();
         if (!license.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto);
@@ -68,15 +70,15 @@ public class LicenseController {
     }
 
     @DeleteMapping("/{licenseId}")
-    ResponseEntity<?> deleteLicense(@PathVariable Long licenseId, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> deleteLicense(@PathVariable Long licenseId, @CurrentUser Account currentUser) {
         Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
         if (!licenseOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(LICENSENOTFOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(LICENSE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         License license = licenseOptional.get();
         if (!license.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZEDUSER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
 
         LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(license);

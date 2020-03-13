@@ -15,12 +15,12 @@ public class AccountImageController {
     private final AccountImageService accountImageService;
 
     @PostMapping
-    ResponseEntity<?> saveImage(@RequestParam("image") MultipartFile image, HttpServletRequest request) {
+    public ResponseEntity<?> saveImage(@RequestParam("image") MultipartFile image, HttpServletRequest request) {
         return accountImageService.saveImage(image, request);
     }
 
     @GetMapping(value = "/{imageName:.+}")
-    ResponseEntity<?> getImage(@PathVariable String imageName, HttpServletRequest request) {
+    public ResponseEntity<?> getImage(@PathVariable String imageName, HttpServletRequest request) {
         return accountImageService.loadAsResource(imageName, request);
     }
 }

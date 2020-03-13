@@ -8,6 +8,7 @@ import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeResponseDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeResponseDto;
+import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.account.AccountTechRepository;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,8 +35,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
-import static com.pickmebackend.error.ErrorMessageConstant.UNVERIFIED_USER;
-import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
+
+import static com.pickmebackend.error.ErrorMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -118,11 +120,11 @@ public class AccountService{
     public ResponseEntity<?> verifyCode(VerifyCodeRequestDto verifyCodeRequestDto) {
         Optional<VerificationCode> optionalVerificationCode = this.verificationCodeRepository.findByEmail(verifyCodeRequestDto.getEmail());
         if(!optionalVerificationCode.isPresent())   {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         VerificationCode verificationCode = optionalVerificationCode.get();
         if(!verifyCodeRequestDto.getCode().equals(verificationCode.getCode())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNVERIFIED_USER), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(UNVERIFIED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
         verificationCode.setVerified(true);
 
@@ -144,8 +146,8 @@ public class AccountService{
         updateTechnologies(account, accountDto);
         updatePositions(account, accountDto);
 
-        List<AccountTech> allByAccount_id = accountTechRepository.findAllByAccount_Id(account.getId());
-        account.setAccountTechSet(new HashSet<>(allByAccount_id));
+        List<AccountTech> allAccount = accountTechRepository.findAllByAccount_Id(account.getId());
+        account.setAccountTechSet(new HashSet<>(allAccount));
         Account modifiedAccount = this.accountRepository.save(account);
 
         return new AccountResponseDto(modifiedAccount);
@@ -189,7 +191,7 @@ public class AccountService{
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         Account favoritedAccount = accountOptional.get();
         favoritedAccount.addFavorite(currentUser);
@@ -200,7 +202,7 @@ public class AccountService{
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.OK);
+            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.OK);
         }
         Account account = accountOptional.get();
         List<AccountListResponseDto> accountList = account.getFavorite().stream()
