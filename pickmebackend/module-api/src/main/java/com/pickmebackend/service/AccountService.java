@@ -116,16 +116,18 @@ public class AccountService{
         return new ResponseEntity<>(sendCodeResponseDto, HttpStatus.CREATED);
     }
 
-    @Transactional
+    //@Transactional
     public ResponseEntity<?> verifyCode(VerifyCodeRequestDto verifyCodeRequestDto) {
         Optional<VerificationCode> optionalVerificationCode = this.verificationCodeRepository.findByEmail(verifyCodeRequestDto.getEmail());
         if(!optionalVerificationCode.isPresent())   {
             return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
         }
         VerificationCode verificationCode = optionalVerificationCode.get();
-        if(!verifyCodeRequestDto.getCode().equals(verificationCode.getCode())) {
+        if(!verifyCodeRequestDto.getCode().trim().equals(verificationCode.getCode())) {
+            verificationCodeRepository.delete(verificationCode);
             return new ResponseEntity<>(errorsFormatter.formatAnError(UNVERIFIED_USER.getValue()), HttpStatus.BAD_REQUEST);
         }
+        verificationCodeRepository.delete(verificationCode);
         verificationCode.setVerified(true);
 
         return new ResponseEntity<>(modelMapper.map(verificationCode, VerifyCodeResponseDto.class), HttpStatus.OK);
@@ -215,11 +217,5 @@ public class AccountService{
         Context context = new Context();
         context.setVariable("code", code);
         return templateEngine.process("html/code.html", context);
-    }
-
-    public boolean isVerifiedAccount(AccountInitialRequestDto accountDto) {
-        Optional<VerificationCode> verificationCodeOptional = this.verificationCodeRepository.findByEmail(accountDto.getEmail());
-        VerificationCode verificationCode = verificationCodeOptional.get();
-        return !verificationCode.isVerified();
     }
 }

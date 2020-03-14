@@ -101,6 +101,7 @@ class AccountControllerTest extends BaseControllerTest {
 
         VerificationCode savedVerificationCode = this.verificationCodeRepository.save(verificationCode);
         VerifyCodeRequestDto verifyCodeRequestDto = modelMapper.map(savedVerificationCode, VerifyCodeRequestDto.class);
+        verifyCodeRequestDto.setCode(verifyCodeRequestDto.getCode() + " ");
 
         this.mockMvc.perform(put(accountURL + "matchCode")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,6 +124,15 @@ class AccountControllerTest extends BaseControllerTest {
         VerificationCode savedVerificationCode = this.verificationCodeRepository.save(verificationCode);
         VerifyCodeRequestDto verifyCodeRequestDto = modelMapper.map(savedVerificationCode, VerifyCodeRequestDto.class);
         verifyCodeRequestDto.setCode("222222");
+
+        this.mockMvc.perform(put(accountURL + "matchCode")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(verifyCodeRequestDto)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+        ;
+
+        this.verificationCodeRepository.save(verificationCode);
 
         this.mockMvc.perform(put(accountURL + "matchCode")
                 .contentType(MediaType.APPLICATION_JSON)

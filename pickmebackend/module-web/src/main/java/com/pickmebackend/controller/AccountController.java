@@ -3,10 +3,11 @@ package com.pickmebackend.controller;
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
+import com.pickmebackend.domain.VerificationCode;
 import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
-import com.pickmebackend.error.ErrorMessage;
+import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountFavoriteFlagResource;
 import com.pickmebackend.resource.AccountResource;
@@ -40,6 +41,8 @@ public class AccountController {
     private final AccountService accountService;
 
     private final AccountRepository accountRepository;
+
+    private final VerificationCodeRepository verificationCodeRepository;
 
     private final ErrorsFormatter errorsFormatter;
 
@@ -132,9 +135,14 @@ public class AccountController {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
         }
-        if(accountService.isVerifiedAccount(accountDto))  {
+        Optional<VerificationCode> verificationCodeOptional = this.verificationCodeRepository.findByEmail(accountDto.getEmail());
+        if (verificationCodeOptional.isPresent())   {
             return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(UNVERIFIED_USER.getValue()));
         }
+        if(accountService.isDuplicatedAccount(accountDto.getEmail()))  {
+            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
+        }
+
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
