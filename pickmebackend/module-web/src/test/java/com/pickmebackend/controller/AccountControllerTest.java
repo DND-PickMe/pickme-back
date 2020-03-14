@@ -80,6 +80,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("이메일이 null일 때 인증코드 전송 시 Bad Request")
+    @Disabled
     void send_code_null() throws Exception   {
         VerifyCodeRequestDto verifyCodeRequestDto = VerifyCodeRequestDto.builder().build();
 
@@ -93,6 +94,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("정상적으로 인증코드 검증 성공")
+    @Disabled
     void match_code() throws Exception  {
         VerificationCode verificationCode = VerificationCode.builder()
                 .email(appProperties.getTestEmail())
@@ -115,6 +117,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("인증코드 검증 실패 시 Bad Request")
+    @Disabled
     void match_code_failed() throws Exception  {
         VerificationCode verificationCode = VerificationCode.builder()
                 .email(appProperties.getTestEmail())
@@ -144,6 +147,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("인증코드 검증 시 Email과 Code가 null일 때 Bad Request")
+    @Disabled
     void match_code_failed_by_null() throws Exception  {
         VerificationCode verificationCode = VerificationCode.builder()
                 .email(appProperties.getTestEmail())
@@ -163,6 +167,7 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("인증코드 검증 시 Email이 틀렸을 때 Bad Request")
+    @Disabled
     void match_code_failed_by_email() throws Exception  {
         VerificationCode verificationCode = VerificationCode.builder()
                 .email(appProperties.getTestEmail())

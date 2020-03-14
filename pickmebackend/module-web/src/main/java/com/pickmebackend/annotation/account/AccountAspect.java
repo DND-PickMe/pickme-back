@@ -1,4 +1,4 @@
-package com.pickmebackend.annotation;
+package com.pickmebackend.annotation.account;
 
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
@@ -11,11 +11,13 @@ import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.service.AccountService;
+import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -41,7 +43,7 @@ public class AccountAspect {
 
     private final VerificationCodeRepository verificationCodeRepository;
 
-    @Pointcut("@annotation(com.pickmebackend.annotation.AccountValidation)")
+    @Pointcut("@annotation(com.pickmebackend.annotation.account.AccountValidation)")
     public void accountIsPresent() {}
 
     @Around("accountIsPresent() && args(accountDto, errors)")

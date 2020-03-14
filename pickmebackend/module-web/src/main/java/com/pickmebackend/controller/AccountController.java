@@ -1,14 +1,11 @@
 package com.pickmebackend.controller;
 
-import com.pickmebackend.annotation.AccountValidation;
-import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.annotation.account.AccountValidation;
+import com.pickmebackend.annotation.account.CurrentUser;
 import com.pickmebackend.domain.Account;
-import com.pickmebackend.domain.VerificationCode;
 import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
-import com.pickmebackend.properties.RestDocsConstants;
-import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountFavoriteFlagResource;
 import com.pickmebackend.resource.AccountResource;
@@ -43,10 +40,6 @@ public class AccountController {
 
     private final AccountRepository accountRepository;
 
-    private final VerificationCodeRepository verificationCodeRepository;
-
-    private static final String PROFILE = "profile";
-
     @GetMapping("/profile")
     @AccountValidation
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
@@ -59,7 +52,7 @@ public class AccountController {
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(selfLinkBuilder.withRel("update-account"));
         accountResource.add(selfLinkBuilder.withRel("delete-account"));
-        accountResource.add(new Link("/docs/index.html#resources-profile-load").withRel(RestDocsConstants.PROFILE.getValue()));
+        accountResource.add(new Link("/docs/index.html#resources-profile-load").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -73,7 +66,7 @@ public class AccountController {
         AccountFavoriteFlagResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response, currentUser);
 
         AccountFavoriteFlagResource accountResource = new AccountFavoriteFlagResource(accountResponseDto);
-        accountResource.add(new Link("/docs/index.html#resources-account-load").withRel(RestDocsConstants.PROFILE.getValue()));
+        accountResource.add(new Link("/docs/index.html#resources-account-load").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -99,7 +92,7 @@ public class AccountController {
 
         Page<Account> filteredAccount = accountService.loadAccountsWithFilter(accountFilteringRequestDto, pageable);
         PagedModel<AccountResource> accountResources = assembler.toModel(filteredAccount, e -> new AccountResource(new AccountResponseDto(e)));
-        accountResources.add(new Link("/docs/index.html#resources-accounts-load").withRel(RestDocsConstants.PROFILE.getValue()));
+        accountResources.add(new Link("/docs/index.html#resources-accounts-load").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResources, HttpStatus.OK);
     }
@@ -122,7 +115,7 @@ public class AccountController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-create").withRel(RestDocsConstants.PROFILE.getValue()));
+        accountResource.add(new Link("/docs/index.html#resources-account-create").withRel(PROFILE.getValue()));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(accountResource);
     }
@@ -148,7 +141,7 @@ public class AccountController {
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(selfLinkBuilder.withRel("delete-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-update").withRel(RestDocsConstants.PROFILE.getValue()));
+        accountResource.add(new Link("/docs/index.html#resources-account-update").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -160,7 +153,7 @@ public class AccountController {
         AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-delete").withRel(RestDocsConstants.PROFILE.getValue()));
+        accountResource.add(new Link("/docs/index.html#resources-account-delete").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }

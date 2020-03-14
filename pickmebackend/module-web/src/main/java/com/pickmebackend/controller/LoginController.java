@@ -1,5 +1,6 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.login.LoginValidation;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
@@ -31,23 +32,13 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RequestMapping(value = "/api/login", produces = MediaTypes.HAL_JSON_VALUE)
 public class LoginController {
 
-    private final AuthenticationManager authenticationManager;
-
     private final JwtProvider jwtProvider;
 
     private final ModelMapper modelMapper;
 
-    private final ErrorsFormatter errorsFormatter;
-
     @PostMapping
+    @LoginValidation
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDto loginRequestDto, Errors errors) {
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
-        if(!authenticate(loginRequestDto.getEmail(), loginRequestDto.getPassword()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(INVALID_LOGIN));
-        }
-
         Account account = modelMapper.map(loginRequestDto, Account.class);
         String jwt = jwtProvider.generateToken(account);
 
@@ -63,16 +54,6 @@ public class LoginController {
         loginResource.add(new Link("/docs/index.html#resources-login").withRel("profile"));
 
         return ResponseEntity.ok().body(loginResource);
-    }
-
-    private boolean authenticate(String username, String password) {
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            return true;
-        }
-        catch (DisabledException | BadCredentialsException e) {
-            return false;
-        }
     }
 }
 

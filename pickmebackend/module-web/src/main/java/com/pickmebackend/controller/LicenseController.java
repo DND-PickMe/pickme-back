@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
-import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.annotation.account.CurrentUser;
+import com.pickmebackend.annotation.license.LicenseValidation;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
@@ -48,18 +49,11 @@ public class LicenseController {
     }
 
     @PutMapping("/{licenseId}")
+    @LicenseValidation
     public ResponseEntity<?> updateLicense(@PathVariable Long licenseId, @RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
         Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
-        if (!licenseOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(LICENSE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
 
-        License license = licenseOptional.get();
-        if (!license.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(license, licenseRequestDto);
+        LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(licenseOptional.get(), licenseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(modifiedLicenseResponseDto.getId());
         LicenseResource licenseResource = new LicenseResource(modifiedLicenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
@@ -70,18 +64,10 @@ public class LicenseController {
     }
 
     @DeleteMapping("/{licenseId}")
+    @LicenseValidation
     public ResponseEntity<?> deleteLicense(@PathVariable Long licenseId, @CurrentUser Account currentUser) {
         Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
-        if (!licenseOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(LICENSE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        License license = licenseOptional.get();
-        if (!license.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(license);
+        LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(licenseOptional.get());
         LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
         licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
         licenseResource.add(new Link("/docs/index.html#resources-licenses-delete").withRel("profile"));

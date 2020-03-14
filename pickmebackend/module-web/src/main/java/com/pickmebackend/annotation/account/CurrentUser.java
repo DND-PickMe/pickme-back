@@ -1,4 +1,4 @@
-package com.pickmebackend.annotation;
+package com.pickmebackend.annotation.account;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.lang.annotation.ElementType;

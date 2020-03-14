@@ -1,6 +1,7 @@
 package com.pickmebackend.controller;
 
-import com.pickmebackend.annotation.CurrentUser;
+import com.pickmebackend.annotation.account.CurrentUser;
+import com.pickmebackend.annotation.project.ProjectValidation;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
@@ -48,17 +49,10 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}")
+    @ProjectValidation
     public ResponseEntity<?> updateProject(@PathVariable Long projectId, @RequestBody ProjectRequestDto projectRequestDto, @CurrentUser Account currentUser) {
         Optional<Project> projectOptional = this.projectRepository.findById(projectId);
-        if (!projectOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PROJECT_NOT_FOUND.getValue()));
-        }
-
-        Project project = projectOptional.get();
-        if (!project.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-        ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(project, projectRequestDto);
+        ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(projectOptional.get(), projectRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ProjectController.class).slash(modifiedProjectResponseDto.getId());
         ProjectResource projectResource = new ProjectResource(modifiedProjectResponseDto);
         projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
@@ -69,18 +63,10 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectId}")
+    @ProjectValidation
     public ResponseEntity<?> deleteProject(@PathVariable Long projectId, @CurrentUser Account currentUser) {
         Optional<Project> projectOptional = this.projectRepository.findById(projectId);
-        if (!projectOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PROJECT_NOT_FOUND.getValue()));
-        }
-
-        Project project = projectOptional.get();
-        if (!project.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        ProjectResponseDto projectResponseDto = projectService.deleteProject(project);
+        ProjectResponseDto projectResponseDto = projectService.deleteProject(projectOptional.get());
         ProjectResource projectResource = new ProjectResource(projectResponseDto);
         projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
         projectResource.add(new Link("/docs/index.html#resources-projects-delete").withRel("profile"));

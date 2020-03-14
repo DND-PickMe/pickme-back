@@ -1,7 +1,7 @@
 package com.pickmebackend.controller;
 
-import com.pickmebackend.annotation.CurrentUser;
-import com.pickmebackend.common.ErrorsFormatter;
+import com.pickmebackend.annotation.account.CurrentUser;
+import com.pickmebackend.annotation.selfInterview.SelfInterviewValidation;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.SelfInterview;
 import com.pickmebackend.domain.dto.selfInterview.SelfInterviewRequestDto;
@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessage.SELF_INTERVIEW_NOT_FOUND;
-import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -31,8 +29,6 @@ public class SelfInterviewController {
     private final SelfInterviewService selfInterviewService;
 
     private final SelfInterviewRepository selfInterviewRepository;
-
-    private final ErrorsFormatter errorsFormatter;
 
     @PostMapping
     public ResponseEntity<?> saveSelfInterview(@RequestBody SelfInterviewRequestDto selfInterviewRequestDto, @CurrentUser Account currentUser) {
@@ -48,17 +44,11 @@ public class SelfInterviewController {
     }
 
     @PutMapping("/{selfInterviewId}")
+    @SelfInterviewValidation
     public ResponseEntity<?> updateSelfInterview(@PathVariable Long selfInterviewId, @RequestBody SelfInterviewRequestDto selfInterviewRequestDto, @CurrentUser Account currentUser) {
         Optional<SelfInterview> selfInterviewOptional = this.selfInterviewRepository.findById(selfInterviewId);
-        if (!selfInterviewOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(SELF_INTERVIEW_NOT_FOUND.getValue()));
-        }
-
-        SelfInterview selfInterview = selfInterviewOptional.get();
-        if (!selfInterview.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-        SelfInterviewResponseDto modifiedSelfInterviewResponseDto = selfInterviewService.updateSelfInterview(selfInterview, selfInterviewRequestDto);
+        SelfInterviewResponseDto modifiedSelfInterviewResponseDto =
+                selfInterviewService.updateSelfInterview(selfInterviewOptional.get(), selfInterviewRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(SelfInterviewController.class).slash(modifiedSelfInterviewResponseDto.getId());
         SelfInterviewResource selfInterviewResource = new SelfInterviewResource(modifiedSelfInterviewResponseDto);
         selfInterviewResource.add(linkTo(SelfInterviewController.class).withRel("create-selfInterview"));
@@ -69,18 +59,10 @@ public class SelfInterviewController {
     }
 
     @DeleteMapping("/{selfInterviewId}")
+    @SelfInterviewValidation
     public ResponseEntity<?> deleteSelfInterview(@PathVariable Long selfInterviewId, @CurrentUser Account currentUser) {
         Optional<SelfInterview> selfInterviewOptional = this.selfInterviewRepository.findById(selfInterviewId);
-        if (!selfInterviewOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(SELF_INTERVIEW_NOT_FOUND.getValue()));
-        }
-
-        SelfInterview selfInterview = selfInterviewOptional.get();
-        if (!selfInterview.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        SelfInterviewResponseDto selfInterviewResponseDto = selfInterviewService.deleteSelfInterview(selfInterview);
+        SelfInterviewResponseDto selfInterviewResponseDto = selfInterviewService.deleteSelfInterview(selfInterviewOptional.get());
         SelfInterviewResource selfInterviewResource = new SelfInterviewResource(selfInterviewResponseDto);
         selfInterviewResource.add(linkTo(SelfInterviewController.class).withRel("create-selfInterview"));
         selfInterviewResource.add(new Link("/docs/index.html#resources-selfInterviews-delete").withRel("profile"));
