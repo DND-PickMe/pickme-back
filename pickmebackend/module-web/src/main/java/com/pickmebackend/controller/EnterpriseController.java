@@ -1,5 +1,6 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.AccountValidation;
 import com.pickmebackend.annotation.CurrentUser;
 import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
@@ -45,16 +46,12 @@ public class EnterpriseController {
     private final ErrorsFormatter errorsFormatter;
 
     @GetMapping("/profile")
+    @AccountValidation
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
-        if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
         Account account = accountOptional.get();
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadProfile(account);
+
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
         enterpriseResource.add(selfLinkBuilder.withRel("update-enterprise"));

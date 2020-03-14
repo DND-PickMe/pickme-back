@@ -1,12 +1,13 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.annotation.AccountValidation;
 import com.pickmebackend.annotation.CurrentUser;
-import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.VerificationCode;
 import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
+import com.pickmebackend.properties.RestDocsConstants;
 import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountFavoriteFlagResource;
@@ -30,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessage.*;
+import static com.pickmebackend.properties.RestDocsConstants.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -44,46 +45,35 @@ public class AccountController {
 
     private final VerificationCodeRepository verificationCodeRepository;
 
-    private final ErrorsFormatter errorsFormatter;
-
     private static final String PROFILE = "profile";
 
     @GetMapping("/profile")
+    @AccountValidation
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
-        if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
         Account account = accountOptional.get();
         AccountResponseDto accountResponseDto = accountService.loadProfile(account);
         accountResponseDto.setFavoriteCount(account.getFavorite().size());
+
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(selfLinkBuilder.withRel("update-account"));
         accountResource.add(selfLinkBuilder.withRel("delete-account"));
-
-        accountResource.add(new Link("/docs/index.html#resources-profile-load").withRel(PROFILE));
+        accountResource.add(new Link("/docs/index.html#resources-profile-load").withRel(RestDocsConstants.PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser
-            , HttpServletRequest request, HttpServletResponse response) {
-        if (currentUser == null) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
+    @AccountValidation
+    public ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser,
+                                         HttpServletRequest request, HttpServletResponse response) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
         Account account = accountOptional.get();
         AccountFavoriteFlagResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response, currentUser);
+
         AccountFavoriteFlagResource accountResource = new AccountFavoriteFlagResource(accountResponseDto);
-        accountResource.add(new Link("/docs/index.html#resources-account-load").withRel(PROFILE));
+        accountResource.add(new Link("/docs/index.html#resources-account-load").withRel(RestDocsConstants.PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -109,7 +99,7 @@ public class AccountController {
 
         Page<Account> filteredAccount = accountService.loadAccountsWithFilter(accountFilteringRequestDto, pageable);
         PagedModel<AccountResource> accountResources = assembler.toModel(filteredAccount, e -> new AccountResource(new AccountResponseDto(e)));
-        accountResources.add(new Link("/docs/index.html#resources-accounts-load").withRel(PROFILE));
+        accountResources.add(new Link("/docs/index.html#resources-accounts-load").withRel(RestDocsConstants.PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResources, HttpStatus.OK);
     }
@@ -120,34 +110,19 @@ public class AccountController {
     }
 
     @PostMapping("/sendCode")
+    @AccountValidation
     public ResponseEntity<?> sendVerificationCode(@RequestBody SendCodeRequestDto sendCodeRequestDto, Errors errors) {
-        if(errors.hasErrors())  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
-        if(accountService.isDuplicatedAccount(sendCodeRequestDto.getEmail()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
-        }
         return accountService.sendVerificationCode(sendCodeRequestDto.getEmail());
     }
 
     @PostMapping
+    @AccountValidation
     public ResponseEntity<?> saveAccount(@Valid @RequestBody AccountInitialRequestDto accountDto, Errors errors) {
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
-        Optional<VerificationCode> verificationCodeOptional = this.verificationCodeRepository.findByEmail(accountDto.getEmail());
-        if (verificationCodeOptional.isPresent())   {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(UNVERIFIED_USER.getValue()));
-        }
-        if(accountService.isDuplicatedAccount(accountDto.getEmail()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
-        }
-
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-create").withRel(PROFILE));
+        accountResource.add(new Link("/docs/index.html#resources-account-create").withRel(RestDocsConstants.PROFILE.getValue()));
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(accountResource);
     }
@@ -158,53 +133,34 @@ public class AccountController {
     }
 
     @PutMapping("/matchCode")
+    @AccountValidation
     public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequestDto verifyCodeRequestDto, Errors errors)    {
-        if(errors.hasErrors())  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
-        if(accountService.isDuplicatedAccount(verifyCodeRequestDto.getEmail()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
-        }
         return accountService.verifyCode(verifyCodeRequestDto);
     }
 
     @PutMapping("/{accountId}")
-    public ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequestDto accountDto, Errors errors, @CurrentUser Account currentUser) {
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
+    @AccountValidation
+    public ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequestDto accountDto, Errors errors,
+                                           @CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
         AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.get(), accountDto);
+
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(selfLinkBuilder.withRel("delete-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-update").withRel(PROFILE));
+        accountResource.add(new Link("/docs/index.html#resources-account-update").withRel(RestDocsConstants.PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
 
     @DeleteMapping("/{accountId}")
+    @AccountValidation
     public ResponseEntity<?> deleteAccount(@PathVariable Long accountId, @CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
-        if (!accountId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
-        }
-
         AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
         AccountResource accountResource = new AccountResource(accountResponseDto);
         accountResource.add(linkTo(LoginController.class).withRel("login-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-delete").withRel(PROFILE));
+        accountResource.add(new Link("/docs/index.html#resources-account-delete").withRel(RestDocsConstants.PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
