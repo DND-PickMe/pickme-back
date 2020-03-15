@@ -8,7 +8,6 @@ import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.dto.enterprise.SuggestionDto;
 import com.pickmebackend.domain.enums.UserRole;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.enterprise.EnterpriseRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ import org.thymeleaf.context.Context;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessage.*;
+import static com.pickmebackend.error.ErrorMessage.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -126,7 +125,7 @@ public class EnterpriseService {
     public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) {
         Optional<Account> workerOptional = accountRepository.findById(accountId);
         if (!workerOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
 
         Enterprise enterprise = currentUser.getEnterprise();

@@ -10,8 +10,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -36,12 +34,12 @@ public class PrizeAspect {
                               PrizeRequestDto prizeRequestDto, Account currentUser) throws Throwable {
         Optional<Prize> prizeOptional = this.prizeRepository.findById(prizeId);
         if (!prizeOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZE_NOT_FOUND.getValue()));
+            return errorsFormatter.badRequest(PRIZE_NOT_FOUND.getValue());
         }
 
         Prize prize = prizeOptional.get();
         if (!prize.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(UNAUTHORIZED_USER.getValue());
         }
         return joinPoint.proceed();
     }
@@ -50,12 +48,12 @@ public class PrizeAspect {
     public Object deletePrize(ProceedingJoinPoint joinPoint, Long prizeId, Account currentUser) throws Throwable {
         Optional<Prize> prizeOptional = this.prizeRepository.findById(prizeId);
         if (!prizeOptional.isPresent()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(PRIZE_NOT_FOUND.getValue()));
+            return errorsFormatter.badRequest(PRIZE_NOT_FOUND.getValue());
         }
 
         Prize prize = prizeOptional.get();
         if (!prize.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(UNAUTHORIZED_USER.getValue());
         }
         return joinPoint.proceed();
     }

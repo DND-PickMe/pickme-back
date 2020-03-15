@@ -19,11 +19,11 @@ public class ErrorsFormatter {
         return new ResponseEntity<>(formatErrors(errors), HttpStatus.BAD_REQUEST);
     }
 
-    public List<String> formatAnError(String message) {
+    private List<String> formatAnError(String message) {
         return Arrays.asList(message);
     }
 
-    public List<String> formatErrors(Errors errors) {
+    private List<String> formatErrors(Errors errors) {
         List<String> errorList = new LinkedList<>();
 
         errors.getFieldErrors().forEach(e -> errorList.add(e.getDefaultMessage()));

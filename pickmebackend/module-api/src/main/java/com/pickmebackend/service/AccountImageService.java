@@ -66,15 +66,9 @@ public class AccountImageService {
         String imageName = UUID.randomUUID().toString() + "_" +  StringUtils.cleanPath(image.getOriginalFilename());
         String extension = FilenameUtils.getExtension(imageName);
         try {
-            if (image.isEmpty()) {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
-            }
-            if (imageName.contains("..")) {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
-            }
-
-            if (!"jpg".equals(extension) && !"jpeg".equals(extension) && !"png".equals(extension)) {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
+            if (image.isEmpty() || (imageName.contains(".."))
+                    || (!"jpg".equals(extension) && !"jpeg".equals(extension) && !"png".equals(extension))) {
+                return errorsFormatter.badRequest(INVALID_IMAGE.getValue());
             }
 
             try (InputStream inputStream = image.getInputStream()) {
@@ -87,7 +81,7 @@ public class AccountImageService {
         String email = jwtProvider.getUsernameFromToken(request.getHeader(HttpHeaders.AUTHORIZATION).substring(7));
         Optional<Account> accountOptional = accountRepository.findByEmail(email);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         Account account = accountOptional.get();
         String newImagePath = UriComponentsBuilder
@@ -109,7 +103,7 @@ public class AccountImageService {
                 try {
                     contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
                 } catch (IOException e) {
-                    return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
+                    return errorsFormatter.badRequest(INVALID_IMAGE.getValue());
                 }
                 if (contentType == null) {
                     contentType = "application/octet-stream";
@@ -120,10 +114,10 @@ public class AccountImageService {
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {
-                return new ResponseEntity<>(errorsFormatter.formatAnError(CANNOT_READABLE_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
+                return errorsFormatter.badRequest(CANNOT_READABLE_IMAGE.getValue());
             }
         } catch (MalformedURLException e) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(INVALID_IMAGE.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(INVALID_IMAGE.getValue());
         }
     }
 

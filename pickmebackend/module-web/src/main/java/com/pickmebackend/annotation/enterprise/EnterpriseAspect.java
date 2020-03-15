@@ -37,11 +37,11 @@ public class EnterpriseAspect {
     @Around("enterpriseValidation() && args(enterpriseId)")
     public Object loadEnterprise(ProceedingJoinPoint joinPoint, Long enterpriseId) throws Throwable {
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         return joinPoint.proceed();
     }
@@ -50,10 +50,10 @@ public class EnterpriseAspect {
     public Object saveEnterprise(ProceedingJoinPoint joinPoint,
                                  EnterpriseRequestDto enterpriseRequestDto, Errors errors) throws Throwable {
         if(errors.hasErrors())  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
+            return errorsFormatter.badRequest(errors);
         }
         if(enterpriseService.isDuplicatedEnterprise(enterpriseRequestDto)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
+            return errorsFormatter.badRequest(DUPLICATED_USER.getValue());
         }
         return joinPoint.proceed();
     }
@@ -62,17 +62,17 @@ public class EnterpriseAspect {
     public Object updateEnterprise(ProceedingJoinPoint joinPoint, Long enterpriseId,
                                    EnterpriseRequestDto enterpriseRequestDto, Errors errors, Account currentUser) throws Throwable {
         if(errors.hasErrors())  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
+            return errorsFormatter.badRequest(errors);
         }
         if(enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(ErrorMessage.USER_NOT_FOUND.getValue()));
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         Optional<Account> accountOptional = this.accountRepository.findById(enterpriseId);
         if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(ErrorMessage.UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(UNAUTHORIZED_USER.getValue());
         }
         if (!accountOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         return joinPoint.proceed();
     }
@@ -80,14 +80,14 @@ public class EnterpriseAspect {
     @Around("enterpriseValidation() && args(enterpriseId, currentUser)")
     public Object deleteEnterprise(ProceedingJoinPoint joinPoint, Long enterpriseId, Account currentUser) throws Throwable {
         if (enterpriseService.isNonEnterprise(enterpriseId)) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         if (!enterpriseId.equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(UNAUTHORIZED_USER.getValue());
         }
         Optional<Account> optionalAccount = this.accountRepository.findById(enterpriseId);
         if (!optionalAccount.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         return joinPoint.proceed();
     }
@@ -95,7 +95,7 @@ public class EnterpriseAspect {
     @Around("execution(* com.pickmebackend.controller.EnterpriseController.sendSuggestion()) && args(enterpriseId, currentUser)")
     public Object sendSuggestion(ProceedingJoinPoint joinPoint, Long enterpriseId, Account currentUser) throws Throwable {
         if(currentUser == null) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(USER_NOT_FOUND.getValue()));
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
         return joinPoint.proceed();
     }

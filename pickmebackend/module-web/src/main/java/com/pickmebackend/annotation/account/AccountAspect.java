@@ -7,22 +7,16 @@ import com.pickmebackend.domain.dto.account.AccountInitialRequestDto;
 import com.pickmebackend.domain.dto.account.AccountRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
-import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.service.AccountService;
-import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,15 +45,12 @@ public class AccountAspect {
         if (errors.hasErrors()) {
             return errorsFormatter.badRequest(errors);
         }
-        if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatErrors(errors));
-        }
         Optional<VerificationCode> verificationCodeOptional = this.verificationCodeRepository.findByEmail(accountDto.getEmail());
         if (verificationCodeOptional.isPresent())   {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(UNVERIFIED_USER.getValue()));
+            return errorsFormatter.badRequest(UNVERIFIED_USER.getValue());
         }
         if(accountService.isDuplicatedAccount(accountDto.getEmail()))  {
-            return ResponseEntity.badRequest().body(errorsFormatter.formatAnError(DUPLICATED_USER.getValue()));
+            return errorsFormatter.badRequest(DUPLICATED_USER.getValue());
         }
         return joinPoint.proceed();
     }

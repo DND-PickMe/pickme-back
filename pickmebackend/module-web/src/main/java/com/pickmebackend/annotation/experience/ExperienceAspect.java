@@ -38,12 +38,12 @@ public class ExperienceAspect {
                                    ExperienceRequestDto experienceRequestDto, Account currentUser) throws Throwable {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(EXPERIENCE_NOT_FOUND.getValue());
         }
 
         Experience experience = experienceOptional.get();
         if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(UNAUTHORIZED_USER.getValue());
         }
         return joinPoint.proceed();
     }
@@ -52,12 +52,12 @@ public class ExperienceAspect {
     public Object deleteExperience(ProceedingJoinPoint joinPoint, Long experienceId, Account currentUser) throws Throwable {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         if (!experienceOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(EXPERIENCE_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(EXPERIENCE_NOT_FOUND.getValue());
         }
 
         Experience experience = experienceOptional.get();
         if (!experience.getAccount().getId().equals(currentUser.getId())) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(UNAUTHORIZED_USER.getValue()), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(UNAUTHORIZED_USER.getValue());
         }
         return joinPoint.proceed();
     }
