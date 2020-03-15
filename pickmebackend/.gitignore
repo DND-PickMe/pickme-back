@@ -8,9 +8,10 @@ build/
 **/src/main/generated/
 
 **/presentation/final_ppt.md
+**/presentation/technology_list.txt
 application.yml
 application-mail.yml
-techonology_list.txt
+
 
 ### STS ###
 .apt_generated
