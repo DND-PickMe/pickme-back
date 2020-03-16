@@ -8,6 +8,8 @@ import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeResponseDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeResponseDto;
+import com.pickmebackend.exception.CodeNotExist;
+import com.pickmebackend.exception.UserNotFoundException;
 import com.pickmebackend.repository.VerificationCodeRepository;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.repository.account.AccountTechRepository;
@@ -36,7 +38,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static com.pickmebackend.error.ErrorMessage.UNVERIFIED_USER;
-import static com.pickmebackend.error.ErrorMessage.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -116,13 +117,9 @@ public class AccountService{
         return new ResponseEntity<>(sendCodeResponseDto, HttpStatus.CREATED);
     }
 
-    //@Transactional
     public ResponseEntity<?> verifyCode(VerifyCodeRequestDto verifyCodeRequestDto) {
         Optional<VerificationCode> optionalVerificationCode = this.verificationCodeRepository.findByEmail(verifyCodeRequestDto.getEmail());
-        if(!optionalVerificationCode.isPresent())   {
-            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
-        }
-        VerificationCode verificationCode = optionalVerificationCode.get();
+        VerificationCode verificationCode = optionalVerificationCode.orElseThrow(CodeNotExist::new);
         if(!verifyCodeRequestDto.getCode().trim().equals(verificationCode.getCode())) {
             verificationCodeRepository.delete(verificationCode);
             return errorsFormatter.badRequest(UNVERIFIED_USER.getValue());
@@ -192,10 +189,7 @@ public class AccountService{
     @Transactional
     public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
-        }
-        Account favoritedAccount = accountOptional.get();
+        Account favoritedAccount = accountOptional.orElseThrow(UserNotFoundException::new);
         favoritedAccount.addFavorite(currentUser);
 
         return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(favoritedAccount, currentUser), HttpStatus.OK);
@@ -203,10 +197,7 @@ public class AccountService{
 
     public ResponseEntity<?> getFavoriteUsers(Long accountId) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        if (!accountOptional.isPresent()) {
-            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
-        }
-        Account account = accountOptional.get();
+        Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         List<AccountListResponseDto> accountList = account.getFavorite().stream()
                 .map(AccountListResponseDto::new)
                 .collect(Collectors.toList());

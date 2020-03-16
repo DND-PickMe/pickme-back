@@ -6,9 +6,11 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
+import com.pickmebackend.exception.UserNotFoundException;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountFavoriteFlagResource;
 import com.pickmebackend.resource.AccountResource;
+import com.pickmebackend.resource.HateoasFormatter;
 import com.pickmebackend.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,18 +42,20 @@ public class AccountController {
 
     private final AccountRepository accountRepository;
 
+    private final HateoasFormatter hateoasFormatter;
+
     @GetMapping("/profile")
     @AccountValidation
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        Account account = accountOptional.get();
+        Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         AccountResponseDto accountResponseDto = accountService.loadProfile(account);
         accountResponseDto.setFavoriteCount(account.getFavorite().size());
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(selfLinkBuilder.withRel("update-account"));
-        accountResource.add(selfLinkBuilder.withRel("delete-account"));
+        accountResource.add(selfLinkBuilder.withRel(UPDATE_ACCOUNT.getValue()));
+        accountResource.add(selfLinkBuilder.withRel(DELETE_ACCOUNT.getValue()));
         accountResource.add(new Link("/docs/index.html#resources-profile-load").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
@@ -62,11 +66,11 @@ public class AccountController {
     public ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser,
                                          HttpServletRequest request, HttpServletResponse response) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        Account account = accountOptional.get();
+        Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         AccountFavoriteFlagResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response, currentUser);
 
         AccountFavoriteFlagResource accountResource = new AccountFavoriteFlagResource(accountResponseDto);
-        accountResource.add(new Link("/docs/index.html#resources-account-load").withRel(PROFILE.getValue()));
+        hateoasFormatter.addProfileRel(accountResource, "resources-account-load");
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -114,8 +118,8 @@ public class AccountController {
         AccountResponseDto accountResponseDto = accountService.saveAccount(accountDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(linkTo(LoginController.class).withRel("login-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-create").withRel(PROFILE.getValue()));
+        accountResource.add(linkTo(LoginController.class).withRel(LOGIN_ACCOUNT.getValue()));
+        hateoasFormatter.addProfileRel(accountResource, "resources-account-create");
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(accountResource);
     }
@@ -136,12 +140,12 @@ public class AccountController {
     public ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequestDto accountDto, Errors errors,
                                            @CurrentUser Account currentUser) {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
-        AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.get(), accountDto);
+        AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.orElseThrow(UserNotFoundException::new), accountDto);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(AccountController.class).slash(accountResponseDto.getId());
         AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(selfLinkBuilder.withRel("delete-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-update").withRel(PROFILE.getValue()));
+        accountResource.add(selfLinkBuilder.withRel(DELETE_ACCOUNT.getValue()));
+        hateoasFormatter.addProfileRel(accountResource, "resources-account-update");
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }
@@ -152,8 +156,8 @@ public class AccountController {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         AccountResponseDto accountResponseDto = accountService.deleteAccount(accountOptional.get());
         AccountResource accountResource = new AccountResource(accountResponseDto);
-        accountResource.add(linkTo(LoginController.class).withRel("login-account"));
-        accountResource.add(new Link("/docs/index.html#resources-account-delete").withRel(PROFILE.getValue()));
+        accountResource.add(linkTo(LoginController.class).withRel(LOGIN_ACCOUNT.getValue()));
+        hateoasFormatter.addProfileRel(accountResource, "resources-account-delete");
 
         return new ResponseEntity<>(accountResource, HttpStatus.OK);
     }

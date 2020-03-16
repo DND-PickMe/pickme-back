@@ -5,6 +5,7 @@ import com.pickmebackend.config.jwt.JwtProvider;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.error.ErrorMessage;
 import com.pickmebackend.exception.AccountImageException;
+import com.pickmebackend.exception.UserNotFoundException;
 import com.pickmebackend.properties.AccountImageProperties;
 import com.pickmebackend.repository.account.AccountRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -80,10 +81,7 @@ public class AccountImageService {
         }
         String email = jwtProvider.getUsernameFromToken(request.getHeader(HttpHeaders.AUTHORIZATION).substring(7));
         Optional<Account> accountOptional = accountRepository.findByEmail(email);
-        if (!accountOptional.isPresent()) {
-            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
-        }
-        Account account = accountOptional.get();
+        Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         String newImagePath = UriComponentsBuilder
                 .fromUriString("https://pickme-back.ga:8083")
                 .path("/api/images/")
