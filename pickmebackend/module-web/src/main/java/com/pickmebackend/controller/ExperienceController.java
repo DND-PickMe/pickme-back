@@ -2,17 +2,15 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.account.CurrentUser;
 import com.pickmebackend.annotation.experience.ExperienceValidation;
-import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Experience;
 import com.pickmebackend.domain.dto.experience.ExperienceRequestDto;
 import com.pickmebackend.domain.dto.experience.ExperienceResponseDto;
-import com.pickmebackend.properties.RestDocsConstants;
 import com.pickmebackend.repository.ExperienceRepository;
 import com.pickmebackend.resource.ExperienceResource;
+import com.pickmebackend.resource.HateoasFormatter;
 import com.pickmebackend.service.ExperienceService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -21,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessage.EXPERIENCE_NOT_FOUND;
-import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
 import static com.pickmebackend.properties.RestDocsConstants.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -35,7 +31,7 @@ public class ExperienceController {
 
     private final ExperienceRepository experienceRepository;
 
-    private final ErrorsFormatter errorsFormatter;
+    private final HateoasFormatter hateoasFormatter;
 
     @PostMapping
     public ResponseEntity<?> saveExperience(@RequestBody ExperienceRequestDto experienceRequestDto, @CurrentUser Account currentUser) {
@@ -43,9 +39,9 @@ public class ExperienceController {
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ExperienceController.class).slash(experienceResponseDto.getId());
         ExperienceResource experienceResource = new ExperienceResource(experienceResponseDto);
-        experienceResource.add(selfLinkBuilder.withRel("update-experience"));
-        experienceResource.add(selfLinkBuilder.withRel("delete-experience"));
-        experienceResource.add(new Link("/docs/index.html#resources-experiences-create").withRel(PROFILE.getValue()));
+        experienceResource.add(selfLinkBuilder.withRel(UPDATE_EXPERIENCE.getValue()));
+        experienceResource.add(selfLinkBuilder.withRel(DELETE_EXPERIENCE.getValue()));
+        hateoasFormatter.addProfileRel(experienceResource, "resources-experiences-create");
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(experienceResource);
     }
@@ -58,9 +54,9 @@ public class ExperienceController {
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ExperienceController.class).slash(modifiedExperienceResponseDto.getId());
         ExperienceResource experienceResource = new ExperienceResource(modifiedExperienceResponseDto);
-        experienceResource.add(linkTo(ExperienceController.class).withRel("create-experience"));
-        experienceResource.add(selfLinkBuilder.withRel("delete-experience"));
-        experienceResource.add(new Link("/docs/index.html#resources-experiences-update").withRel(PROFILE.getValue()));
+        experienceResource.add(linkTo(ExperienceController.class).withRel(CREATE_EXPERIENCE.getValue()));
+        experienceResource.add(selfLinkBuilder.withRel(DELETE_EXPERIENCE.getValue()));
+        hateoasFormatter.addProfileRel(experienceResource, "resources-experiences-update");
 
         return new ResponseEntity<>(experienceResource, HttpStatus.OK);
     }
@@ -71,8 +67,8 @@ public class ExperienceController {
         Optional<Experience> experienceOptional = this.experienceRepository.findById(experienceId);
         ExperienceResponseDto experienceResponseDto = experienceService.deleteExperience(experienceOptional.get());
         ExperienceResource experienceResource = new ExperienceResource(experienceResponseDto);
-        experienceResource.add(linkTo(ExperienceController.class).withRel("create-experience"));
-        experienceResource.add(new Link("/docs/index.html#resources-experiences-delete").withRel(PROFILE.getValue()));
+        experienceResource.add(linkTo(ExperienceController.class).withRel(CREATE_EXPERIENCE.getValue()));
+        hateoasFormatter.addProfileRel(experienceResource, "resources-experiences-delete");
 
         return new ResponseEntity<>(experienceResource, HttpStatus.OK);
     }

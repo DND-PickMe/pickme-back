@@ -2,16 +2,15 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.account.CurrentUser;
 import com.pickmebackend.annotation.project.ProjectValidation;
-import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Project;
 import com.pickmebackend.domain.dto.project.ProjectRequestDto;
 import com.pickmebackend.domain.dto.project.ProjectResponseDto;
 import com.pickmebackend.repository.ProjectRepository;
+import com.pickmebackend.resource.HateoasFormatter;
 import com.pickmebackend.resource.ProjectResource;
 import com.pickmebackend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessage.PROJECT_NOT_FOUND;
-import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
+import static com.pickmebackend.properties.RestDocsConstants.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -33,7 +31,7 @@ public class ProjectController {
 
     private final ProjectRepository projectRepository;
 
-    private final ErrorsFormatter errorsFormatter;
+    private final HateoasFormatter hateoasFormatter;
 
     @PostMapping
     public ResponseEntity<?> saveProject(@RequestBody ProjectRequestDto projectRequestDto, @CurrentUser Account currentUser) {
@@ -41,9 +39,9 @@ public class ProjectController {
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ProjectController.class).slash(projectResponseDto.getId());
         ProjectResource projectResource = new ProjectResource(projectResponseDto);
-        projectResource.add(selfLinkBuilder.withRel("update-project"));
-        projectResource.add(selfLinkBuilder.withRel("delete-project"));
-        projectResource.add(new Link("/docs/index.html#resources-projects-create").withRel("profile"));
+        projectResource.add(selfLinkBuilder.withRel(UPDATE_PROJECT.getValue()));
+        projectResource.add(selfLinkBuilder.withRel(DELETE_PROJECT.getValue()));
+        hateoasFormatter.addProfileRel(projectResource, "resources-projects-create");
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(projectResource);
     }
@@ -55,9 +53,9 @@ public class ProjectController {
         ProjectResponseDto modifiedProjectResponseDto = projectService.updateProject(projectOptional.get(), projectRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(ProjectController.class).slash(modifiedProjectResponseDto.getId());
         ProjectResource projectResource = new ProjectResource(modifiedProjectResponseDto);
-        projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
-        projectResource.add(selfLinkBuilder.withRel("delete-project"));
-        projectResource.add(new Link("/docs/index.html#resources-projects-update").withRel("profile"));
+        projectResource.add(linkTo(ProjectController.class).withRel(CREATE_PROJECT.getValue()));
+        projectResource.add(selfLinkBuilder.withRel(DELETE_PROJECT.getValue()));
+        hateoasFormatter.addProfileRel(projectResource, "resources-projects-update");
 
         return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }
@@ -68,8 +66,8 @@ public class ProjectController {
         Optional<Project> projectOptional = this.projectRepository.findById(projectId);
         ProjectResponseDto projectResponseDto = projectService.deleteProject(projectOptional.get());
         ProjectResource projectResource = new ProjectResource(projectResponseDto);
-        projectResource.add(linkTo(ProjectController.class).withRel("create-project"));
-        projectResource.add(new Link("/docs/index.html#resources-projects-delete").withRel("profile"));
+        projectResource.add(linkTo(ProjectController.class).withRel(CREATE_PROJECT.getValue()));
+        hateoasFormatter.addProfileRel(projectResource, "resources-projects-delete");
 
         return new ResponseEntity<>(projectResource, HttpStatus.OK);
     }

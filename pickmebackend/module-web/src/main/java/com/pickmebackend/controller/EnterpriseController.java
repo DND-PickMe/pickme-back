@@ -3,14 +3,15 @@ package com.pickmebackend.controller;
 import com.pickmebackend.annotation.account.AccountValidation;
 import com.pickmebackend.annotation.account.CurrentUser;
 import com.pickmebackend.annotation.enterprise.EnterpriseValidation;
-import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.Enterprise;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseFilterRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
+import com.pickmebackend.exception.UserNotFoundException;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.EnterpriseResource;
+import com.pickmebackend.resource.HateoasFormatter;
 import com.pickmebackend.service.EnterpriseService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Optional;
 
+import static com.pickmebackend.properties.RestDocsConstants.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RequiredArgsConstructor
@@ -42,21 +44,20 @@ public class EnterpriseController {
 
     private final ModelMapper modelMapper;
 
-    private final ErrorsFormatter errorsFormatter;
+    private final HateoasFormatter hateoasFormatter;
 
     @GetMapping("/profile")
     @AccountValidation
     public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
-        Account account = accountOptional.get();
+        Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadProfile(account);
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(selfLinkBuilder.withRel("update-enterprise"));
-        enterpriseResource.add(selfLinkBuilder.withRel("delete-enterprise"));
-        enterpriseResource.add(new Link("/docs/index.html#resources-profile-load").withRel("profile"));
-
+        enterpriseResource.add(selfLinkBuilder.withRel(UPDATE_ENTERPRISE.getValue()));
+        enterpriseResource.add(selfLinkBuilder.withRel(DELETE_ENTERPRISE.getValue()));
+        hateoasFormatter.addProfileRel(enterpriseResource, "resources-profile-load");
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
 
@@ -67,7 +68,7 @@ public class EnterpriseController {
         Account account = accountOptional.get();
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadEnterprise(account);
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-load").withRel("profile"));
+        hateoasFormatter.addProfileRel(enterpriseResource, "resources-enterprise-load");
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
@@ -86,7 +87,7 @@ public class EnterpriseController {
 
         Page<Enterprise> filteredEnterprises = enterpriseService.loadEnterprisesWithFilter(enterpriseFilterRequestDto, pageable);
         PagedModel<EnterpriseResource> enterpriseResources = getEnterpriseResources(assembler, filteredEnterprises);
-        enterpriseResources.add(new Link("/docs/index.html#resources-enterprises-load").withRel("profile"));
+        enterpriseResources.add(new Link("/docs/index.html#resources-enterprises-load").withRel(PROFILE.getValue()));
 
         return new ResponseEntity<>(enterpriseResources, HttpStatus.OK);
     }
@@ -97,8 +98,8 @@ public class EnterpriseController {
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.saveEnterprise(enterpriseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
-        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-create").withRel("profile"));
+        enterpriseResource.add(linkTo(LoginController.class).withRel(LOGIN_ENTERPRISE.getValue()));
+        hateoasFormatter.addProfileRel(enterpriseResource, "resources-enterprise-create");
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(enterpriseResource);
     }
@@ -111,8 +112,8 @@ public class EnterpriseController {
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.updateEnterprise(accountOptional.get(), enterpriseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EnterpriseController.class).slash(enterpriseResponseDto.getId());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(selfLinkBuilder.withRel("delete-enterprise"));
-        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-update").withRel("profile"));
+        enterpriseResource.add(selfLinkBuilder.withRel(DELETE_ENTERPRISE.getValue()));
+        hateoasFormatter.addProfileRel(enterpriseResource, "resources-enterprise-update");
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }
@@ -123,8 +124,8 @@ public class EnterpriseController {
         Optional<Account> optionalAccount = this.accountRepository.findById(enterpriseId);
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.deleteEnterprise(optionalAccount.get());
         EnterpriseResource enterpriseResource = new EnterpriseResource(enterpriseResponseDto);
-        enterpriseResource.add(linkTo(LoginController.class).withRel("login-enterprise"));
-        enterpriseResource.add(new Link("/docs/index.html#resources-enterprise-delete").withRel("profile"));
+        enterpriseResource.add(linkTo(LoginController.class).withRel(LOGIN_ENTERPRISE.getValue()));
+        hateoasFormatter.addProfileRel(enterpriseResource, "resources-enterprise-delete");
 
         return new ResponseEntity<>(enterpriseResource, HttpStatus.OK);
     }

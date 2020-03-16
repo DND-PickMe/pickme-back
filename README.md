@@ -1,6 +1,17 @@
 # pickme-back
 > DND 2기 동아리원으로 참가하여 PickMe(역채용 플랫폼)프로젝트의 Back-End를 개발한 코드를 모아둔 저장소입니다.
 
+## 배포서버
+<details>
+<summary>세부 정보</summary>
+<ul>
+  <li> Front End : https://pickme.netlify.com/ </li>
+  <li> Back End : https://pickme-back.ga/api</li>
+</ul>
+
+</details>
+
+
 ## Git Convention
 
 ### Git WorkFlow
@@ -34,3 +45,4 @@
   <li> Test : 테스트 코드 추가 </li>
 </ul>
 </details>
+

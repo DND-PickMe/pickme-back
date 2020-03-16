@@ -2,16 +2,15 @@ package com.pickmebackend.controller;
 
 import com.pickmebackend.annotation.account.CurrentUser;
 import com.pickmebackend.annotation.license.LicenseValidation;
-import com.pickmebackend.common.ErrorsFormatter;
 import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.License;
 import com.pickmebackend.domain.dto.license.LicenseRequestDto;
 import com.pickmebackend.domain.dto.license.LicenseResponseDto;
 import com.pickmebackend.repository.LicenseRepository;
+import com.pickmebackend.resource.HateoasFormatter;
 import com.pickmebackend.resource.LicenseResource;
 import com.pickmebackend.service.LicenseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.pickmebackend.error.ErrorMessage.LICENSE_NOT_FOUND;
-import static com.pickmebackend.error.ErrorMessage.UNAUTHORIZED_USER;
+import static com.pickmebackend.properties.RestDocsConstants.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
@@ -33,7 +31,7 @@ public class LicenseController {
 
     private final LicenseRepository licenseRepository;
 
-    private final ErrorsFormatter errorsFormatter;
+    private final HateoasFormatter hateoasFormatter;
 
     @PostMapping
     public ResponseEntity<?> saveLicense(@RequestBody LicenseRequestDto licenseRequestDto, @CurrentUser Account currentUser) {
@@ -41,9 +39,9 @@ public class LicenseController {
 
         WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(licenseResponseDto.getId());
         LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
-        licenseResource.add(selfLinkBuilder.withRel("update-license"));
-        licenseResource.add(selfLinkBuilder.withRel("delete-license"));
-        licenseResource.add(new Link("/docs/index.html#resources-licenses-create").withRel("profile"));
+        licenseResource.add(selfLinkBuilder.withRel(UPDATE_LICENSE.getValue()));
+        licenseResource.add(selfLinkBuilder.withRel(DELETE_LICENSE.getValue()));
+        hateoasFormatter.addProfileRel(licenseResource, "resources-licenses-create");
 
         return ResponseEntity.created(selfLinkBuilder.toUri()).body(licenseResource);
     }
@@ -56,9 +54,9 @@ public class LicenseController {
         LicenseResponseDto modifiedLicenseResponseDto = licenseService.updateLicense(licenseOptional.get(), licenseRequestDto);
         WebMvcLinkBuilder selfLinkBuilder = linkTo(LicenseController.class).slash(modifiedLicenseResponseDto.getId());
         LicenseResource licenseResource = new LicenseResource(modifiedLicenseResponseDto);
-        licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
-        licenseResource.add(selfLinkBuilder.withRel("delete-license"));
-        licenseResource.add(new Link("/docs/index.html#resources-licenses-update").withRel("profile"));
+        licenseResource.add(linkTo(LicenseController.class).withRel(CREATE_LICENSE.getValue()));
+        licenseResource.add(selfLinkBuilder.withRel(DELETE_LICENSE.getValue()));
+        hateoasFormatter.addProfileRel(licenseResource, "resources-licenses-update");
 
         return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }
@@ -69,8 +67,8 @@ public class LicenseController {
         Optional<License> licenseOptional = this.licenseRepository.findById(licenseId);
         LicenseResponseDto licenseResponseDto = licenseService.deleteLicense(licenseOptional.get());
         LicenseResource licenseResource = new LicenseResource(licenseResponseDto);
-        licenseResource.add(linkTo(LicenseController.class).withRel("create-license"));
-        licenseResource.add(new Link("/docs/index.html#resources-licenses-delete").withRel("profile"));
+        licenseResource.add(linkTo(LicenseController.class).withRel(CREATE_LICENSE.getValue()));
+        hateoasFormatter.addProfileRel(licenseResource, "resources-licenses-delete");
 
         return new ResponseEntity<>(licenseResource, HttpStatus.OK);
     }
