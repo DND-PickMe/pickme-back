@@ -8,6 +8,7 @@ import com.pickmebackend.domain.dto.enterprise.EnterpriseResponseDto;
 import com.pickmebackend.domain.enums.UserRole;
 import com.pickmebackend.resource.EnterpriseResource;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
@@ -37,6 +39,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebAppConfiguration
 class EnterpriseControllerTest extends BaseControllerTest {
 
     private String enterpriseURL = "/api/enterprises/";
@@ -961,6 +964,7 @@ class EnterpriseControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("정상적으로 이메일이 가는지 테스트")
+    @Disabled
     void email_test() throws Exception {
         EnterpriseRequestDto enterpriseRequestDto = createEnterpriseDto();
         Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());

@@ -23,10 +23,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import javax.mail.MessagingException;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
-import static com.pickmebackend.error.ErrorMessageConstant.USER_NOT_FOUND;
+
+import static com.pickmebackend.error.ErrorMessage.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -121,10 +122,10 @@ public class EnterpriseService {
         return !this.accountRepository.findById(enterpriseId).isPresent();
     }
 
-    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) throws MessagingException {
+    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) {
         Optional<Account> workerOptional = accountRepository.findById(accountId);
         if (!workerOptional.isPresent()) {
-            return new ResponseEntity<>(errorsFormatter.formatAnError(USER_NOT_FOUND), HttpStatus.BAD_REQUEST);
+            return errorsFormatter.badRequest(USER_NOT_FOUND.getValue());
         }
 
         Enterprise enterprise = currentUser.getEnterprise();

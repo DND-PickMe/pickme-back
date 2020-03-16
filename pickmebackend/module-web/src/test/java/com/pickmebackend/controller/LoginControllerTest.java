@@ -7,6 +7,7 @@ import com.pickmebackend.domain.dto.enterprise.EnterpriseRequestDto;
 import com.pickmebackend.domain.dto.login.LoginRequestDto;
 import com.pickmebackend.resource.AccountResource;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Description;
 import org.springframework.hateoas.MediaTypes;
@@ -37,6 +38,7 @@ class LoginControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Disabled
     @Description("정상적으로 일반 유저 로그인 하기")
     void loginAccountSuccess() throws Exception {
         AccountInitialRequestDto accountDto = this.createAccountDto();
@@ -143,6 +145,7 @@ class LoginControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Disabled
     @Description("일반유저가 잘못된 이메일 입력시 400")
     void loginFailByAccountEmail() throws Exception {
         AccountInitialRequestDto accountDto = this.createAccountDto();
@@ -173,6 +176,7 @@ class LoginControllerTest extends BaseControllerTest {
     }
 
     @Test
+    @Disabled
     @Description("일반유저가 잘못된 패스워드 입력시 400")
     void loginFailByAccountPassword() throws Exception {
         AccountInitialRequestDto accountDto = this.createAccountDto();

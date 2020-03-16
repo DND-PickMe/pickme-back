@@ -1,7 +1,7 @@
 package com.pickmebackend.domain.dto.enterprise;
 
-import org.springframework.lang.Nullable;
 import lombok.*;
+import org.springframework.lang.Nullable;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor

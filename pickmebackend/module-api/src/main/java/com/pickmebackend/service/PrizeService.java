@@ -21,17 +21,13 @@ public class PrizeService {
         Prize prize = modelMapper.map(prizeRequestDto, Prize.class);
         prize.mapAccount(account);
         Prize savedPrize = this.prizeRepository.save(prize);
-        PrizeResponseDto prizeResponseDto = modelMapper.map(savedPrize, PrizeResponseDto.class);
-
-        return prizeResponseDto;
+        return modelMapper.map(savedPrize, PrizeResponseDto.class);
     }
 
     public PrizeResponseDto updatePrize(Prize prize, PrizeRequestDto prizeRequestDto) {
         modelMapper.map(prizeRequestDto, prize);
         Prize modifiedPrize = prizeRepository.save(prize);
-        PrizeResponseDto prizeResponseDto = modelMapper.map(modifiedPrize, PrizeResponseDto.class);
-
-        return prizeResponseDto;
+        return modelMapper.map(modifiedPrize, PrizeResponseDto.class);
     }
 
     public PrizeResponseDto deletePrize(Prize prize) {
