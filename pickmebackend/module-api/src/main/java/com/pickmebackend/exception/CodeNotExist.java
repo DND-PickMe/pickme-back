@@ -1,4 +1,4 @@
 package com.pickmebackend.exception;
 
-public class CodeNotExist extends RuntimeException{
+public class CodeNotExist extends Exception {
 }

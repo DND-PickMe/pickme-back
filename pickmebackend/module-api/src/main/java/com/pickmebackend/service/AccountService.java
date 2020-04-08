@@ -117,7 +117,7 @@ public class AccountService{
         return new ResponseEntity<>(sendCodeResponseDto, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<?> verifyCode(VerifyCodeRequestDto verifyCodeRequestDto) {
+    public ResponseEntity<?> verifyCode(VerifyCodeRequestDto verifyCodeRequestDto) throws CodeNotExist {
         Optional<VerificationCode> optionalVerificationCode = this.verificationCodeRepository.findByEmail(verifyCodeRequestDto.getEmail());
         VerificationCode verificationCode = optionalVerificationCode.orElseThrow(CodeNotExist::new);
         if(!verifyCodeRequestDto.getCode().trim().equals(verificationCode.getCode())) {

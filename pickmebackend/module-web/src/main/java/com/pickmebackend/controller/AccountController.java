@@ -6,6 +6,7 @@ import com.pickmebackend.domain.Account;
 import com.pickmebackend.domain.dto.account.*;
 import com.pickmebackend.domain.dto.verificationCode.SendCodeRequestDto;
 import com.pickmebackend.domain.dto.verificationCode.VerifyCodeRequestDto;
+import com.pickmebackend.exception.CodeNotExist;
 import com.pickmebackend.exception.UserNotFoundException;
 import com.pickmebackend.repository.account.AccountRepository;
 import com.pickmebackend.resource.AccountFavoriteFlagResource;
@@ -131,7 +132,7 @@ public class AccountController {
 
     @PutMapping("/matchCode")
     @AccountValidation
-    public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequestDto verifyCodeRequestDto, Errors errors)    {
+    public ResponseEntity<?> verifyCode(@RequestBody VerifyCodeRequestDto verifyCodeRequestDto, Errors errors) throws CodeNotExist {
         return accountService.verifyCode(verifyCodeRequestDto);
     }
 
