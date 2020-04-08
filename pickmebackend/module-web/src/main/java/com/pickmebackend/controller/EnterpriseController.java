@@ -131,7 +131,7 @@ public class EnterpriseController {
     }
 
     @GetMapping("/suggestion")
-    public ResponseEntity<?> sendSuggestion(@RequestParam(value = "accountId") Long accountId, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> s2endSuggestion(@RequestParam(value = "accountId") Long accountId, @CurrentUser Account currentUser) throws UserNotFoundException {
         return enterpriseService.sendSuggestion(accountId, currentUser);
     }
 

@@ -121,7 +121,7 @@ public class EnterpriseService {
         return !this.accountRepository.findById(enterpriseId).isPresent();
     }
 
-    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) {
+    public ResponseEntity<?> sendSuggestion(Long accountId, Account currentUser) throws UserNotFoundException {
         Optional<Account> workerOptional = accountRepository.findById(accountId);
         Account worker = workerOptional.orElseThrow(UserNotFoundException::new);
         Enterprise enterprise = currentUser.getEnterprise();
