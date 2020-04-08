@@ -187,7 +187,7 @@ public class AccountService{
     }
 
     @Transactional
-    public ResponseEntity<?> favorite(Long accountId, Account currentUser) {
+    public ResponseEntity<?> favorite(Long accountId, Account currentUser) throws UserNotFoundException {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         Account favoritedAccount = accountOptional.orElseThrow(UserNotFoundException::new);
         favoritedAccount.addFavorite(currentUser);
@@ -195,7 +195,7 @@ public class AccountService{
         return new ResponseEntity<>(new AccountFavoriteFlagResponseDto(favoritedAccount, currentUser), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> getFavoriteUsers(Long accountId) {
+    public ResponseEntity<?> getFavoriteUsers(Long accountId) throws UserNotFoundException {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         List<AccountListResponseDto> accountList = account.getFavorite().stream()

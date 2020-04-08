@@ -47,7 +47,7 @@ public class AccountController {
 
     @GetMapping("/profile")
     @AccountValidation
-    public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) {
+    public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) throws UserNotFoundException {
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         AccountResponseDto accountResponseDto = accountService.loadProfile(account);
@@ -65,7 +65,7 @@ public class AccountController {
     @GetMapping("/{accountId}")
     @AccountValidation
     public ResponseEntity<?> loadAccount(@PathVariable Long accountId, @CurrentUser Account currentUser,
-                                         HttpServletRequest request, HttpServletResponse response) {
+                                         HttpServletRequest request, HttpServletResponse response) throws UserNotFoundException {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         AccountFavoriteFlagResponseDto accountResponseDto = accountService.loadAccount(accountId, account, request, response, currentUser);
@@ -103,7 +103,7 @@ public class AccountController {
     }
 
     @GetMapping("/{accountId}/favorite")
-    public ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) {
+    public ResponseEntity<?> getFavoriteUsers(@PathVariable Long accountId) throws UserNotFoundException {
         return accountService.getFavoriteUsers(accountId);
     }
 
@@ -126,7 +126,7 @@ public class AccountController {
     }
 
     @PostMapping("/{accountId}/favorite")
-    public ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) {
+    public ResponseEntity<?> favorite(@PathVariable Long accountId, @CurrentUser Account currentUser) throws UserNotFoundException {
         return accountService.favorite(accountId, currentUser);
     }
 
@@ -139,7 +139,7 @@ public class AccountController {
     @PutMapping("/{accountId}")
     @AccountValidation
     public ResponseEntity<?> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequestDto accountDto, Errors errors,
-                                           @CurrentUser Account currentUser) {
+                                           @CurrentUser Account currentUser) throws UserNotFoundException {
         Optional<Account> accountOptional = accountRepository.findById(accountId);
         AccountResponseDto accountResponseDto = accountService.updateAccount(accountOptional.orElseThrow(UserNotFoundException::new), accountDto);
 

@@ -19,7 +19,7 @@ public class ErrorController {
 
     @ExceptionHandler(CodeNotExist.class)
     public ResponseEntity<?> codeNotExist() {
-        return new ResponseEntity<>(errorsFormatter.badRequest(USER_NOT_FOUND.getValue()), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorsFormatter.badRequest("인증 코드가 맞지 않습니다."), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(UserNotFoundException.class)

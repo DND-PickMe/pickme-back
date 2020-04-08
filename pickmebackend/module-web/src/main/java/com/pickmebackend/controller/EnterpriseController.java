@@ -48,7 +48,7 @@ public class EnterpriseController {
 
     @GetMapping("/profile")
     @AccountValidation
-    public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser)   {
+    public ResponseEntity<?> loadProfile(@CurrentUser Account currentUser) throws UserNotFoundException {
         Optional<Account> accountOptional = accountRepository.findById(currentUser.getId());
         Account account = accountOptional.orElseThrow(UserNotFoundException::new);
         EnterpriseResponseDto enterpriseResponseDto = enterpriseService.loadProfile(account);
