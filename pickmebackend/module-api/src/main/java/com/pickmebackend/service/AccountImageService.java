@@ -63,7 +63,7 @@ public class AccountImageService {
         this.errorsFormatter = errorsFormatter;
     }
 
-    public ResponseEntity<?> saveImage(MultipartFile image, HttpServletRequest request) {
+    public ResponseEntity<?> saveImage(MultipartFile image, HttpServletRequest request) throws UserNotFoundException {
         String imageName = UUID.randomUUID().toString() + "_" +  StringUtils.cleanPath(image.getOriginalFilename());
         String extension = FilenameUtils.getExtension(imageName);
         try {

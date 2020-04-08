@@ -1,5 +1,6 @@
 package com.pickmebackend.controller;
 
+import com.pickmebackend.exception.UserNotFoundException;
 import com.pickmebackend.service.AccountImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,7 @@ public class AccountImageController {
     private final AccountImageService accountImageService;
 
     @PostMapping
-    public ResponseEntity<?> saveImage(@RequestParam("image") MultipartFile image, HttpServletRequest request) {
+    public ResponseEntity<?> saveImage(@RequestParam("image") MultipartFile image, HttpServletRequest request) throws UserNotFoundException {
         return accountImageService.saveImage(image, request);
     }
 
