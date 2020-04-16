@@ -6,7 +6,7 @@
 <summary>세부 정보</summary>
 <ul>
   <li> Front End : https://pickme.netlify.com/ </li>
-  <li> Back End : https://pickme-back.ga/api</li>
+  <li> Back End : https://pickme-back.ga:8083/docs/index.html (API GUIDE) </li>
 </ul>
 
 </details>
