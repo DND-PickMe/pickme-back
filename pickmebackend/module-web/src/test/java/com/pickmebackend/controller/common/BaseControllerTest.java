@@ -155,6 +155,7 @@ public class BaseControllerTest {
                 .ceoName(appProperties.getTestCeoName())
                 .build();
         Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
+        enterprise = enterpriseRepository.save(enterprise);
 
         Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
@@ -162,10 +163,7 @@ public class BaseControllerTest {
         account.setUserRole(UserRole.ENTERPRISE);
         account.setEnterprise(enterprise);
 
-        enterprise.setAccount(account);
-
         accountRepository.save(account);
-        enterpriseRepository.save(enterprise);
 
         return enterpriseRequestDto;
     }
@@ -181,6 +179,7 @@ public class BaseControllerTest {
                         .ceoName("another" + appProperties.getTestCeoName())
                         .build();
         Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
+        enterprise = enterpriseRepository.save(enterprise);
 
         Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
@@ -188,10 +187,7 @@ public class BaseControllerTest {
         account.setUserRole(UserRole.ENTERPRISE);
         account.setEnterprise(enterprise);
 
-        enterprise.setAccount(account);
-
         accountRepository.save(account);
-        enterpriseRepository.save(enterprise);
 
         return enterpriseRequestDto;
     }
@@ -207,6 +203,7 @@ public class BaseControllerTest {
                         .ceoName(i + appProperties.getTestCeoName())
                         .build();
         Enterprise enterprise = modelMapper.map(enterpriseRequestDto, Enterprise.class);
+        enterprise = enterpriseRepository.save(enterprise);
 
         Account account = modelMapper.map(enterpriseRequestDto, Account.class);
         account.setPassword(passwordEncoder.encode(account.getPassword()));
@@ -214,20 +211,17 @@ public class BaseControllerTest {
         account.setUserRole(UserRole.ENTERPRISE);
         account.setEnterprise(enterprise);
 
-        enterprise.setAccount(account);
-
         accountRepository.save(account);
-        enterpriseRepository.save(enterprise);
 
         return enterpriseRequestDto;
     }
 
     protected String createEnterpriseJwt() {
         EnterpriseRequestDto enterpriseRequestDto = createAnotherEnterpriseDto();
-        Optional<Account> accountOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
-        Account account = accountOptional.get();
+        Optional<Account> enterpriseOptional = accountRepository.findByEmail(enterpriseRequestDto.getEmail());
+        Account enterprise = enterpriseOptional.get();
 
-        return "Bearer " + jwtProvider.generateToken(account);
+        return "Bearer " + jwtProvider.generateToken(enterprise);
     }
 
     protected String createAccountJwt() {

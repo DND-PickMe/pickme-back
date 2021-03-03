@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.pickmebackend.domain.enums.UserRole;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.persistence.*;
@@ -62,7 +63,7 @@ public class Account {
     @Column
     private long hits;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "enterprise_id")
     private Enterprise enterprise;
 
@@ -81,7 +82,7 @@ public class Account {
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private Set<SelfInterview> selfInterviews = new HashSet<>();
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<AccountTech> accountTechSet = new HashSet<>();
 

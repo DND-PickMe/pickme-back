@@ -188,7 +188,6 @@ class AccountControllerTest extends BaseControllerTest {
 
     @Test
     @DisplayName("정상적으로 유저를 생성")
-    @Disabled
     void saveAccount() throws Exception {
         assert appProperties.getTestEmail() != null;
         assert appProperties.getTestPassword() != null;

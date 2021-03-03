@@ -341,8 +341,6 @@ class SelfInterviewControllerTest extends BaseControllerTest {
     @DisplayName("기업 담당자가 셀프인터뷰 삭제를 요청할 때 Forbidden")
     void deleteSelfInterview_forbidden() throws Exception {
         Account newAccount = createAccount();
-        Account anotherAccount = createAnotherAccount();
-        jwt = generateBearerToken_need_account(anotherAccount);
         SelfInterview selfInterview = createSelfInterview(newAccount);
 
         jwt = createEnterpriseJwt();
@@ -350,8 +348,7 @@ class SelfInterviewControllerTest extends BaseControllerTest {
         mockMvc.perform(delete(selfInterviewUrl + "{selfInterviewId}", selfInterview.getId())
                 .header(HttpHeaders.AUTHORIZATION, jwt))
                 .andDo(print())
-                .andExpect(status().isForbidden())
-        ;
+                .andExpect(status().isForbidden());
     }
 
     private SelfInterview createSelfInterview(Account account) {

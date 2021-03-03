@@ -48,8 +48,8 @@ class EnterpriseControllerTest extends BaseControllerTest {
 
     @AfterEach
     void setUp() {
-        enterpriseRepository.deleteAll();
         accountRepository.deleteAll();
+        enterpriseRepository.deleteAll();
         verificationCodeRepository.deleteAll();
     }
 
